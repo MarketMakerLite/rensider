@@ -1,0 +1,24 @@
+{
+  "crons": [
+    {
+      "path": "/api/sync?forms=13F,13DG",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/sync/form345",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/sync/rss?forms=13DG",
+      "schedule": "0 14,18,22 * * 1-5"
+    },
+    {
+      "path": "/api/sync/rss?forms=13F",
+      "schedule": "30 14,18,22 * * 1-5"
+    },
+    {
+      "path": "/api/sync/rss?forms=345",
+      "schedule": "15 14,16,18,20,22 * * 1-5"
+    }
+  ]
+}

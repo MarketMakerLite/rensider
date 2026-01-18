@@ -1,0 +1,389 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light mode - warm neutrals */
+  --color-zinc-50: #F3F1F1;
+  --color-zinc-100: #E8E5E5;
+  --color-zinc-200: #CFCAC9;
+  --color-zinc-300: #B8B3B3;
+  --color-zinc-400: #918A8A;
+  --color-zinc-500: #6B6363;
+  --color-zinc-600: #4A4444;
+  --color-zinc-700: #2E2A2A;
+  --color-zinc-800: #1A1717;
+  --color-zinc-900: #0C0A09;
+  --color-zinc-950: #0C0A09;
+
+  /* Remove default border radius */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-full: 0;
+}
+
+/* ==========================================================================
+   Mobile-First Foundation
+   ========================================================================== */
+
+:root {
+  /* Fluid typography scale - mobile first, scales up to desktop */
+  --font-size-xs: clamp(0.6875rem, 0.65rem + 0.1875vw, 0.75rem);    /* 11px → 12px */
+  --font-size-sm: clamp(0.8125rem, 0.775rem + 0.1875vw, 0.875rem);  /* 13px → 14px */
+  --font-size-base: clamp(0.9375rem, 0.875rem + 0.3125vw, 1.125rem); /* 15px → 18px */
+  --font-size-lg: clamp(1.0625rem, 0.975rem + 0.4375vw, 1.25rem);   /* 17px → 20px */
+  --font-size-xl: clamp(1.25rem, 1.125rem + 0.625vw, 1.5rem);       /* 20px → 24px */
+  --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);           /* 24px → 30px */
+  --font-size-3xl: clamp(1.875rem, 1.6rem + 1.375vw, 2.25rem);      /* 30px → 36px */
+
+  /* Serif font scale (larger base) */
+  --font-size-serif-base: clamp(1.125rem, 1rem + 0.625vw, 1.6875rem); /* 18px → 27px */
+
+  /* Fluid spacing scale */
+  --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-md: clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+  --space-lg: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --space-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+
+  /* Safe area insets for notched devices */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+
+  /* Touch target minimum (44px per WCAG) */
+  --touch-target-min: 2.75rem;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Improve touch scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure all interactive elements have pointer cursor and smooth transitions */
+a,
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+summary,
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+/* Text links get opacity change, but not block/card links */
+a:not(.group):not([class*="block"]):not([class*="flex"]):not([class*="inline-flex"]) {
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:not(.group):not([class*="block"]):not([class*="flex"]):not([class*="inline-flex"]):hover {
+  opacity: 0.8;
+}
+
+button,
+[role="button"] {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:active:not(:disabled),
+[role="button"]:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Font switching */
+body.font-bodoni {
+  font-family: var(--font-bodoni-moda), Georgia, 'Times New Roman', serif;
+  font-size: var(--font-size-serif-base);
+  line-height: 1.7;
+}
+
+/* Scale up all text sizes when Bodoni is active */
+body.font-bodoni .text-xs {
+  font-size: 1rem; /* 16px instead of 12px */
+}
+
+body.font-bodoni .text-sm {
+  font-size: 0.9375rem; /* 15px instead of 14px */
+}
+
+body.font-bodoni .text-lg {
+  font-size: 1.5rem; /* 24px instead of 18px */
+}
+
+body.font-bodoni .text-xl {
+  font-size: 1.75rem; /* 28px instead of 20px */
+}
+
+body.font-bodoni .text-2xl {
+  font-size: 1.875rem; /* 30px instead of 24px */
+}
+
+body.font-bodoni .text-3xl {
+  font-size: 2.75rem; /* 44px instead of 30px */
+}
+
+body.font-bodoni code {
+  font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Override font-mono for table cells when Bodoni is active (keep mono for actual code) */
+body.font-bodoni .font-mono:not(code):not(pre):not(kbd) {
+  font-family: var(--font-bodoni-moda), Georgia, 'Times New Roman', serif;
+}
+
+code {
+  font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+
+/* Gauge needle entry animation */
+@keyframes gauge-needle-enter {
+  0% {
+    transform: rotate(-90deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--needle-rotation));
+  }
+}
+
+/* Subtle pulse for new badges */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Card lift transition */
+.card-lift {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Table row transition */
+.table-row-transition {
+  transition: background-color 0.15s ease;
+}
+
+/* Metric card hover */
+.metric-card {
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.metric-card:hover {
+  border-color: var(--color-zinc-300);
+}
+
+/* Smooth focus states */
+.focus-ring {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-zinc-900);
+}
+
+/* Link hover underline animation */
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s ease;
+}
+
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Badge/chip hover lift */
+.chip-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chip-hover:hover {
+  transform: translateY(-1px);
+}
+
+/* Subtle text reveal */
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-text-reveal {
+  animation: text-reveal 0.4s ease forwards;
+}
+
+/* Smooth skeleton loading */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Number counting animation helper */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smooth scroll behavior */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   Mobile-First Utilities
+   ========================================================================== */
+
+/* Touch-action optimization for scrollable areas */
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+.touch-pan-y {
+  touch-action: pan-y;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Prevent text selection on touch (useful for buttons/interactive elements) */
+.select-none-touch {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Safe area padding utilities */
+.safe-area-inset-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-inset-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-area-inset-left {
+  padding-left: var(--safe-area-inset-left);
+}
+
+.safe-area-inset-right {
+  padding-right: var(--safe-area-inset-right);
+}
+
+.safe-area-inset-x {
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+
+.safe-area-inset-y {
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+/* Minimum touch target sizing */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+/* Tap highlight removal for iOS */
+@supports (-webkit-touch-callout: none) {
+  button,
+  a,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

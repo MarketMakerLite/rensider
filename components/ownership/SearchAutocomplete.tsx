@@ -176,7 +176,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent py-2 pl-10 pr-3 text-sm font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
+          className="w-full bg-transparent py-2.5 pl-10 pr-3 font-sans text-sm font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
           role="combobox"
           aria-expanded={isOpen && query.length >= 1}
           aria-haspopup="listbox"
@@ -218,8 +218,8 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
             className="absolute z-50 mt-2 w-full overflow-hidden border-2 border-[#4A4444] bg-white shadow-[4px_4px_0px_0px_#4A4444]"
           >
             {isLoading ? (
-              <div className="flex items-center gap-2 px-4 py-3 text-sm text-zinc-500">
-                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 px-3 py-2.5 font-sans text-xs text-zinc-500">
+                <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
@@ -244,7 +244,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
                   >
                     <button
                       type="button"
-                      className={`flex w-full items-center justify-between px-4 py-3 text-left transition-colors ${
+                      className={`flex w-full items-center justify-between px-3 py-2 text-left transition-colors ${
                         index === selectedIndex
                           ? 'bg-zinc-100'
                           : 'hover:bg-zinc-50'
@@ -252,23 +252,23 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
                       onClick={() => navigateToResult(result)}
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <Badge
                           color={result.type === 'stock' ? 'blue' : 'green'}
-                          className="w-12 justify-center text-[10px]"
+                          className="w-10 justify-center text-[9px]"
                         >
                           {result.type === 'stock' ? 'Stock' : 'Fund'}
                         </Badge>
-                        <div className="min-w-0">
-                          <div className="truncate font-medium text-zinc-900">
+                        <div className="min-w-0 font-sans">
+                          <div className="truncate text-sm font-medium text-zinc-900">
                             {result.type === 'stock' ? result.ticker : result.name}
                           </div>
-                          <div className="truncate text-sm text-zinc-500">
+                          <div className="truncate text-xs text-zinc-500">
                             {result.type === 'stock' ? result.name : `CIK: ${result.cik}`}
                           </div>
                         </div>
                       </div>
-                      <svg className="h-4 w-4 flex-shrink-0 text-zinc-400 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-3 w-3 flex-shrink-0 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -279,12 +279,12 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="px-4 py-6 text-center"
+                className="px-4 py-4 text-center font-sans"
               >
-                <svg className="mx-auto h-8 w-8 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mx-auto h-6 w-6 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="mt-2 text-sm text-zinc-500">
+                <p className="mt-1.5 text-xs text-zinc-500">
                   No results for &ldquo;{query}&rdquo;
                 </p>
                 <p className="mt-1 text-xs text-zinc-400">

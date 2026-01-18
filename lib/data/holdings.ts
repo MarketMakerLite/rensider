@@ -182,9 +182,9 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       }
     }
 
-    // Batch resolve filer names for all CIKs
+    // Batch resolve filer names for all CIKs (fetchMissing: true for serverless)
     const uniqueCiks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(uniqueCiks)
+    const filerNamesMap = await getFilerNames(uniqueCiks, { fetchMissing: true })
 
     // Aggregate current holdings by CIK for change calculation
     const currentByInstitution = new Map<string, { shares: number; value: number }>()

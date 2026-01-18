@@ -355,7 +355,7 @@ export async function getSecurityHolders(cusip: string, quarter?: string) {
 
     // Batch resolve filer names and CUSIP mapping in parallel
     const [filerNamesMap, cusipMappings] = await Promise.all([
-      getFilerNames(ciks),
+      getFilerNames(ciks, { fetchMissing: true }),
       mapCUSIPs([cusip]),
     ]);
 
@@ -529,7 +529,7 @@ export async function getTopFilersByAUM(limit = 10) {
 
     // Batch resolve filer names for top filers only
     const ciks = topFilers.map(f => f.cik);
-    const filerNamesMap = await getFilerNames(ciks);
+    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: true });
 
     return topFilers.map(f => ({
       cik: f.cik,
@@ -583,7 +583,7 @@ export async function getRecentFilings(
 
         // Batch resolve filer names
         const ciks = submissions.map(s => s.CIK);
-        const filerNamesMap = await getFilerNames(ciks);
+        const filerNamesMap = await getFilerNames(ciks, { fetchMissing: true });
 
         for (const s of submissions) {
           filings.push({

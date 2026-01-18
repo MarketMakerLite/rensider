@@ -236,7 +236,7 @@ async function detectAlerts(
       if (isValidCik(r.latest_filer_cik)) allCiks.add(r.latest_filer_cik)
     }
     const filerNamesMap = allCiks.size > 0
-      ? await getFilerNames(Array.from(allCiks))
+      ? await getFilerNames(Array.from(allCiks), { fetchMissing: true })
       : new Map<string, string>()
 
     for (const r of results) {

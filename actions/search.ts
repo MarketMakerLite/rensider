@@ -31,7 +31,7 @@ function validateSearchQuery(query: string): string | null {
 
 /**
  * Search for stocks in the database
- * Searches cusip_mappings and holdings_13f for ticker/name matches
+ * Searches cusip_mappings by ticker AND name, plus holdings_13f for issuer names
  */
 async function searchStocks(searchQuery: string, limit: number): Promise<SearchResult[]> {
   const validated = validateSearchQuery(searchQuery)
@@ -41,65 +41,98 @@ async function searchStocks(searchQuery: string, limit: number): Promise<SearchR
   const safeLimit = Math.min(Math.max(1, limit), 50)
 
   try {
-    // First try exact ticker match in cusip_mappings
-    const exactMatches = await query<{
-      cusip: string
-      ticker: string | null
-      name: string | null
-    }>(`
-      SELECT cusip, ticker, name
-      FROM rensider.cusip_mappings
-      WHERE ticker = '${queryUpper}'
-      LIMIT ${safeLimit}
-    `)
+    // Run all searches in parallel for speed
+    const [tickerExact, tickerPrefix, nameMatches, issuerMatches] = await Promise.all([
+      // Exact ticker match (highest priority)
+      query<{ cusip: string; ticker: string | null; name: string | null }>(`
+        SELECT cusip, ticker, name
+        FROM rensider.cusip_mappings
+        WHERE ticker = '${queryUpper}'
+        LIMIT ${safeLimit}
+      `),
+      // Ticker prefix match
+      query<{ cusip: string; ticker: string | null; name: string | null }>(`
+        SELECT cusip, ticker, name
+        FROM rensider.cusip_mappings
+        WHERE ticker LIKE '${queryUpper}%' AND ticker != '${queryUpper}'
+        LIMIT ${safeLimit}
+      `),
+      // Company name match in cusip_mappings
+      query<{ cusip: string; ticker: string | null; name: string | null }>(`
+        SELECT cusip, ticker, name
+        FROM rensider.cusip_mappings
+        WHERE UPPER(name) LIKE '%${queryUpper}%'
+        LIMIT ${safeLimit}
+      `),
+      // Issuer name match in holdings_13f
+      query<{ CUSIP: string; NAMEOFISSUER: string }>(`
+        SELECT DISTINCT CUSIP, NAMEOFISSUER
+        FROM holdings_13f
+        WHERE UPPER(NAMEOFISSUER) LIKE '%${queryUpper}%'
+        LIMIT ${safeLimit}
+      `),
+    ])
 
-    if (exactMatches.length > 0) {
-      return exactMatches.map(r => ({
-        type: 'stock' as const,
-        id: r.ticker || r.cusip,
-        ticker: r.ticker || undefined,
-        name: r.name || r.ticker || r.cusip,
-      }))
+    // Combine results with priority: exact ticker > prefix ticker > name matches
+    const results: SearchResult[] = []
+    const seen = new Set<string>()
+
+    // Add exact ticker matches first
+    for (const r of tickerExact) {
+      const id = r.ticker || r.cusip
+      if (!seen.has(id)) {
+        seen.add(id)
+        results.push({
+          type: 'stock',
+          id,
+          ticker: r.ticker || undefined,
+          name: r.name || r.ticker || r.cusip,
+        })
+      }
     }
 
-    // Try prefix match on ticker
-    const prefixMatches = await query<{
-      cusip: string
-      ticker: string | null
-      name: string | null
-    }>(`
-      SELECT cusip, ticker, name
-      FROM rensider.cusip_mappings
-      WHERE ticker LIKE '${queryUpper}%'
-      LIMIT ${safeLimit}
-    `)
-
-    if (prefixMatches.length > 0) {
-      return prefixMatches.map(r => ({
-        type: 'stock' as const,
-        id: r.ticker || r.cusip,
-        ticker: r.ticker || undefined,
-        name: r.name || r.ticker || r.cusip,
-      }))
+    // Add ticker prefix matches
+    for (const r of tickerPrefix) {
+      const id = r.ticker || r.cusip
+      if (!seen.has(id)) {
+        seen.add(id)
+        results.push({
+          type: 'stock',
+          id,
+          ticker: r.ticker || undefined,
+          name: r.name || r.ticker || r.cusip,
+        })
+      }
     }
 
-    // Fallback: search holdings_13f by issuer name
-    const issuerMatches = await query<{
-      CUSIP: string
-      NAMEOFISSUER: string
-    }>(`
-      SELECT DISTINCT CUSIP, NAMEOFISSUER
-      FROM holdings_13f
-      WHERE UPPER(NAMEOFISSUER) LIKE '%${queryUpper}%'
-      LIMIT ${safeLimit}
-    `)
+    // Add company name matches from cusip_mappings
+    for (const r of nameMatches) {
+      const id = r.ticker || r.cusip
+      if (!seen.has(id)) {
+        seen.add(id)
+        results.push({
+          type: 'stock',
+          id,
+          ticker: r.ticker || undefined,
+          name: r.name || r.ticker || r.cusip,
+        })
+      }
+    }
 
-    return issuerMatches.map(r => ({
-      type: 'stock' as const,
-      id: r.CUSIP,
-      ticker: undefined,
-      name: r.NAMEOFISSUER,
-    }))
+    // Add issuer name matches from holdings_13f
+    for (const r of issuerMatches) {
+      if (!seen.has(r.CUSIP)) {
+        seen.add(r.CUSIP)
+        results.push({
+          type: 'stock',
+          id: r.CUSIP,
+          ticker: undefined,
+          name: r.NAMEOFISSUER,
+        })
+      }
+    }
+
+    return results.slice(0, safeLimit)
   } catch (error) {
     console.error('Error searching stocks:', error instanceof Error ? error.message : error)
     return []

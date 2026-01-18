@@ -31,49 +31,77 @@ function validateSearchQuery(query: string): string | null {
 
 /**
  * Search for stocks in the database
- * Searches cusip_mappings for ticker/name matches
+ * Searches cusip_mappings and holdings_13f for ticker/name matches
  */
 async function searchStocks(searchQuery: string, limit: number): Promise<SearchResult[]> {
   const validated = validateSearchQuery(searchQuery)
   if (!validated) return []
 
   const queryUpper = escapeSqlString(validated.toUpperCase())
-  const queryLower = escapeSqlString(validated.toLowerCase())
   const safeLimit = Math.min(Math.max(1, limit), 50)
 
   try {
-    // Search cusip_mappings for ticker or name matches
-    const results = await query<{
+    // First try exact ticker match in cusip_mappings
+    const exactMatches = await query<{
       cusip: string
       ticker: string | null
       name: string | null
     }>(`
-      SELECT DISTINCT cusip, ticker, name
+      SELECT cusip, ticker, name
       FROM rensider.cusip_mappings
-      WHERE ticker IS NOT NULL
-        AND (
-          ticker = '${queryUpper}'
-          OR ticker LIKE '${queryUpper}%'
-          OR LOWER(name) LIKE '%${queryLower}%'
-        )
-      ORDER BY
-        CASE
-          WHEN ticker = '${queryUpper}' THEN 0
-          WHEN ticker LIKE '${queryUpper}%' THEN 1
-          ELSE 2
-        END,
-        ticker
+      WHERE ticker = '${queryUpper}'
       LIMIT ${safeLimit}
     `)
 
-    return results.map(r => ({
+    if (exactMatches.length > 0) {
+      return exactMatches.map(r => ({
+        type: 'stock' as const,
+        id: r.ticker || r.cusip,
+        ticker: r.ticker || undefined,
+        name: r.name || r.ticker || r.cusip,
+      }))
+    }
+
+    // Try prefix match on ticker
+    const prefixMatches = await query<{
+      cusip: string
+      ticker: string | null
+      name: string | null
+    }>(`
+      SELECT cusip, ticker, name
+      FROM rensider.cusip_mappings
+      WHERE ticker LIKE '${queryUpper}%'
+      LIMIT ${safeLimit}
+    `)
+
+    if (prefixMatches.length > 0) {
+      return prefixMatches.map(r => ({
+        type: 'stock' as const,
+        id: r.ticker || r.cusip,
+        ticker: r.ticker || undefined,
+        name: r.name || r.ticker || r.cusip,
+      }))
+    }
+
+    // Fallback: search holdings_13f by issuer name
+    const issuerMatches = await query<{
+      CUSIP: string
+      NAMEOFISSUER: string
+    }>(`
+      SELECT DISTINCT CUSIP, NAMEOFISSUER
+      FROM holdings_13f
+      WHERE UPPER(NAMEOFISSUER) LIKE '%${queryUpper}%'
+      LIMIT ${safeLimit}
+    `)
+
+    return issuerMatches.map(r => ({
       type: 'stock' as const,
-      id: r.ticker || r.cusip,
-      ticker: r.ticker || undefined,
-      name: r.name || r.ticker || r.cusip,
+      id: r.CUSIP,
+      ticker: undefined,
+      name: r.NAMEOFISSUER,
     }))
   } catch (error) {
-    console.error('Error searching stocks:', error)
+    console.error('Error searching stocks:', error instanceof Error ? error.message : error)
     return []
   }
 }
@@ -94,13 +122,11 @@ async function searchFunds(searchQuery: string, limit: number): Promise<SearchRe
 
     if (isCikQuery) {
       const escapedCik = escapeSqlString(validated)
-      // Search by CIK prefix
+      // Search by CIK prefix - simpler query
       const results = await query<{ CIK: string }>(`
         SELECT DISTINCT CIK
         FROM submissions_13f
-        WHERE CIK LIKE '${escapedCik}%'
-           OR LTRIM(CIK, '0') LIKE '${escapedCik}%'
-        ORDER BY CIK
+        WHERE LTRIM(CIK, '0') LIKE '${escapedCik}%'
         LIMIT ${safeLimit}
       `)
 
@@ -117,14 +143,12 @@ async function searchFunds(searchQuery: string, limit: number): Promise<SearchRe
         cik: r.CIK.replace(/^0+/, '') || r.CIK,
       }))
     } else {
-      // For name-based search, we need to get CIKs and check names
-      // This is less efficient but necessary since names aren't in the DB
-      // Get recent active filers
+      // For name-based search, get top filers and filter by name
+      // Limit to 100 to keep it fast
       const results = await query<{ CIK: string }>(`
         SELECT DISTINCT CIK
         FROM submissions_13f
-        ORDER BY FILING_DATE DESC
-        LIMIT 500
+        LIMIT 100
       `)
 
       if (results.length === 0) return []
@@ -144,14 +168,14 @@ async function searchFunds(searchQuery: string, limit: number): Promise<SearchRe
             name,
             cik: cik.replace(/^0+/, '') || cik,
           })
-          if (matches.length >= limit) break
+          if (matches.length >= safeLimit) break
         }
       }
 
       return matches
     }
   } catch (error) {
-    console.error('Error searching funds:', error)
+    console.error('Error searching funds:', error instanceof Error ? error.message : error)
     return []
   }
 }

@@ -3,9 +3,9 @@ import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
-import { getActivistActivity } from '@/actions/beneficial-ownership'
+import { getActivistActivity } from '@/actions/activists'
 import { BeneficialOwnerSearch } from './BeneficialOwnerSearch'
-import { ActivistActivityTable } from '@/components/beneficial-ownership/ActivistActivityTable'
+import { ActivistActivityTable } from '@/components/activists/ActivistActivityTable'
 
 // Force dynamic rendering for database queries
 export const dynamic = 'force-dynamic'

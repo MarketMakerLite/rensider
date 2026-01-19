@@ -154,7 +154,7 @@ export function InsiderTransactionsTable({
                   <TableCell className="max-w-xs">
                     {transaction.ticker ? (
                       <Link
-                        href={`/insider-sales/${transaction.ticker}`}
+                        href={`/insiders/${transaction.ticker}`}
                         prefetch={false}
                         className="font-medium text-blue-600 hover:underline"
                       >

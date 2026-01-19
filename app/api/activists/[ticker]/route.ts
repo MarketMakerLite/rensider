@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getBeneficialOwnership } from '@/actions/beneficial-ownership';
+import { getBeneficialOwnership } from '@/actions/activists';
 
 // Revalidate every 5 minutes - beneficial ownership changes infrequently
 export const revalidate = 300;
 
 /**
- * GET /api/beneficial-ownership/[ticker]
+ * GET /api/activists/[ticker]
  * Get beneficial ownership data (13D/G filings) for a ticker
  */
 export async function GET(

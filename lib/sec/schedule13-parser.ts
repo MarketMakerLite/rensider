@@ -8,8 +8,8 @@
 import type {
   ReportingPersonTypeCode,
   IntentCategory,
-} from '@/types/beneficial-ownership';
-import { parseIntentFromPurpose } from '@/types/beneficial-ownership';
+} from '@/types/activists';
+import { parseIntentFromPurpose } from '@/types/activists';
 
 // Parsed filing types
 

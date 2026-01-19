@@ -6,7 +6,7 @@
 import { query } from '../sec/duckdb'
 import { mapCUSIPs } from '../sec/openfigi'
 import { parseDateToTimestamp } from '../validators/dates'
-import type { ActivistActivity, IntentCategory } from '@/types/beneficial-ownership'
+import type { ActivistActivity, IntentCategory } from '@/types/activists'
 
 interface Filing13DGRow {
   ACCESSION_NUMBER: string

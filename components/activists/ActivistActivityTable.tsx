@@ -10,7 +10,7 @@ import { SortableHeader } from '@/components/twc/sortable-header'
 import { TablePagination } from '@/components/twc/pagination'
 import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
 import { formatDate, formatLargeNumber, getSecFilingUrl } from '@/lib/format'
-import type { ActivistActivity } from '@/types/beneficial-ownership'
+import type { ActivistActivity } from '@/types/activists'
 
 type ActivitySortKey = 'filingDate' | 'ownerName' | 'ticker' | 'percentOfClass' | 'shares'
 

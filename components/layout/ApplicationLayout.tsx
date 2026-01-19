@@ -79,11 +79,11 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                 <DocumentTextIcon data-slot="icon" />
                 <SidebarLabel>New Filings</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/beneficial-owners" current={isCurrentRoute('/beneficial-owners', true)}>
+              <SidebarItem href="/activists" current={isCurrentRoute('/activists', true)}>
                 <UserGroupIcon data-slot="icon" />
                 <SidebarLabel>Activist Actions</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/insider-sales" current={isCurrentRoute('/insider-sales', true) || isCurrentRoute('/insider', true)}>
+              <SidebarItem href="/insiders" current={isCurrentRoute('/insiders', true) || isCurrentRoute('/insider', true)}>
                 <CurrencyDollarIcon data-slot="icon" />
                 <SidebarLabel>Insider Sales</SidebarLabel>
               </SidebarItem>

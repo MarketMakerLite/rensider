@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
       if (options.forms.includes('13DG')) {
         revalidateTag('filings', {});
         revalidateTag('alerts', {});
-        revalidateTag('beneficial-ownership', {});
+        revalidateTag('activists', {});
       }
-      syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'beneficial-ownership'] });
+      syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'activists'] });
     }
 
     syncLogger.info('Sync completed', { result: JSON.stringify(result) });

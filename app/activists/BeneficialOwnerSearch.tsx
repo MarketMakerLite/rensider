@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
 import { SearchForm } from '@/components/ui/SearchForm'
-import { getBeneficialOwnership } from '@/actions/beneficial-ownership'
+import { getBeneficialOwnership } from '@/actions/activists'
 import { formatDate, formatLargeNumber, getSecFilingUrl, decodeHtmlEntities } from '@/lib/format'
-import type { TickerBeneficialOwnership } from '@/types/beneficial-ownership'
+import type { TickerBeneficialOwnership } from '@/types/activists'
 
 export function BeneficialOwnerSearch() {
   const [isLoading, setIsLoading] = useState(false)

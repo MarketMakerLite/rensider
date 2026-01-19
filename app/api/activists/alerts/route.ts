@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type { BeneficialOwnershipAlert } from '@/types/beneficial-ownership'
+import type { BeneficialOwnershipAlert } from '@/types/activists'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +25,7 @@ function isAuthenticated(request: NextRequest): boolean {
 }
 
 /**
- * GET /api/beneficial-ownership/alerts
+ * GET /api/activists/alerts
  * Get beneficial ownership alerts
  */
 export async function GET(request: NextRequest) {
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/beneficial-ownership/alerts
+ * POST /api/activists/alerts
  * Create a new alert (internal use only - requires authentication)
  */
 export async function POST(request: NextRequest) {

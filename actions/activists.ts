@@ -4,8 +4,8 @@ import type {
   ActivistActivity,
   TickerBeneficialOwnership,
   MajorHolder,
-} from '@/types/beneficial-ownership'
-import { getRecentFilings13DG, getFilingsForIssuer } from '@/lib/data/beneficial-ownership'
+} from '@/types/activists'
+import { getRecentFilings13DG, getFilingsForIssuer } from '@/lib/data/activists'
 
 /**
  * Get beneficial ownership data for a ticker

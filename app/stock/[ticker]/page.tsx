@@ -80,7 +80,7 @@ export default async function StockOwnershipPage({ params }: PageProps) {
             )}
             <div className="mt-2">
               <Link
-                href={`/insider-sales/${ticker}`}
+                href={`/insiders/${ticker}`}
                 prefetch={false}
                 className="text-sm text-blue-600 hover:underline"
               >

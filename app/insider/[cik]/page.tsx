@@ -4,9 +4,9 @@ import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
-import { getInsiderProfile } from '@/actions/insider-sales'
+import { getInsiderProfile } from '@/actions/insiders'
 import { formatDate, formatLargeNumber, decodeHtmlEntities } from '@/lib/format'
-import { InsiderTransactionsTable } from '@/components/insider-sales/InsiderTransactionsTable'
+import { InsiderTransactionsTable } from '@/components/insiders/InsiderTransactionsTable'
 
 // Force dynamic rendering for database queries
 export const dynamic = 'force-dynamic'
@@ -40,7 +40,7 @@ export default async function InsiderProfilePage({ params }: PageProps) {
       <ApplicationLayout>
         <div className="flex h-64 flex-col items-center justify-center gap-4">
           <Text>No insider found with CIK {cik}</Text>
-          <Link href="/insider-sales" className="text-blue-600 hover:underline">
+          <Link href="/insiders" className="text-blue-600 hover:underline">
             Back to Insider Sales
           </Link>
         </div>
@@ -101,7 +101,7 @@ export default async function InsiderProfilePage({ params }: PageProps) {
               {profile.currentPositions.map((position) => (
                 <Link
                   key={position.ticker || position.issuerName}
-                  href={position.ticker ? `/insider-sales/${position.ticker}` : '#'}
+                  href={position.ticker ? `/insiders/${position.ticker}` : '#'}
                   prefetch={false}
                   className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >

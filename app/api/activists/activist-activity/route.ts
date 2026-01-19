@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getActivistActivity } from '@/actions/beneficial-ownership';
+import { getActivistActivity } from '@/actions/activists';
 
 // Force dynamic rendering since we use searchParams
 export const dynamic = 'force-dynamic';
 
 /**
- * GET /api/beneficial-ownership/activist-activity
+ * GET /api/activists/activist-activity
  * Get recent activist activity across all tickers
  *
  * Query params:

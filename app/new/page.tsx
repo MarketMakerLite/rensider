@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getNewFilings } from '@/actions/filings'
-import { getRecentInsiderTransactions } from '@/actions/insider-sales'
+import { getRecentInsiderTransactions } from '@/actions/insiders'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
@@ -8,7 +8,7 @@ import { Badge } from '@/components/twc/badge'
 import { FilingsTable } from '@/components/ownership/FilingsTable'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/twc/table'
 import { formatDate, formatLargeNumber, formatCurrency, decodeHtmlEntities } from '@/lib/format'
-import type { InsiderTransaction, TransactionCode } from '@/types/insider-sales'
+import type { InsiderTransaction, TransactionCode } from '@/types/insiders'
 
 // Force dynamic rendering to ensure DuckDB tables are loaded
 export const dynamic = 'force-dynamic'
@@ -47,7 +47,7 @@ export default async function NewFilingsPage() {
                 <Subheading level={2}>Recent Insider Transactions</Subheading>
                 <Badge color="amber">Form 4</Badge>
               </div>
-              <Link href="/insider-sales" className="text-sm text-blue-600 hover:underline">
+              <Link href="/insiders" className="text-sm text-blue-600 hover:underline">
                 View all &rarr;
               </Link>
             </div>
@@ -122,10 +122,10 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
           {decodeHtmlEntities(transaction.insiderName)}
         </Link>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-xs">
         {transaction.ticker ? (
           <Link
-            href={`/insider-sales/${transaction.ticker}`}
+            href={`/insiders/${transaction.ticker}`}
             prefetch={false}
             className="font-medium text-blue-600 hover:underline"
           >
@@ -133,6 +133,11 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
           </Link>
         ) : (
           <span className="text-zinc-400">-</span>
+        )}
+        {transaction.issuerName && (
+          <div className="truncate text-xs text-zinc-500">
+            {decodeHtmlEntities(transaction.issuerName)}
+          </div>
         )}
       </TableCell>
       <TableCell>

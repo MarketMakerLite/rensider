@@ -72,19 +72,19 @@ app/                          # Next.js App Router
 │   ├── sync/                 # Data synchronization endpoints
 │   ├── filers/               # Institutional filer APIs
 │   ├── securities/           # Security lookup APIs
-│   ├── beneficial-ownership/ # 13D/13G APIs
+│   ├── activists/           # 13D/13G APIs
 │   └── filings/              # Filing lookup APIs
 ├── fund/[cik]/               # Fund holdings pages
 ├── stock/[ticker]/           # Stock ownership pages
 ├── insider/[cik]/            # Insider profile pages
-├── insider-sales/            # Insider trading dashboard
-├── beneficial-owners/        # 13D/13G dashboard
+├── insiders/                 # Insider trading dashboard
+├── activists/                # 13D/13G dashboard
 └── alerts/                   # Alert management
 
 components/                   # React components
 ├── charts/                   # Visualization (hooks, layers, primitives)
 ├── ownership/                # 13F ownership components
-├── beneficial-ownership/     # 13D/13G components
+├── activists/                # 13D/13G components
 ├── insider-sales/            # Form 3/4/5 components
 └── twc/                      # Tailwind component library
 
@@ -100,7 +100,7 @@ lib/                          # Core libraries
 └── logger.ts                 # Structured logging
 
 types/                        # TypeScript definitions
-├── beneficial-ownership.ts   # 13D/13G types
+├── activists.ts              # 13D/13G types
 ├── insider-sales.ts          # Form 3/4/5 types
 └── ownership.ts              # General ownership types
 ```
@@ -270,8 +270,8 @@ The application includes special handling for DuckDB in Vercel's serverless envi
 
 Several routes use `export const dynamic = 'force-dynamic'` to ensure server-side rendering with fresh data:
 - `/alerts` - Alert management
-- `/beneficial-owners` - 13D/13G dashboard
-- `/insider-sales` - Insider trading dashboard
+- `/activists` - 13D/13G dashboard
+- `/insiders` - Insider trading dashboard
 - `/insider/[cik]` - Insider profiles
 - Various API routes
 

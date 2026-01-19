@@ -2,4 +2,4 @@
 export * from './ownership'
 export * from './alerts'
 export * from './filings'
-export * from './beneficial-ownership'
+export * from './activists'

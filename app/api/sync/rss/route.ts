@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
       if (!dryRun) {
         revalidateTag('filings', {});
         revalidateTag('alerts', {});
-        revalidateTag('beneficial-ownership', {});
-        syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'beneficial-ownership'] });
+        revalidateTag('activists', {});
+        syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'activists'] });
       }
 
       syncLogger.info('RSS sync completed', { form: formsParam, result: JSON.stringify(result) });

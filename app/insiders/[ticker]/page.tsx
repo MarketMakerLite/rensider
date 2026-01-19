@@ -35,7 +35,7 @@ export default async function TickerInsiderPage({ params }: PageProps) {
       <ApplicationLayout>
         <div className="flex h-64 flex-col items-center justify-center gap-4">
           <Text>No insider data found for {ticker.toUpperCase()}</Text>
-          <Link href="/insider-sales" className="text-blue-600 hover:underline">
+          <Link href="/insiders" className="text-blue-600 hover:underline">
             Back to Insider Sales
           </Link>
         </div>

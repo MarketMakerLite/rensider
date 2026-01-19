@@ -20,15 +20,21 @@ interface AxisLayerProps {
 function formatMillions(value: number): string {
   const millions = value / 1_000_000
   if (millions >= 1000) {
-    return `${(millions / 1000).toFixed(1)}B`
+    const billions = millions / 1000
+    return `$${billions.toLocaleString('en-US', { maximumFractionDigits: 1 })}B`
   }
   if (millions >= 1) {
-    return `${millions.toFixed(0)}M`
+    return `$${Math.round(millions).toLocaleString('en-US')}M`
   }
   if (value >= 1000) {
-    return `${(value / 1000).toFixed(0)}K`
+    return `$${Math.round(value / 1000).toLocaleString('en-US')}K`
   }
-  return value.toFixed(0)
+  return `$${Math.round(value).toLocaleString('en-US')}`
+}
+
+/** Format position counts as integers without decimals */
+function formatPositionCount(value: number): string {
+  return Math.round(value).toLocaleString('en-US')
 }
 
 /**
@@ -70,7 +76,7 @@ export function AxisLayer({
         tickLabelProps={() => ({
           ...axisStyles.tickLabelProps,
           textAnchor: 'middle' as const,
-          dy: '0.25em',
+          dy: '0.75em',
         })}
         hideAxisLine={false}
         hideTicks={false}
@@ -86,14 +92,14 @@ export function AxisLayer({
           tickLabelProps={() => ({
             ...axisStyles.tickLabelProps,
             textAnchor: 'end' as const,
-            dx: '-0.25em',
+            dx: '-0.5em',
             dy: '0.25em',
           })}
           hideAxisLine={false}
           hideTicks={false}
           tickLength={4}
           numTicks={5}
-          tickFormat={isClassic ? (value) => formatMillions(Number(value)) : undefined}
+          tickFormat={(value) => isClassic ? formatMillions(Number(value)) : formatPositionCount(Number(value))}
           label={leftAxisLabel}
           labelProps={{
             fill: colors.textSecondary,
@@ -102,7 +108,7 @@ export function AxisLayer({
             textAnchor: 'middle',
             fontWeight: 600,
           }}
-          labelOffset={50}
+          labelOffset={60}
         />
       )}
 

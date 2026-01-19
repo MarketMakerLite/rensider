@@ -207,30 +207,29 @@ function TreemapTooltip({
 export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: HoldingsTreemapProps) {
   const [hoveredItem, setHoveredItem] = useState<LayoutRect | null>(null)
 
-  // Compute layout - aggregate by ticker first to avoid duplicate boxes
+  // Compute layout - deduplicate by ticker, keep most recent filing
   const layout = useMemo(() => {
-    // Aggregate holdings by ticker (or CUSIP if no ticker)
-    const aggregated = new Map<string, { value: number; cusip: string; hasTicker: boolean; name: string }>()
+    // Deduplicate holdings by ticker - keep only most recent filing
+    const byTicker = new Map<string, { value: number; cusip: string; hasTicker: boolean; name: string; filingDate: number }>()
 
     for (const h of holdings) {
       const key = h.ticker || h.cusip
-      const existing = aggregated.get(key)
+      const existing = byTicker.get(key)
 
-      if (existing) {
-        // Sum values for same ticker
-        existing.value += h.value
-      } else {
-        aggregated.set(key, {
+      // Keep the holding with the most recent filing date
+      if (!existing || h.filingDate > existing.filingDate) {
+        byTicker.set(key, {
           value: h.value,
           cusip: h.cusip,
           hasTicker: !!h.ticker,
           name: h.securityName,
+          filingDate: h.filingDate,
         })
       }
     }
 
     // Convert to array and sort by value
-    const sorted = Array.from(aggregated.entries())
+    const sorted = Array.from(byTicker.entries())
       .map(([ticker, data]) => ({
         ticker,
         cusip: data.cusip,

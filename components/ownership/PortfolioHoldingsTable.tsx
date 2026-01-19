@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
@@ -20,7 +21,24 @@ interface PortfolioHoldingsTableProps {
 }
 
 export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldingsTableProps) {
-  const { filteredData, filterValue, setFilterValue } = useTableFilter(holdings, ['ticker', 'securityName'])
+  // Deduplicate holdings by ticker - keep only most recent filing
+  const deduplicatedHoldings = useMemo(() => {
+    const byTicker = new Map<string, Holding>()
+
+    for (const h of holdings) {
+      const key = h.ticker || h.cusip
+      const existing = byTicker.get(key)
+
+      // Keep the holding with the most recent filing date
+      if (!existing || h.filingDate > existing.filingDate) {
+        byTicker.set(key, h)
+      }
+    }
+
+    return Array.from(byTicker.values())
+  }, [holdings])
+
+  const { filteredData, filterValue, setFilterValue } = useTableFilter(deduplicatedHoldings, ['ticker', 'securityName'])
 
   // Add portfolio percentage to each holding for sorting
   const holdingsWithPct = filteredData.map(h => ({

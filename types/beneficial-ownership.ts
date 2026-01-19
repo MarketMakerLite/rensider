@@ -282,7 +282,7 @@ export interface ActivistActivity {
 
   // Filer
   ownerName: string;
-  ownerId: number;
+  ownerCik: string;
 
   // Target
   ticker: string;

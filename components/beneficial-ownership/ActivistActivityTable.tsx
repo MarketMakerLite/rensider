@@ -149,7 +149,17 @@ export function ActivistActivityTable({
                 )}
               </TableCell>
               <TableCell className="max-w-64 truncate font-medium">
-                {activity.ownerName}
+                {activity.ownerCik ? (
+                  <Link
+                    href={`/fund/${activity.ownerCik}`}
+                    prefetch={false}
+                    className="hover:text-blue-600 hover:underline"
+                  >
+                    {activity.ownerName}
+                  </Link>
+                ) : (
+                  activity.ownerName
+                )}
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <IntentBadge intent={activity.intentCategory ?? 'passive'} />

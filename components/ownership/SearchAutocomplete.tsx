@@ -6,11 +6,32 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Badge } from '@/components/twc/badge'
 import { dropdown, staggerContainer, staggerItem } from '@/lib/animations'
 import { searchAll, type SearchResult } from '@/actions/search'
-import { SearchLoadingMessage } from '@/components/ui/Spinner'
 import { BottomSheet } from '@/components/ui/BottomSheet'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 export type { SearchResult }
+
+/**
+ * Highlights matching portions of text with a yellow background
+ */
+function highlightMatch(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text
+
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+  const parts = text.split(regex)
+
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} className="bg-yellow-200 text-inherit rounded-sm px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  )
+}
+
+const POPULAR_TICKERS = ['AAPL', 'MSFT', 'NVDA', 'TSLA'] as const
 
 interface SearchAutocompleteProps {
   placeholder?: string
@@ -19,11 +40,12 @@ interface SearchAutocompleteProps {
 
 /**
  * Custom hook for debounced search with loading state
+ * Loading state is derived to avoid synchronous setState within effects
  */
 function useDebouncedSearch(query: string, delay: number = 200) {
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [resultQuery, setResultQuery] = useState('') // Track which query the results are for
   const fetchRef = useRef(0)
 
   // Debounce the query
@@ -37,20 +59,18 @@ function useDebouncedSearch(query: string, delay: number = 200) {
   // Fetch results when debounced query changes
   useEffect(() => {
     if (debouncedQuery.length < 1) {
-      setResults([])
-      setIsLoading(false)
       return
     }
 
     const controller = new AbortController()
     const currentFetch = ++fetchRef.current
-    setIsLoading(true)
 
     searchAll(debouncedQuery, 8)
       .then((data) => {
         // Only update if this is still the most recent fetch and not aborted
         if (currentFetch === fetchRef.current && !controller.signal.aborted) {
           setResults(data)
+          setResultQuery(debouncedQuery)
         }
       })
       .catch((error) => {
@@ -58,18 +78,20 @@ function useDebouncedSearch(query: string, delay: number = 200) {
         if (error instanceof Error && error.name === 'AbortError') return
         if (currentFetch === fetchRef.current && !controller.signal.aborted) {
           setResults([])
-        }
-      })
-      .finally(() => {
-        if (currentFetch === fetchRef.current && !controller.signal.aborted) {
-          setIsLoading(false)
+          setResultQuery(debouncedQuery)
         }
       })
 
     return () => controller.abort()
   }, [debouncedQuery])
 
-  return { results, isLoading }
+  // Derive loading and results at return time
+  const hasQuery = debouncedQuery.length >= 1
+  const isLoading = hasQuery && debouncedQuery !== resultQuery
+  return {
+    results: hasQuery ? results : [],
+    isLoading
+  }
 }
 
 export function SearchAutocomplete({ placeholder = 'Search by ticker or institution...', className }: SearchAutocompleteProps) {
@@ -110,13 +132,13 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
 
   // Focus mobile input when bottom sheet opens (with delay for animation)
   useEffect(() => {
-    if (isMobile && isOpen && query.length >= 1) {
+    if (isMobile && isOpen) {
       const timer = setTimeout(() => {
         mobileInputRef.current?.focus()
       }, 100) // Wait for animation
       return () => clearTimeout(timer)
     }
-  }, [isMobile, isOpen, query.length])
+  }, [isMobile, isOpen])
 
   // Navigate to selected result
   const navigateToResult = useCallback((result: SearchResult) => {
@@ -174,12 +196,22 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
   const renderSearchResults = (forMobile = false) => {
     if (isLoading) {
       return (
-        <div className={`flex items-center gap-2 px-3 font-sans text-xs text-zinc-500 ${forMobile ? 'py-4' : 'py-2.5'}`}>
-          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <SearchLoadingMessage className="text-zinc-500" />
+        <div className="py-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`flex items-center gap-2 px-3 ${forMobile ? 'py-3' : 'py-2'}`}
+            >
+              {/* Badge skeleton */}
+              <div className="h-5 w-12 animate-pulse rounded bg-zinc-200" />
+              <div className="flex-1 space-y-1.5">
+                {/* Title skeleton */}
+                <div className="h-4 w-24 animate-pulse rounded bg-zinc-200" />
+                {/* Subtitle skeleton */}
+                <div className="h-3 w-32 animate-pulse rounded bg-zinc-100" />
+              </div>
+            </div>
+          ))}
         </div>
       )
     }
@@ -208,7 +240,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
                   forMobile ? 'min-h-[48px] py-3' : 'py-2'
                 } ${
                   index === selectedIndex
-                    ? 'bg-zinc-100'
+                    ? 'bg-zinc-100 outline outline-2 outline-offset-[-2px] outline-zinc-400'
                     : 'hover:bg-zinc-50'
                 }`}
                 onClick={() => navigateToResult(result)}
@@ -217,16 +249,16 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
                 <div className="flex items-center gap-2">
                   <Badge
                     color={result.type === 'stock' ? 'blue' : 'green'}
-                    className="w-10 justify-center text-[9px]"
+                    className="w-12 justify-center text-[10px]"
                   >
                     {result.type === 'stock' ? 'Stock' : 'Fund'}
                   </Badge>
-                  <div className="min-w-0 font-sans">
+                  <div className="min-w-0">
                     <div className="truncate text-sm font-medium text-zinc-900">
-                      {result.type === 'stock' ? result.ticker : result.name}
+                      {highlightMatch(result.type === 'stock' ? (result.ticker ?? result.name) : result.name, query)}
                     </div>
                     <div className="truncate text-xs text-zinc-500">
-                      {result.type === 'stock' ? result.name : `CIK: ${result.cik}`}
+                      {result.type === 'stock' ? highlightMatch(result.name, query) : `CIK: ${result.cik}`}
                     </div>
                   </div>
                 </div>
@@ -244,7 +276,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className={`px-4 text-center font-sans ${forMobile ? 'py-8' : 'py-4'}`}
+        className={`px-4 text-center ${forMobile ? 'py-8' : 'py-4'}`}
       >
         <svg className="mx-auto h-6 w-6 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -258,6 +290,30 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
       </motion.div>
     )
   }
+
+  // Popular suggestions when dropdown is open but query is empty
+  const renderPopularSuggestions = (forMobile = false) => (
+    <div className={`${forMobile ? 'py-4' : 'py-3'} px-3`}>
+      <p className="mb-2 text-xs font-medium text-zinc-500">Popular searches</p>
+      <div className="flex flex-wrap gap-2">
+        {POPULAR_TICKERS.map((ticker) => (
+          <button
+            key={ticker}
+            type="button"
+            onClick={() => {
+              setQuery(ticker)
+              setIsOpen(true)
+            }}
+            className={`rounded-full border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-100 ${
+              forMobile ? 'py-2' : 'py-1.5'
+            }`}
+          >
+            {ticker}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -285,7 +341,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent py-2.5 pl-10 pr-3 font-sans text-sm font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
+          className="w-full bg-transparent py-2.5 pl-10 pr-3 text-sm font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
           role="combobox"
           aria-expanded={isOpen && query.length >= 1}
           aria-haspopup="listbox"
@@ -318,7 +374,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
 
       {/* Desktop Dropdown */}
       <AnimatePresence>
-        {isMobile === false && isOpen && query.length >= 1 && (
+        {isMobile === false && isOpen && (
           <motion.div
             initial="hidden"
             animate="visible"
@@ -326,16 +382,16 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
             variants={dropdown}
             className="absolute z-50 mt-2 w-full overflow-hidden border-2 border-[#4A4444] bg-white shadow-[4px_4px_0px_0px_#4A4444]"
           >
-            {renderSearchResults(false)}
+            {query.length >= 1 ? renderSearchResults(false) : renderPopularSuggestions(false)}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Mobile Bottom Sheet */}
       <BottomSheet
-        open={isMobile === true && isOpen && query.length >= 1}
+        open={isMobile === true && isOpen}
         onClose={() => setIsOpen(false)}
-        title="Search Results"
+        title={query.length === 0 ? 'Search' : isLoading ? 'Searching...' : results.length > 0 ? `${results.length} Results` : 'Search'}
       >
         {/* Search input inside sheet */}
         <div className="border-b border-zinc-100 px-4 pb-3">
@@ -359,7 +415,7 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
                 setSelectedIndex(-1)
               }}
               onKeyDown={handleKeyDown}
-              className="w-full bg-zinc-50 py-3 pl-10 pr-10 font-sans text-base font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
+              className="w-full bg-zinc-50 py-3 pl-10 pr-10 text-[16px] font-medium text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
               style={{ borderRadius: '8px' }}
             />
             {query && (
@@ -379,8 +435,8 @@ export function SearchAutocomplete({ placeholder = 'Search by ticker or institut
           </div>
         </div>
 
-        {/* Results */}
-        {renderSearchResults(true)}
+        {/* Results or Popular Suggestions */}
+        {query.length >= 1 ? renderSearchResults(true) : renderPopularSuggestions(true)}
       </BottomSheet>
     </div>
   )

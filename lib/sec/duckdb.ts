@@ -24,6 +24,7 @@ const ALLOWED_TABLES = new Set([
   'form345_deriv_holding',
   'cusip_mappings',
   'reporting_persons_13dg',
+  'filer_names',
 ]);
 
 // Validate identifier (table/column name) - alphanumeric and underscore only
@@ -706,6 +707,15 @@ export async function initializeSchema(): Promise<void> {
   `);
 
   await execute(`CREATE INDEX IF NOT EXISTS idx_cusip_mappings_ticker ON ${MOTHERDUCK_DATABASE}.cusip_mappings(ticker)`);
+
+  // Filer names cache table (CIK to institution name mapping)
+  await execute(`
+    CREATE TABLE IF NOT EXISTS ${MOTHERDUCK_DATABASE}.filer_names (
+      cik VARCHAR PRIMARY KEY,
+      name VARCHAR NOT NULL,
+      cached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
   // Form 3/4/5 indexes
   await execute(`CREATE INDEX IF NOT EXISTS idx_form345_submissions_ticker ON form345_submissions(ISSUERTRADINGSYMBOL)`);

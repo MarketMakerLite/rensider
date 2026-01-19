@@ -2,18 +2,13 @@
  * Filer Name Resolution with Caching
  *
  * Resolves CIKs to institution names using SEC's submissions API.
- * Implements dual-layer caching (memory + persistent file) for performance.
+ * Implements dual-layer caching (memory + MotherDuck database) for performance.
  * Includes reverse lookup (name → CIK) for search functionality.
  */
 
-import { join } from 'path';
-import { readFile, writeFile, mkdir } from 'fs/promises';
 import { fetchFromSEC } from './client';
+import { query, execute } from './duckdb';
 import { padCik, normalizeCik, validateCik } from '@/lib/validators';
-
-// Use /tmp for serverless environments (Vercel), otherwise use configured data dir
-const DATA_DIR = process.env.VERCEL ? '/tmp' : (process.env.SEC_DATA_DIR || 'data');
-const CACHE_FILE = join(DATA_DIR, 'reference', 'filer-names.json');
 
 // Memory cache for fast lookups (CIK → name)
 const memoryCache = new Map<string, string>();
@@ -22,16 +17,8 @@ const memoryCache = new Map<string, string>();
 const nameIndex = new Map<string, string[]>();
 let nameIndexBuilt = false;
 
-// Persistent cache structure
-interface FilerNameCache {
-  [cik: string]: {
-    name: string;
-    cachedAt: string;
-  };
-}
-
-let persistentCache: FilerNameCache | null = null;
-let cacheLoaded = false;
+// Track if we've loaded from DB
+let dbCacheLoaded = false;
 
 /**
  * Internal: Pad CIK to 10-digit format for SEC API
@@ -44,12 +31,12 @@ function padCikInternal(cik: string): string {
  * Build the reverse name index for searching
  */
 function buildNameIndex(): void {
-  if (nameIndexBuilt || !persistentCache) return;
+  if (nameIndexBuilt) return;
 
   nameIndex.clear();
 
-  for (const [cik, entry] of Object.entries(persistentCache)) {
-    const nameLower = entry.name.toLowerCase();
+  for (const [cik, name] of memoryCache.entries()) {
+    const nameLower = name.toLowerCase();
     // Index by full name
     const existing = nameIndex.get(nameLower) || [];
     existing.push(cik);
@@ -72,43 +59,63 @@ function buildNameIndex(): void {
 }
 
 /**
- * Load persistent cache from disk
+ * Load filer names from database into memory cache
  */
-async function loadPersistentCache(): Promise<FilerNameCache> {
-  if (persistentCache !== null) {
-    return persistentCache;
-  }
+async function loadFromDatabase(): Promise<void> {
+  if (dbCacheLoaded) return;
 
   try {
-    const data = await readFile(CACHE_FILE, 'utf-8');
-    persistentCache = JSON.parse(data);
-
-    // Populate memory cache
-    for (const [cik, entry] of Object.entries(persistentCache!)) {
-      memoryCache.set(cik, entry.name);
+    const rows = await query<{ cik: string; name: string }>('SELECT cik, name FROM filer_names');
+    for (const row of rows) {
+      memoryCache.set(row.cik, row.name);
     }
-
-    cacheLoaded = true;
+    dbCacheLoaded = true;
     // Build name index for reverse lookups
     buildNameIndex();
-    return persistentCache!;
-  } catch {
-    persistentCache = {};
-    return persistentCache;
+  } catch (error) {
+    // Table might not exist yet, that's ok
+    console.debug('Failed to load filer names from database:', error instanceof Error ? error.message : error);
+    dbCacheLoaded = true; // Don't retry on every call
   }
 }
 
 /**
- * Save persistent cache to disk
+ * Save a filer name to the database
  */
-async function savePersistentCache(): Promise<void> {
-  if (!persistentCache) return;
+async function saveToDatabase(cik: string, name: string): Promise<void> {
+  try {
+    await execute(`
+      INSERT INTO filer_names (cik, name, cached_at)
+      VALUES ('${cik.replace(/'/g, "''")}', '${name.replace(/'/g, "''")}', CURRENT_TIMESTAMP)
+      ON CONFLICT (cik) DO UPDATE SET name = EXCLUDED.name, cached_at = CURRENT_TIMESTAMP
+    `);
+  } catch (error) {
+    console.debug('Failed to save filer name to database:', error instanceof Error ? error.message : error);
+  }
+}
+
+/**
+ * Batch save filer names to the database
+ */
+async function batchSaveToDatabase(entries: Map<string, string>): Promise<void> {
+  if (entries.size === 0) return;
 
   try {
-    await mkdir(join(DATA_DIR, 'reference'), { recursive: true });
-    await writeFile(CACHE_FILE, JSON.stringify(persistentCache, null, 2));
+    // Build VALUES clause
+    const values: string[] = [];
+    for (const [cik, name] of entries) {
+      const safeCik = cik.replace(/'/g, "''");
+      const safeName = name.replace(/'/g, "''");
+      values.push(`('${safeCik}', '${safeName}', CURRENT_TIMESTAMP)`);
+    }
+
+    await execute(`
+      INSERT INTO filer_names (cik, name, cached_at)
+      VALUES ${values.join(', ')}
+      ON CONFLICT (cik) DO UPDATE SET name = EXCLUDED.name, cached_at = CURRENT_TIMESTAMP
+    `);
   } catch (error) {
-    console.error('Failed to save filer names cache:', error instanceof Error ? error.message : error);
+    console.debug('Failed to batch save filer names to database:', error instanceof Error ? error.message : error);
   }
 }
 
@@ -157,9 +164,9 @@ export async function getFilerName(
     return memoryCache.get(normalized)!;
   }
 
-  // Load persistent cache if not loaded
-  if (!cacheLoaded) {
-    await loadPersistentCache();
+  // Load from database if not loaded
+  if (!dbCacheLoaded) {
+    await loadFromDatabase();
     if (memoryCache.has(normalized)) {
       return memoryCache.get(normalized)!;
     }
@@ -178,18 +185,12 @@ export async function getFilerName(
   const name = await fetchFilerName(cik);
 
   if (name) {
-    // Update both caches
+    // Update memory cache
     memoryCache.set(normalized, name);
-    if (persistentCache) {
-      persistentCache[normalized] = {
-        name,
-        cachedAt: new Date().toISOString(),
-      };
-      // Rebuild name index when new entries are added
-      nameIndexBuilt = false;
-      // Save asynchronously (don't await)
-      savePersistentCache().catch(() => {});
-    }
+    // Rebuild name index when new entries are added
+    nameIndexBuilt = false;
+    // Save to database asynchronously (don't await)
+    saveToDatabase(normalized, name).catch(() => {});
     return name;
   }
 
@@ -214,9 +215,9 @@ export async function getFilerNames(
   const results = new Map<string, string>();
   const toFetch: string[] = [];
 
-  // Load cache if needed
-  if (!cacheLoaded) {
-    await loadPersistentCache();
+  // Load from database if needed
+  if (!dbCacheLoaded) {
+    await loadFromDatabase();
   }
 
   // Check cache for each CIK, filtering out invalid CIKs
@@ -242,12 +243,20 @@ export async function getFilerNames(
     if (fetchMissing) {
       // Fetch missing names from SEC API (for background/script usage)
       const BATCH_SIZE = 5;
+      const newEntries = new Map<string, string>();
 
       for (let i = 0; i < toFetch.length; i += BATCH_SIZE) {
         const batch = toFetch.slice(i, i + BATCH_SIZE);
         const promises = batch.map(async (cik) => {
-          const name = await getFilerName(cik);
-          results.set(cik, name);
+          const name = await fetchFilerName(cik);
+          const normalized = padCikInternal(cik);
+          if (name) {
+            memoryCache.set(normalized, name);
+            newEntries.set(normalized, name);
+            results.set(cik, name);
+          } else {
+            results.set(cik, `CIK ${normalizeCik(cik)}`);
+          }
         });
         await Promise.all(promises);
 
@@ -255,6 +264,12 @@ export async function getFilerNames(
         if (i + BATCH_SIZE < toFetch.length) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
+      }
+
+      // Batch save new entries to database
+      if (newEntries.size > 0) {
+        nameIndexBuilt = false;
+        batchSaveToDatabase(newEntries).catch(() => {});
       }
     } else {
       // For web requests: return placeholder immediately, fetch in background
@@ -284,9 +299,9 @@ export async function getFilerNames(
 export async function preloadFilerNames(ciks: string[]): Promise<number> {
   const uniqueCiks = [...new Set(ciks.map(padCikInternal))];
 
-  // Filter out already cached
-  if (!cacheLoaded) {
-    await loadPersistentCache();
+  // Load from database if not loaded
+  if (!dbCacheLoaded) {
+    await loadFromDatabase();
   }
 
   const uncached = uniqueCiks.filter(cik => !memoryCache.has(cik));
@@ -297,10 +312,7 @@ export async function preloadFilerNames(ciks: string[]): Promise<number> {
 
   console.log(`Preloading ${uncached.length} filer names...`);
 
-  await getFilerNames(uncached);
-
-  // Force save cache
-  await savePersistentCache();
+  await getFilerNames(uncached, { fetchMissing: true });
 
   return uncached.length;
 }
@@ -310,16 +322,24 @@ export async function preloadFilerNames(ciks: string[]): Promise<number> {
  */
 export async function getFilerNameCacheStats(): Promise<{
   memoryCacheSize: number;
-  persistentCacheSize: number;
+  databaseCacheSize: number;
   nameIndexSize: number;
 }> {
-  if (!cacheLoaded) {
-    await loadPersistentCache();
+  if (!dbCacheLoaded) {
+    await loadFromDatabase();
+  }
+
+  let databaseCacheSize = 0;
+  try {
+    const result = await query<{ count: number }>('SELECT COUNT(*) as count FROM filer_names');
+    databaseCacheSize = result[0]?.count ?? 0;
+  } catch {
+    // Table might not exist
   }
 
   return {
     memoryCacheSize: memoryCache.size,
-    persistentCacheSize: Object.keys(persistentCache || {}).length,
+    databaseCacheSize,
     nameIndexSize: nameIndex.size,
   };
 }
@@ -373,8 +393,8 @@ export async function searchFilersByName(
   query: string,
   limit: number = 10
 ): Promise<FilerSearchResult[]> {
-  if (!cacheLoaded) {
-    await loadPersistentCache();
+  if (!dbCacheLoaded) {
+    await loadFromDatabase();
   }
 
   if (!nameIndexBuilt) {
@@ -423,9 +443,9 @@ export async function searchFilersByName(
   }
 
   // If no candidates found, try fuzzy matching on all names
-  if (candidates.size === 0 && persistentCache) {
-    for (const [cik, entry] of Object.entries(persistentCache)) {
-      const nameLower = entry.name.toLowerCase();
+  if (candidates.size === 0) {
+    for (const [cik, name] of memoryCache.entries()) {
+      const nameLower = name.toLowerCase();
       const distance = levenshteinDistance(queryLower, nameLower);
       const maxLen = Math.max(queryLower.length, nameLower.length);
       const similarity = 1 - distance / maxLen;

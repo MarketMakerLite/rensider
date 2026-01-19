@@ -143,8 +143,9 @@ async function detectAlerts(
     // Use DuckDB to find securities with significant ownership increases
     // This compares total institutional ownership between two quarters
     // Note: largest_holders only returns CIK (FILINGMANAGER_NAME not available in MotherDuck schema)
+    // Filter for mapped assets uses the LEFT JOIN on cusip_mappings - check ticker is not null
     const mappedAssetsFilter = onlyMappedAssets
-      ? `AND EXISTS (SELECT 1 FROM rensider.cusip_mappings cm WHERE cm.cusip = l.CUSIP)`
+      ? `AND cm.ticker IS NOT NULL`
       : ''
 
     const sql = `

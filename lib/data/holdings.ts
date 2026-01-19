@@ -182,9 +182,9 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       }
     }
 
-    // Get filer names from cache (no SEC API calls)
+    // Get filer names from cache or SEC API
     const uniqueCiks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(uniqueCiks, { fetchMissing: false })
+    const filerNamesMap = await getFilerNames(uniqueCiks, { fetchMissing: true })
 
     // Aggregate current holdings by CIK for change calculation
     const currentByInstitution = new Map<string, { shares: number; value: number }>()

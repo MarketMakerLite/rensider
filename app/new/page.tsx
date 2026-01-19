@@ -116,6 +116,7 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
       <TableCell className="max-w-xs truncate">
         <Link
           href={`/insider/${transaction.insiderCik}`}
+          prefetch={false}
           className="font-medium text-zinc-900 hover:text-blue-600"
         >
           {decodeHtmlEntities(transaction.insiderName)}
@@ -125,6 +126,7 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
         {transaction.ticker ? (
           <Link
             href={`/insider-sales/${transaction.ticker}`}
+            prefetch={false}
             className="font-medium text-blue-600 hover:underline"
           >
             {transaction.ticker}

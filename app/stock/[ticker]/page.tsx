@@ -28,6 +28,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${upperTicker} Institutional Ownership | Rensider`,
       description: `Track institutional holdings and 13F filings for ${upperTicker}`,
+      images: [`/api/og/stock/${upperTicker}`],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${upperTicker} Institutional Ownership | Rensider`,
+      description: `Track institutional holdings and 13F filings for ${upperTicker}`,
+      images: [`/api/og/stock/${upperTicker}`],
     },
   }
 }

@@ -27,6 +27,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${name} Holdings | Rensider`,
       description: `View portfolio holdings and 13F filings for ${name}`,
+      images: [`/api/og/fund/${cik}`],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${name} Holdings | Rensider`,
+      description: `View portfolio holdings and 13F filings for ${name}`,
+      images: [`/api/og/fund/${cik}`],
     },
   }
 }
@@ -131,6 +138,7 @@ export default async function FundHoldingsPage({ params }: PageProps) {
                 <Link
                   key={h.id}
                   href={`/stock/${h.ticker}`}
+                  prefetch={false}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
                     i < 3
                       ? 'border-zinc-300 bg-zinc-100 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-200'
@@ -364,6 +372,7 @@ function PositionChangeCard({
             <div key={p.ticker} className="flex items-center justify-between">
               <Link
                 href={`/stock/${p.ticker}`}
+                prefetch={false}
                 className="font-medium text-zinc-800 transition-colors hover:text-zinc-600"
               >
                 {p.ticker}

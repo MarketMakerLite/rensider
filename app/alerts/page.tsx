@@ -154,7 +154,7 @@ export default function AlertsPage() {
               <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Top Signals (by 12mo momentum)</Text>
               <div className="mt-3 flex flex-wrap gap-2">
                 {stats.topAlerts?.slice(0, 5).map((alert) => (
-                  <Link key={alert.ticker} href={`/stock/${alert.ticker}`}>
+                  <Link key={alert.ticker} href={`/stock/${alert.ticker}`} prefetch={false}>
                     <Badge color="green">
                       {alert.ticker} ({alert.recentChange?.toFixed(2) ?? alert.changeMultiple.toFixed(1)}x)
                     </Badge>
@@ -341,6 +341,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
                       <Link
                         href={`/stock/${alert.ticker}`}
                         className="text-blue-600 hover:underline"
+                        prefetch={false}
                       >
                         {alert.ticker}
                       </Link>
@@ -353,6 +354,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
                       isRealTicker(alert.ticker) ? (
                         <Link
                           href={`/stock/${alert.ticker}`}
+                          prefetch={false}
                           className="text-blue-600 hover:underline"
                         >
                           {alert.companyName}
@@ -367,6 +369,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
                       <Link
                         href={`/fund/${alert.largestHolderCik}`}
                         className="text-blue-600 hover:underline"
+                        prefetch={false}
                       >
                         {alert.largestHolder}
                       </Link>
@@ -379,6 +382,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
                       <Link
                         href={`/fund/${alert.latestFilerCik}`}
                         className="text-blue-600 hover:underline"
+                        prefetch={false}
                       >
                         {alert.latestFiler}
                       </Link>

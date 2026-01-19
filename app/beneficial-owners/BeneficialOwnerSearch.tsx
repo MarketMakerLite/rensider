@@ -55,6 +55,7 @@ export function BeneficialOwnerSearch() {
             <div className="flex items-center gap-3">
               <Link
                 href={`/stock/${result.ticker}`}
+                prefetch={false}
                 className="text-lg font-semibold text-green-800 hover:underline"
               >
                 {result.ticker}
@@ -65,6 +66,7 @@ export function BeneficialOwnerSearch() {
             </div>
             <Link
               href={`/stock/${result.ticker}`}
+              prefetch={false}
               className="text-sm text-green-800 hover:underline"
             >
               View full ownership →

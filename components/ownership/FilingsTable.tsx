@@ -92,6 +92,7 @@ export function FilingsTable({ filings }: FilingsTableProps) {
                   <TableCell className="truncate" title={`${decodeHtmlEntities(filing.institutionName)} (${filing.cik})`}>
                     <Link
                       href={`/fund/${filing.cik}`}
+                      prefetch={false}
                       className="font-medium text-blue-600 hover:underline"
                     >
                       {decodeHtmlEntities(filing.institutionName)} <span className="text-blue-400">({filing.cik})</span>

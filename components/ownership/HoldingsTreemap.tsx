@@ -297,6 +297,7 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
               <Link
                 key={`${item.cusip}-${index}`}
                 href={`/stock/${item.ticker}`}
+                prefetch={false}
                 className={cellClass}
                 style={cellStyle}
                 onMouseEnter={() => handleMouseEnter(item)}

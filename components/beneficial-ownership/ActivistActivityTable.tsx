@@ -139,6 +139,7 @@ export function ActivistActivityTable({
                 {activity.ticker ? (
                   <Link
                     href={`/stock/${activity.ticker}`}
+                    prefetch={false}
                     className="text-blue-600 hover:underline"
                   >
                     {activity.ticker}

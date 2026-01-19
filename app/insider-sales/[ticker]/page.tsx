@@ -63,6 +63,7 @@ export default async function TickerInsiderPage({ params }: PageProps) {
           </div>
           <Link
             href={`/stock/${data.ticker}`}
+            prefetch={false}
             className="text-sm text-blue-600 hover:underline"
           >
             View Institutional Ownership &rarr;
@@ -117,6 +118,7 @@ export default async function TickerInsiderPage({ params }: PageProps) {
                 <Link
                   key={insider.cik}
                   href={`/insider/${insider.cik}`}
+                  prefetch={false}
                   className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="font-medium text-zinc-900">{insider.name}</div>

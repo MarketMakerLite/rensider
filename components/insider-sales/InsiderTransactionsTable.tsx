@@ -138,6 +138,7 @@ export function InsiderTransactionsTable({
                 <TableCell className="max-w-xs">
                   <Link
                     href={`/insider/${transaction.insiderCik}`}
+                    prefetch={false}
                     className="font-medium text-zinc-900 hover:text-blue-600 hover:underline"
                   >
                     {decodeHtmlEntities(transaction.insiderName)}
@@ -154,6 +155,7 @@ export function InsiderTransactionsTable({
                     {transaction.ticker ? (
                       <Link
                         href={`/insider-sales/${transaction.ticker}`}
+                        prefetch={false}
                         className="font-medium text-blue-600 hover:underline"
                       >
                         {transaction.ticker}

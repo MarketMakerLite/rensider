@@ -120,6 +120,7 @@ export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldin
                     {holding.ticker ? (
                       <Link
                         href={`/stock/${holding.ticker}`}
+                        prefetch={false}
                         className="font-medium text-blue-600 hover:underline"
                       >
                         {holding.ticker}
@@ -132,6 +133,7 @@ export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldin
                     {holding.ticker ? (
                       <Link
                         href={`/stock/${holding.ticker}`}
+                        prefetch={false}
                         className="text-zinc-700 hover:text-blue-600 hover:underline"
                       >
                         {decodeHtmlEntities(holding.securityName)}

@@ -102,6 +102,7 @@ export default async function InsiderProfilePage({ params }: PageProps) {
                 <Link
                   key={position.ticker || position.issuerName}
                   href={position.ticker ? `/insider-sales/${position.ticker}` : '#'}
+                  prefetch={false}
                   className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-center justify-between">

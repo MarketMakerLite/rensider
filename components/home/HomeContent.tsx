@@ -156,6 +156,7 @@ export function HomeContent() {
                   >
                     <Link
                       href={`/stock/${ticker}`}
+                      prefetch={false}
                       className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
                     >
                       {ticker}
@@ -197,6 +198,7 @@ export function HomeContent() {
                   >
                     <Link
                       href={`/fund/${fund.cik}`}
+                      prefetch={false}
                       className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
                     >
                       {fund.name}

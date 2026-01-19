@@ -148,6 +148,7 @@ export function StockHoldingsTable({ holders }: StockHoldingsTableProps) {
                   <TableCell>
                     <Link
                       href={`/fund/${holder.cik}`}
+                      prefetch={false}
                       className="text-blue-600 hover:underline"
                     >
                       {decodeHtmlEntities(holder.institutionName) || holder.cik}

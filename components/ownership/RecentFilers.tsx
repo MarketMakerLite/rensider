@@ -65,6 +65,7 @@ export const RecentFilers = memo(function RecentFilers({ filers }: RecentFilersP
               <TableCell>
                 <Link
                   href={`/fund/${filer.cik}`}
+                  prefetch={false}
                   className="text-blue-600 hover:underline"
                 >
                   {decodeHtmlEntities(filer.institutionName)}

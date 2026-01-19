@@ -73,22 +73,17 @@ export const MetricsGrid = memo(function MetricsGrid({ metrics }: MetricsGridPro
         className="rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md"
       >
         <Text className="text-sm text-zinc-500">Institutional Value</Text>
-        <div className="mt-1 flex items-baseline justify-between">
-          <div className="text-2xl font-bold tabular-nums">
-            {formatCurrency(metrics.totalValue * 1000)}
-          </div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35, duration: 0.3 }}
-            className="flex items-center gap-1.5 text-xs text-zinc-500"
-          >
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span className="tabular-nums">{formatNumber(metrics.totalShares)}</span> shares
-          </motion.div>
+        <div className="mt-1 text-2xl font-bold tabular-nums">
+          {formatCurrency(metrics.totalValue * 1000)}
         </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35, duration: 0.3 }}
+          className="mt-1 flex items-center gap-1.5 text-xs text-zinc-500"
+        >
+          <span className="tabular-nums">{formatNumber(metrics.totalShares)}</span> shares
+        </motion.div>
       </motion.div>
 
       {/* Position Changes */}

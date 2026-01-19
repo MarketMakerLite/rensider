@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getNewFilings } from '@/actions/filings'
-import { getRecentInsiderTransactions } from '@/actions/insiders'
+import { getRecentInsiderTransactions } from '@/actions/insider-sales'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
@@ -8,7 +8,7 @@ import { Badge } from '@/components/twc/badge'
 import { FilingsTable } from '@/components/ownership/FilingsTable'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/twc/table'
 import { formatDate, formatLargeNumber, formatCurrency, decodeHtmlEntities } from '@/lib/format'
-import type { InsiderTransaction, TransactionCode } from '@/types/insiders'
+import type { InsiderTransaction, TransactionCode } from '@/types/insider-sales'
 
 // Force dynamic rendering to ensure DuckDB tables are loaded
 export const dynamic = 'force-dynamic'

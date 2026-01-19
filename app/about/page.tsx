@@ -7,14 +7,20 @@ import { Badge } from '@/components/twc/badge'
 export const metadata: Metadata = {
   title: 'About Rensider | How We Track Institutional Investors',
   description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
+  alternates: {
+    canonical: 'https://renbot.app/about',
+  },
   openGraph: {
     title: 'About Rensider | How We Track Institutional Investors',
     description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
     type: 'article',
+    images: ['/api/og/home'],
   },
   twitter: {
+    card: 'summary_large_image',
     title: 'About Rensider | How We Track Institutional Investors',
     description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
+    images: ['/api/og/home'],
   },
 }
 

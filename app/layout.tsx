@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fira_Code, Bodoni_Moda } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
 import "./globals.css";
 
 const firaCode = Fira_Code({
@@ -82,9 +85,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${firaCode.variable} ${bodoniModa.variable}`} data-scroll-behavior="smooth">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema()),
+          }}
+        />
+      </head>
       <body className="antialiased" suppressHydrationWarning>
         <script dangerouslySetInnerHTML={{ __html: fontInitScript }} />
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

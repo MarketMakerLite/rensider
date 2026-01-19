@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
     '@duckdb/node-bindings',
     'unzipper',
   ],
+  // Optimize package imports for better tree-shaking and smaller bundles
+  experimental: {
+    optimizePackageImports: ['framer-motion', '@visx/xychart', '@visx/shape'],
+  },
   // Include DuckDB native binaries in Vercel serverless functions
   outputFileTracingIncludes: {
     '/*': ['./node_modules/@duckdb/**/*'],

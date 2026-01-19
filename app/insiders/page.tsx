@@ -13,9 +13,19 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Insider Sales | Rensider',
   description: 'Track insider trading activity from SEC Form 3, 4, and 5 filings. Monitor insider purchases and sales in public companies.',
+  alternates: {
+    canonical: 'https://renbot.app/insiders',
+  },
   openGraph: {
     title: 'Insider Sales | Rensider',
     description: 'Track insider trading activity from SEC Form 3/4/5 filings',
+    images: ['/api/og/home'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Insider Sales | Rensider',
+    description: 'Track insider trading activity from SEC Form 3/4/5 filings',
+    images: ['/api/og/home'],
   },
 }
 

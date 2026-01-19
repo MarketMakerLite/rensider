@@ -25,6 +25,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${name} Holdings | Rensider`,
     description: `View portfolio holdings, AUM history, and position changes for ${name}. Track 13F filings and institutional activity.`,
+    alternates: {
+      canonical: `https://renbot.app/fund/${cik}`,
+    },
     openGraph: {
       title: `${name} Holdings | Rensider`,
       description: `View portfolio holdings and 13F filings for ${name}`,

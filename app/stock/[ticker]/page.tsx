@@ -25,6 +25,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${upperTicker} Institutional Ownership | Rensider`,
     description: `Track institutional holdings and 13F filings for ${upperTicker}. View fund sentiment, ownership concentration, and recent filer activity.`,
+    alternates: {
+      canonical: `https://renbot.app/stock/${upperTicker}`,
+    },
     openGraph: {
       title: `${upperTicker} Institutional Ownership | Rensider`,
       description: `Track institutional holdings and 13F filings for ${upperTicker}`,

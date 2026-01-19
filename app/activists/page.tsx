@@ -13,9 +13,19 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Beneficial Ownership | Rensider',
   description: 'Track beneficial ownership filings (Schedule 13D and 13G) from the SEC. Monitor activist investors and major shareholders with 5%+ positions.',
+  alternates: {
+    canonical: 'https://renbot.app/activists',
+  },
   openGraph: {
     title: 'Beneficial Ownership | Rensider',
     description: 'Track Schedule 13D/G beneficial ownership filings from the SEC',
+    images: ['/api/og/home'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Beneficial Ownership | Rensider',
+    description: 'Track Schedule 13D/G beneficial ownership filings from the SEC',
+    images: ['/api/og/home'],
   },
 }
 

@@ -19,9 +19,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${upperTicker} Insider Trading | Rensider`,
     description: `Track insider purchases and sales for ${upperTicker}. View officer and director transactions from SEC Form 4 filings.`,
+    alternates: {
+      canonical: `https://renbot.app/insiders/${upperTicker}`,
+    },
     openGraph: {
       title: `${upperTicker} Insider Trading | Rensider`,
       description: `Track insider trading activity for ${upperTicker}`,
+      images: ['/api/og/home'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${upperTicker} Insider Trading | Rensider`,
+      description: `Track insider trading activity for ${upperTicker}`,
+      images: ['/api/og/home'],
     },
   }
 }

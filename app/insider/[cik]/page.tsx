@@ -4,9 +4,9 @@ import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
-import { getInsiderProfile } from '@/actions/insiders'
+import { getInsiderProfile } from '@/actions/insider-sales'
 import { formatDate, formatLargeNumber, decodeHtmlEntities } from '@/lib/format'
-import { InsiderTransactionsTable } from '@/components/insiders/InsiderTransactionsTable'
+import { InsiderTransactionsTable } from '@/components/insider-sales/InsiderTransactionsTable'
 
 // Force dynamic rendering for database queries
 export const dynamic = 'force-dynamic'
@@ -24,9 +24,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${name} | Insider Profile | Rensider`,
     description: `View insider trading history for ${name}. Track their positions and transactions across public companies.`,
+    alternates: {
+      canonical: `https://renbot.app/insider/${cik}`,
+    },
     openGraph: {
       title: `${name} | Insider Profile | Rensider`,
       description: `View insider trading history for ${name}`,
+      images: ['/api/og/home'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${name} | Insider Profile | Rensider`,
+      description: `View insider trading history for ${name}`,
+      images: ['/api/og/home'],
     },
   }
 }

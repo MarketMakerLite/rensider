@@ -4,7 +4,6 @@
  */
 
 import { query } from '../sec/duckdb'
-import { getFilerNames } from '../sec/filer-names'
 import { parseDateToTimestamp } from '../validators/dates'
 import type { Filing } from '@/types/ownership'
 
@@ -77,17 +76,18 @@ export async function getRecentFilings(options: {
   days?: number
   limit?: number
 }): Promise<Filing[]> {
-  const { days = 365, limit = 100 } = options
+  const { limit = 100 } = options
 
   try {
     // Query submissions with holdings aggregation
-    // Order by FILING_DATE to show most recently filed documents first
+    // Use COALESCE to prefer denormalized FILER_NAME, fall back to filer_names table
     const results = await query<{
       ACCESSION_NUMBER: string
       CIK: string
       SUBMISSIONTYPE: string
       PERIODOFREPORT: string
       FILING_DATE: string
+      FILER_NAME: string | null
       holdings_count: number
       total_value: number
     }>(`
@@ -97,25 +97,22 @@ export async function getRecentFilings(options: {
         s.SUBMISSIONTYPE,
         s.PERIODOFREPORT,
         s.FILING_DATE,
+        COALESCE(s.FILER_NAME, f.name) as FILER_NAME,
         COUNT(h.CUSIP) as holdings_count,
         COALESCE(SUM(h.VALUE), 0) as total_value
       FROM submissions_13f s
       LEFT JOIN holdings_13f h ON s.ACCESSION_NUMBER = h.ACCESSION_NUMBER
+      LEFT JOIN filer_names f ON LPAD(s.CIK, 10, '0') = f.cik
       WHERE s.FILING_DATE IS NOT NULL
-      GROUP BY s.ACCESSION_NUMBER, s.CIK, s.SUBMISSIONTYPE, s.PERIODOFREPORT, s.FILING_DATE
+      GROUP BY s.ACCESSION_NUMBER, s.CIK, s.SUBMISSIONTYPE, s.PERIODOFREPORT, s.FILING_DATE, s.FILER_NAME, f.name
       ORDER BY s.ACCESSION_NUMBER DESC
       LIMIT ${limit}
     `)
 
-    // Batch resolve filer names (fetchMissing: false to avoid rate limiting/hanging)
-    // Names show as placeholders initially, fetched in background for future requests
-    const ciks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: false })
-
     return results.map(r => ({
       accessionNumber: r.ACCESSION_NUMBER,
       cik: r.CIK,
-      institutionName: filerNamesMap.get(r.CIK) || 'Unknown',
+      institutionName: r.FILER_NAME || `CIK ${r.CIK}`,
       filingDate: parseDateToTimestamp(r.FILING_DATE) ?? 0,
       reportDate: parseDateToTimestamp(r.PERIODOFREPORT) ?? 0,
       quarter: periodToQuarter(r.PERIODOFREPORT) || inferQuarterFromFilingDate(r.FILING_DATE) || '',
@@ -137,12 +134,14 @@ export async function getFilerFilings(cik: string, limit: number = 20): Promise<
 
   try {
     // Query submissions for this filer with holdings aggregation
+    // Use COALESCE to prefer denormalized FILER_NAME, fall back to filer_names table
     const results = await query<{
       ACCESSION_NUMBER: string
       CIK: string
       SUBMISSIONTYPE: string
       PERIODOFREPORT: string
       FILING_DATE: string
+      FILER_NAME: string | null
       holdings_count: number
       total_value: number
     }>(`
@@ -152,25 +151,22 @@ export async function getFilerFilings(cik: string, limit: number = 20): Promise<
         s.SUBMISSIONTYPE,
         s.PERIODOFREPORT,
         s.FILING_DATE,
+        COALESCE(s.FILER_NAME, f.name) as FILER_NAME,
         COUNT(h.CUSIP) as holdings_count,
         COALESCE(SUM(h.VALUE), 0) as total_value
       FROM submissions_13f s
       LEFT JOIN holdings_13f h ON s.ACCESSION_NUMBER = h.ACCESSION_NUMBER
+      LEFT JOIN filer_names f ON LPAD(s.CIK, 10, '0') = f.cik
       WHERE (LTRIM(s.CIK, '0') = '${normalizedCik}' OR s.CIK = '${normalizedCik}')
-      GROUP BY s.ACCESSION_NUMBER, s.CIK, s.SUBMISSIONTYPE, s.PERIODOFREPORT, s.FILING_DATE
+      GROUP BY s.ACCESSION_NUMBER, s.CIK, s.SUBMISSIONTYPE, s.PERIODOFREPORT, s.FILING_DATE, s.FILER_NAME, f.name
       ORDER BY s.FILING_DATE DESC
       LIMIT ${limit}
     `)
 
-    // Batch resolve filer names (fetchMissing: false to avoid rate limiting/hanging)
-    // Names show as placeholders initially, fetched in background for future requests
-    const ciks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: false })
-
     return results.map(r => ({
       accessionNumber: r.ACCESSION_NUMBER,
       cik: r.CIK,
-      institutionName: filerNamesMap.get(r.CIK) || 'Unknown',
+      institutionName: r.FILER_NAME || `CIK ${r.CIK}`,
       filingDate: parseDateToTimestamp(r.FILING_DATE) ?? 0,
       reportDate: parseDateToTimestamp(r.PERIODOFREPORT) ?? 0,
       quarter: periodToQuarter(r.PERIODOFREPORT) || inferQuarterFromFilingDate(r.FILING_DATE) || '',

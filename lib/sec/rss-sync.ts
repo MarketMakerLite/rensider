@@ -560,6 +560,7 @@ export async function sync13FFromRSS(options: RSSSyncOptions): Promise<RSSSyncRe
           SUBMISSIONTYPE: entry.formType,
           PERIODOFREPORT: periodOfReport,
           FILING_DATE: entry.filingDate,
+          FILER_NAME: entry.companyName || null,
         });
 
         for (const holding of holdings) {

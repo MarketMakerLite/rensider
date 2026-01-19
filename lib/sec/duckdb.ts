@@ -482,8 +482,14 @@ export async function initializeSchema(): Promise<void> {
       SUBMISSIONTYPE VARCHAR,
       PERIODOFREPORT VARCHAR,
       FILING_DATE VARCHAR,
+      FILER_NAME VARCHAR,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
+  `);
+
+  // Add FILER_NAME column if it doesn't exist (for existing tables)
+  await execute(`
+    ALTER TABLE submissions_13f ADD COLUMN IF NOT EXISTS FILER_NAME VARCHAR
   `);
 
   await execute(`

@@ -5,7 +5,6 @@
 
 import { getFilerHoldings as queryFilerHoldings } from '../sec/queries'
 import { query } from '../sec/duckdb'
-import { getFilerName, getFilerNames } from '../sec/filer-names'
 import { parseDate, parseDateToTimestamp } from '../validators/dates'
 import type {
   StockOwnershipData,
@@ -139,6 +138,7 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       PUTCALL: string | null
       INVESTMENTDISCRETION: string
       CIK: string
+      FILINGMANAGER_NAME: string | null
       PERIODOFREPORT: string
       FILING_DATE: string
     }>(`
@@ -152,6 +152,7 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
         h.PUTCALL,
         h.INVESTMENTDISCRETION,
         s.CIK,
+        s.FILINGMANAGER_NAME,
         s.PERIODOFREPORT,
         s.FILING_DATE
       FROM holdings_13f h
@@ -182,9 +183,13 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       }
     }
 
-    // Batch resolve filer names for all CIKs (fetchMissing: true for serverless)
-    const uniqueCiks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(uniqueCiks, { fetchMissing: true })
+    // Build filer names map from database results (FILINGMANAGER_NAME column)
+    const filerNamesMap = new Map<string, string>()
+    for (const r of results) {
+      if (!filerNamesMap.has(r.CIK)) {
+        filerNamesMap.set(r.CIK, r.FILINGMANAGER_NAME || `CIK ${r.CIK}`)
+      }
+    }
 
     // Aggregate current holdings by CIK for change calculation
     const currentByInstitution = new Map<string, { shares: number; value: number }>()
@@ -299,8 +304,8 @@ export async function getFundHoldingsData(cik: string, maxHoldings: number = 500
       return null
     }
 
-    // Get filer name
-    const filerName = await getFilerName(normalizedCik)
+    // Get filer name from holdings result (from database)
+    const filerName = holdings[0]?.filingmanager_name || `CIK ${normalizedCik}`
 
     // Calculate totals from all holdings before limiting
     // Note: h.value is in thousands (as SEC reports), display layer converts to dollars
@@ -656,42 +661,40 @@ function calculateSentiment(holdings: Holding[], latestQuarter: string, closedCo
   }
 }
 
-async function calculateConcentration(holdings: Holding[]): Promise<ConcentrationMetrics> {
-  const byInstitution = new Map<string, number>()
+function calculateConcentration(holdings: Holding[]): ConcentrationMetrics {
+  const byInstitution = new Map<string, { value: number; name: string | null }>()
   let totalValue = 0
 
   for (const h of holdings) {
-    const current = byInstitution.get(h.cik) || 0
-    byInstitution.set(h.cik, current + h.value)
+    const existing = byInstitution.get(h.cik)
+    if (existing) {
+      existing.value += h.value
+    } else {
+      byInstitution.set(h.cik, { value: h.value, name: h.institutionName || null })
+    }
     totalValue += h.value
   }
 
   const values = Array.from(byInstitution.entries())
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => b[1].value - a[1].value)
 
-  const top10Value = values.slice(0, 10).reduce((sum, [, v]) => sum + v, 0)
+  const top10Value = values.slice(0, 10).reduce((sum, [, data]) => sum + data.value, 0)
   const top10Concentration = totalValue > 0 ? (top10Value / totalValue) * 100 : 0
 
-  const hhi = values.reduce((sum, [, v]) => {
-    const share = totalValue > 0 ? v / totalValue : 0
+  const hhi = values.reduce((sum, [, data]) => {
+    const share = totalValue > 0 ? data.value / totalValue : 0
     return sum + share * share
   }, 0)
 
   const largestHolder = values[0]
-  let largestHolderName: string | null = null
-
-  if (largestHolder) {
-    // Use non-blocking lookup to avoid SEC rate limit delays
-    largestHolderName = await getFilerName(largestHolder[0], { fetchIfMissing: false })
-  }
 
   return {
     top10Concentration,
     herfindahlIndex: hhi * 10000,
     largestHolderPercent: largestHolder && totalValue > 0
-      ? (largestHolder[1] / totalValue) * 100
+      ? (largestHolder[1].value / totalValue) * 100
       : 0,
-    largestHolderName,
+    largestHolderName: largestHolder?.[1].name || null,
   }
 }
 

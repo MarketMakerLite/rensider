@@ -58,11 +58,17 @@
   --touch-target-min: 2.75rem;
 }
 
+html {
+  /* Force light mode regardless of system preference */
+  color-scheme: light;
+}
+
 body {
   margin: 0;
   font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: var(--font-size-base);
   line-height: 1.6;
+  background-color: #F3F1F1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Prevent horizontal scroll on mobile */

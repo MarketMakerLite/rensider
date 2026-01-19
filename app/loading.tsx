@@ -6,7 +6,7 @@ import { duration, easing } from '@/lib/animations'
 
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+    <div className="flex min-h-screen items-center justify-center">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

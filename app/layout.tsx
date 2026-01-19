@@ -64,14 +64,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F3F1F1" },
-    { media: "(prefers-color-scheme: dark)", color: "#0C0A09" },
-  ],
+  themeColor: "#F3F1F1",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  colorScheme: "dark light",
+  colorScheme: "light",
 };
 
 // Inline script to apply font preference before render (prevents flash)

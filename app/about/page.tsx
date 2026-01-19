@@ -176,34 +176,34 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
-                    <td className="px-4 py-3 font-medium">Superinvestor Cloning</td>
-                    <td className="px-4 py-3 text-zinc-600">New position initiated by high-alpha manager</td>
-                    <td className="px-4 py-3 text-zinc-600">Enter when filing published, size proportionally</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Superinvestor Cloning</td>
+                    <td className="px-4 py-3 text-zinc-700">New position initiated by high-alpha manager</td>
+                    <td className="px-4 py-3 text-zinc-700">Enter when filing published, size proportionally</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Accumulation Momentum</td>
-                    <td className="px-4 py-3 text-zinc-600">3+ consecutive quarters of rising IO</td>
-                    <td className="px-4 py-3 text-zinc-600">Long bias while trend persists</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Accumulation Momentum</td>
+                    <td className="px-4 py-3 text-zinc-700">3+ consecutive quarters of rising IO</td>
+                    <td className="px-4 py-3 text-zinc-700">Long bias while trend persists</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Accumulation Breakout</td>
-                    <td className="px-4 py-3 text-zinc-600">Significant IO increase within lookback period</td>
-                    <td className="px-4 py-3 text-zinc-600">Research catalyst, consider entry on pullbacks</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Accumulation Breakout</td>
+                    <td className="px-4 py-3 text-zinc-700">Significant IO increase within lookback period</td>
+                    <td className="px-4 py-3 text-zinc-700">Research catalyst, consider entry on pullbacks</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Crowding Avoidance</td>
-                    <td className="px-4 py-3 text-zinc-600">Top 10 holders &gt;50% of float</td>
-                    <td className="px-4 py-3 text-zinc-600">Reduce position size, tighten stops</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Crowding Avoidance</td>
+                    <td className="px-4 py-3 text-zinc-700">Top 10 holders &gt;50% of float</td>
+                    <td className="px-4 py-3 text-zinc-700">Reduce position size, tighten stops</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Distribution Exit</td>
-                    <td className="px-4 py-3 text-zinc-600">Multiple top holders reducing simultaneously</td>
-                    <td className="px-4 py-3 text-zinc-600">Exit or hedge existing longs</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Distribution Exit</td>
+                    <td className="px-4 py-3 text-zinc-700">Multiple top holders reducing simultaneously</td>
+                    <td className="px-4 py-3 text-zinc-700">Exit or hedge existing longs</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Contrarian Value</td>
-                    <td className="px-4 py-3 text-zinc-600">IO declining while fundamentals stable</td>
-                    <td className="px-4 py-3 text-zinc-600">Accumulate at discounted prices</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Contrarian Value</td>
+                    <td className="px-4 py-3 text-zinc-700">IO declining while fundamentals stable</td>
+                    <td className="px-4 py-3 text-zinc-700">Accumulate at discounted prices</td>
                   </tr>
                 </tbody>
               </table>
@@ -434,44 +434,44 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
-                    <td className="px-4 py-2">Exchange-traded equities</td>
+                    <td className="px-4 py-2 text-zinc-900">Exchange-traded equities</td>
                     <td className="px-4 py-2"><Badge color="green">Yes</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">NYSE, NASDAQ, etc.</td>
+                    <td className="px-4 py-2 text-zinc-700">NYSE, NASDAQ, etc.</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Listed equity options</td>
+                    <td className="px-4 py-2 text-zinc-900">Listed equity options</td>
                     <td className="px-4 py-2"><Badge color="green">Yes</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">Call and put options</td>
+                    <td className="px-4 py-2 text-zinc-700">Call and put options</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Closed-end funds</td>
+                    <td className="px-4 py-2 text-zinc-900">Closed-end funds</td>
                     <td className="px-4 py-2"><Badge color="green">Yes</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">Exchange-traded CEFs</td>
+                    <td className="px-4 py-2 text-zinc-700">Exchange-traded CEFs</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Convertible debt securities</td>
+                    <td className="px-4 py-2 text-zinc-900">Convertible debt securities</td>
                     <td className="px-4 py-2"><Badge color="yellow">Conditional</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">If equity-linked and listed</td>
+                    <td className="px-4 py-2 text-zinc-700">If equity-linked and listed</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Exchange-traded warrants</td>
+                    <td className="px-4 py-2 text-zinc-900">Exchange-traded warrants</td>
                     <td className="px-4 py-2"><Badge color="green">Yes</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">Listed warrants only</td>
+                    <td className="px-4 py-2 text-zinc-700">Listed warrants only</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Open-end mutual funds</td>
+                    <td className="px-4 py-2 text-zinc-900">Open-end mutual funds</td>
                     <td className="px-4 py-2"><Badge color="red">No</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">Explicitly excluded</td>
+                    <td className="px-4 py-2 text-zinc-700">Explicitly excluded</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Private placements</td>
+                    <td className="px-4 py-2 text-zinc-900">Private placements</td>
                     <td className="px-4 py-2"><Badge color="red">No</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">Not exchange-traded</td>
+                    <td className="px-4 py-2 text-zinc-700">Not exchange-traded</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2">Foreign ordinary shares</td>
+                    <td className="px-4 py-2 text-zinc-900">Foreign ordinary shares</td>
                     <td className="px-4 py-2"><Badge color="red">No</Badge></td>
-                    <td className="px-4 py-2 text-zinc-500">ADRs may qualify</td>
+                    <td className="px-4 py-2 text-zinc-700">ADRs may qualify</td>
                   </tr>
                 </tbody>
               </table>
@@ -617,49 +617,49 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">nameOfIssuer</td>
-                    <td className="px-4 py-2">Name of the security issuer</td>
-                    <td className="px-4 py-2 text-zinc-500">String (200 char max)</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">nameOfIssuer</td>
+                    <td className="px-4 py-2 text-zinc-900">Name of the security issuer</td>
+                    <td className="px-4 py-2 text-zinc-700">String (200 char max)</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">titleOfClass</td>
-                    <td className="px-4 py-2">Class/type of security</td>
-                    <td className="px-4 py-2 text-zinc-500">String</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">titleOfClass</td>
+                    <td className="px-4 py-2 text-zinc-900">Class/type of security</td>
+                    <td className="px-4 py-2 text-zinc-700">String</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">cusip</td>
-                    <td className="px-4 py-2">CUSIP identifier</td>
-                    <td className="px-4 py-2 text-zinc-500">9-character alphanumeric</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">cusip</td>
+                    <td className="px-4 py-2 text-zinc-900">CUSIP identifier</td>
+                    <td className="px-4 py-2 text-zinc-700">9-character alphanumeric</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">value</td>
-                    <td className="px-4 py-2">Fair market value</td>
-                    <td className="px-4 py-2 text-zinc-500">Integer (thousands USD)</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">value</td>
+                    <td className="px-4 py-2 text-zinc-900">Fair market value</td>
+                    <td className="px-4 py-2 text-zinc-700">Integer (thousands USD)</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">sshPrnamt</td>
-                    <td className="px-4 py-2">Number of shares/principal amount</td>
-                    <td className="px-4 py-2 text-zinc-500">Integer</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">sshPrnamt</td>
+                    <td className="px-4 py-2 text-zinc-900">Number of shares/principal amount</td>
+                    <td className="px-4 py-2 text-zinc-700">Integer</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">sshPrnamtType</td>
-                    <td className="px-4 py-2">Shares (SH) or Principal (PRN)</td>
-                    <td className="px-4 py-2 text-zinc-500">Enum: SH, PRN</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">sshPrnamtType</td>
+                    <td className="px-4 py-2 text-zinc-900">Shares (SH) or Principal (PRN)</td>
+                    <td className="px-4 py-2 text-zinc-700">Enum: SH, PRN</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">putCall</td>
-                    <td className="px-4 py-2">Option type if applicable</td>
-                    <td className="px-4 py-2 text-zinc-500">Enum: PUT, CALL, null</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">putCall</td>
+                    <td className="px-4 py-2 text-zinc-900">Option type if applicable</td>
+                    <td className="px-4 py-2 text-zinc-700">Enum: PUT, CALL, null</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">investmentDiscretion</td>
-                    <td className="px-4 py-2">Discretion type</td>
-                    <td className="px-4 py-2 text-zinc-500">Enum: SOLE, DFND, OTR</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">investmentDiscretion</td>
+                    <td className="px-4 py-2 text-zinc-900">Discretion type</td>
+                    <td className="px-4 py-2 text-zinc-700">Enum: SOLE, DFND, OTR</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-mono text-xs">votingAuthority</td>
-                    <td className="px-4 py-2">Shares by voting auth type</td>
-                    <td className="px-4 py-2 text-zinc-500">Sole, Shared, None (integers)</td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-900">votingAuthority</td>
+                    <td className="px-4 py-2 text-zinc-900">Shares by voting auth type</td>
+                    <td className="px-4 py-2 text-zinc-700">Sole, Shared, None (integers)</td>
                   </tr>
                 </tbody>
               </table>
@@ -708,24 +708,24 @@ export default function AboutPage() {
                     </thead>
                     <tbody className="divide-y divide-zinc-100">
                       <tr>
-                        <td className="px-3 py-2">Value Change</td>
+                        <td className="px-3 py-2 text-zinc-900">Value Change</td>
                         <td className="px-3 py-2 font-mono text-xs">0.125</td>
-                        <td className="px-3 py-2 text-zinc-600">Quarter-over-quarter change in aggregate institutional value</td>
+                        <td className="px-3 py-2 text-zinc-700">Quarter-over-quarter change in aggregate institutional value</td>
                       </tr>
                       <tr>
-                        <td className="px-3 py-2">Owner Count</td>
+                        <td className="px-3 py-2 text-zinc-900">Owner Count</td>
                         <td className="px-3 py-2 font-mono text-xs">0.25</td>
-                        <td className="px-3 py-2 text-zinc-600">Change in number of institutional holders</td>
+                        <td className="px-3 py-2 text-zinc-700">Change in number of institutional holders</td>
                       </tr>
                       <tr>
-                        <td className="px-3 py-2">Concentration (HHI)</td>
+                        <td className="px-3 py-2 text-zinc-900">Concentration (HHI)</td>
                         <td className="px-3 py-2 font-mono text-xs">0.25</td>
-                        <td className="px-3 py-2 text-zinc-600">Inverted HHI—lower concentration yields higher score</td>
+                        <td className="px-3 py-2 text-zinc-700">Inverted HHI—lower concentration yields higher score</td>
                       </tr>
                       <tr>
-                        <td className="px-3 py-2">Position Activity</td>
+                        <td className="px-3 py-2 text-zinc-900">Position Activity</td>
                         <td className="px-3 py-2 font-mono text-xs">0.125</td>
-                        <td className="px-3 py-2 text-zinc-600">Ratio of (new + added) vs (closed + reduced) positions</td>
+                        <td className="px-3 py-2 text-zinc-700">Ratio of (new + added) vs (closed + reduced) positions</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1117,52 +1117,52 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
-                    <td className="px-4 py-2 font-medium">Who Files</td>
-                    <td className="px-4 py-2 text-zinc-600">Institutional managers with $100M+ AUM</td>
-                    <td className="px-4 py-2 text-zinc-600">Anyone with 5%+ and intent to influence</td>
-                    <td className="px-4 py-2 text-zinc-600">Passive 5%+ holders, QIIs</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Who Files</td>
+                    <td className="px-4 py-2 text-zinc-700">Institutional managers with $100M+ AUM</td>
+                    <td className="px-4 py-2 text-zinc-700">Anyone with 5%+ and intent to influence</td>
+                    <td className="px-4 py-2 text-zinc-700">Passive 5%+ holders, QIIs</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Threshold</td>
-                    <td className="px-4 py-2 text-zinc-600">$100M total AUM</td>
-                    <td className="px-4 py-2 text-zinc-600">5% of any voting class</td>
-                    <td className="px-4 py-2 text-zinc-600">5% of any voting class</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Threshold</td>
+                    <td className="px-4 py-2 text-zinc-700">$100M total AUM</td>
+                    <td className="px-4 py-2 text-zinc-700">5% of any voting class</td>
+                    <td className="px-4 py-2 text-zinc-700">5% of any voting class</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Filing Deadline</td>
-                    <td className="px-4 py-2 text-zinc-600">45 days after quarter-end</td>
-                    <td className="px-4 py-2 text-zinc-600">10 days after crossing 5%</td>
-                    <td className="px-4 py-2 text-zinc-600">Varies by category (10-45 days)</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Filing Deadline</td>
+                    <td className="px-4 py-2 text-zinc-700">45 days after quarter-end</td>
+                    <td className="px-4 py-2 text-zinc-700">10 days after crossing 5%</td>
+                    <td className="px-4 py-2 text-zinc-700">Varies by category (10-45 days)</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Frequency</td>
-                    <td className="px-4 py-2 text-zinc-600">Quarterly</td>
-                    <td className="px-4 py-2 text-zinc-600">Event-driven (prompt amendments)</td>
-                    <td className="px-4 py-2 text-zinc-600">Annual + event-driven</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Frequency</td>
+                    <td className="px-4 py-2 text-zinc-700">Quarterly</td>
+                    <td className="px-4 py-2 text-zinc-700">Event-driven (prompt amendments)</td>
+                    <td className="px-4 py-2 text-zinc-700">Annual + event-driven</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Intent Disclosure</td>
-                    <td className="px-4 py-2 text-zinc-600">Not required</td>
-                    <td className="px-4 py-2 text-zinc-600"><strong>Required (Item 4)</strong></td>
-                    <td className="px-4 py-2 text-zinc-600">Certifies passive intent</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Intent Disclosure</td>
+                    <td className="px-4 py-2 text-zinc-700">Not required</td>
+                    <td className="px-4 py-2 text-zinc-700"><strong>Required (Item 4)</strong></td>
+                    <td className="px-4 py-2 text-zinc-700">Certifies passive intent</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Position Details</td>
-                    <td className="px-4 py-2 text-zinc-600">All 13(f) securities held</td>
-                    <td className="px-4 py-2 text-zinc-600">Single issuer only</td>
-                    <td className="px-4 py-2 text-zinc-600">Single issuer only</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Position Details</td>
+                    <td className="px-4 py-2 text-zinc-700">All 13(f) securities held</td>
+                    <td className="px-4 py-2 text-zinc-700">Single issuer only</td>
+                    <td className="px-4 py-2 text-zinc-700">Single issuer only</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Short Positions</td>
-                    <td className="px-4 py-2 text-zinc-600">Not reported</td>
-                    <td className="px-4 py-2 text-zinc-600">Not reported (but intent may imply)</td>
-                    <td className="px-4 py-2 text-zinc-600">Not reported</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Short Positions</td>
+                    <td className="px-4 py-2 text-zinc-700">Not reported</td>
+                    <td className="px-4 py-2 text-zinc-700">Not reported (but intent may imply)</td>
+                    <td className="px-4 py-2 text-zinc-700">Not reported</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 font-medium">Trading Signal</td>
-                    <td className="px-4 py-2 text-zinc-600">Aggregate institutional sentiment</td>
-                    <td className="px-4 py-2 text-zinc-600">Activist catalyst potential</td>
-                    <td className="px-4 py-2 text-zinc-600">Large passive holder presence</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">Trading Signal</td>
+                    <td className="px-4 py-2 text-zinc-700">Aggregate institutional sentiment</td>
+                    <td className="px-4 py-2 text-zinc-700">Activist catalyst potential</td>
+                    <td className="px-4 py-2 text-zinc-700">Large passive holder presence</td>
                   </tr>
                 </tbody>
               </table>
@@ -1215,29 +1215,29 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
-                    <td className="px-4 py-3 font-medium">Activist Piggybacking</td>
-                    <td className="px-4 py-3 text-zinc-600">New 13D filing by known activist with detailed Item 4</td>
-                    <td className="px-4 py-3 text-zinc-600">Enter within 1-2 days of filing, target 6-18 month hold</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Activist Piggybacking</td>
+                    <td className="px-4 py-3 text-zinc-700">New 13D filing by known activist with detailed Item 4</td>
+                    <td className="px-4 py-3 text-zinc-700">Enter within 1-2 days of filing, target 6-18 month hold</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">13G→13D Conversion</td>
-                    <td className="px-4 py-3 text-zinc-600">Passive holder converts to 13D with specific demands</td>
-                    <td className="px-4 py-3 text-zinc-600">Enter on conversion day, anticipate board fight or M&amp;A</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">13G→13D Conversion</td>
+                    <td className="px-4 py-3 text-zinc-700">Passive holder converts to 13D with specific demands</td>
+                    <td className="px-4 py-3 text-zinc-700">Enter on conversion day, anticipate board fight or M&amp;A</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Accumulation Tracking</td>
-                    <td className="px-4 py-3 text-zinc-600">13D/A showing continued buying above 5%</td>
-                    <td className="px-4 py-3 text-zinc-600">Add to position as activist increases stake</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Accumulation Tracking</td>
+                    <td className="px-4 py-3 text-zinc-700">13D/A showing continued buying above 5%</td>
+                    <td className="px-4 py-3 text-zinc-700">Add to position as activist increases stake</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Settlement Arbitrage</td>
-                    <td className="px-4 py-3 text-zinc-600">13D/A announcing settlement agreement with company</td>
-                    <td className="px-4 py-3 text-zinc-600">Evaluate terms; board seats often bullish, standstills mixed</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Settlement Arbitrage</td>
+                    <td className="px-4 py-3 text-zinc-700">13D/A announcing settlement agreement with company</td>
+                    <td className="px-4 py-3 text-zinc-700">Evaluate terms; board seats often bullish, standstills mixed</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 font-medium">Exit Signal</td>
-                    <td className="px-4 py-3 text-zinc-600">13D/A showing activist reducing below 5%</td>
-                    <td className="px-4 py-3 text-zinc-600">Evaluate thesis completion; consider exit</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900">Exit Signal</td>
+                    <td className="px-4 py-3 text-zinc-700">13D/A showing activist reducing below 5%</td>
+                    <td className="px-4 py-3 text-zinc-700">Evaluate thesis completion; consider exit</td>
                   </tr>
                 </tbody>
               </table>

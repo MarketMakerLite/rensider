@@ -69,6 +69,7 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.6;
   background-color: #F3F1F1;
+  color: #0C0A09; /* zinc-900 - ensure dark text by default */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Prevent horizontal scroll on mobile */

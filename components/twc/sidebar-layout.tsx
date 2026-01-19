@@ -1,8 +1,10 @@
 'use client'
 
 import * as Headless from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { NavbarItem } from './navbar'
+import { bottomSheet } from '@/lib/animations'
 
 function OpenMenuIcon() {
   return (
@@ -21,26 +23,62 @@ function CloseMenuIcon() {
 }
 
 function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open: boolean; close: () => void }>) {
+  // Lock body scroll when sheet is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = ''
+      }
+    }
+  }, [open])
+
   return (
-    <Headless.Dialog open={open} onClose={close} className="lg:hidden">
-      <Headless.DialogBackdrop
-        transition
-        className="fixed inset-0 bg-black/30 transition data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
-      />
-      <Headless.DialogPanel
-        transition
-        className="fixed inset-y-0 w-full max-w-80 p-2 transition duration-300 ease-in-out data-closed:-translate-x-full"
-      >
-        <div className="flex h-full flex-col bg-zinc-50 shadow-xs ring-1 ring-zinc-950/5">
-          <div className="-mb-3 px-4 pt-3">
-            <Headless.CloseButton as={NavbarItem} aria-label="Close navigation">
-              <CloseMenuIcon />
-            </Headless.CloseButton>
+    <AnimatePresence>
+      {open && (
+        <Headless.Dialog static open={open} onClose={close} className="relative z-50 lg:hidden">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-black/40"
+            aria-hidden="true"
+          />
+
+          {/* Bottom sheet panel */}
+          <div className="fixed inset-x-0 bottom-0 flex items-end justify-center">
+            <Headless.DialogPanel
+              as={motion.div}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={bottomSheet}
+              className="w-full max-h-[85vh] overflow-hidden bg-zinc-50 pb-safe"
+              style={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}
+            >
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="h-1 w-10 rounded-full bg-zinc-300" />
+              </div>
+
+              {/* Close button */}
+              <div className="flex justify-end px-4 pb-2">
+                <Headless.CloseButton as={NavbarItem} aria-label="Close navigation" className="touch-target">
+                  <CloseMenuIcon />
+                </Headless.CloseButton>
+              </div>
+
+              {/* Content with overflow scroll */}
+              <div className="overflow-y-auto overscroll-contain" style={{ maxHeight: 'calc(85vh - 5rem)' }}>
+                {children}
+              </div>
+            </Headless.DialogPanel>
           </div>
-          {children}
-        </div>
-      </Headless.DialogPanel>
-    </Headless.Dialog>
+        </Headless.Dialog>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -62,9 +100,13 @@ export function SidebarLayout({
       </MobileSidebar>
 
       {/* Mobile header with hamburger menu */}
-      <header className="flex items-center px-4 safe-area-inset-top lg:hidden">
-        <div className="py-2.5">
-          <NavbarItem onClick={() => setShowSidebar(true)} aria-label="Open navigation">
+      <header className="flex items-center border-b border-zinc-200/60 px-4 safe-area-inset-top lg:hidden">
+        <div className="py-2">
+          <NavbarItem
+            onClick={() => setShowSidebar(true)}
+            aria-label="Open navigation"
+            className="touch-target flex items-center justify-center"
+          >
             <OpenMenuIcon />
           </NavbarItem>
         </div>

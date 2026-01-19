@@ -198,3 +198,27 @@ export const dropdown: Variants = {
   },
 }
 
+/**
+ * Bottom sheet animation - slides up from bottom
+ */
+export const bottomSheet: Variants = {
+  hidden: {
+    y: '100%',
+  },
+  visible: {
+    y: 0,
+    transition: {
+      type: 'spring',
+      damping: 25,
+      stiffness: 300,
+    },
+  },
+  exit: {
+    y: '100%',
+    transition: {
+      duration: duration.fast,
+      ease: easing.accelerate,
+    },
+  },
+}
+

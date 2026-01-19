@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { BottomSheet } from '@/components/ui/BottomSheet'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface ShareButtonProps {
   title: string
@@ -11,6 +13,22 @@ interface ShareButtonProps {
 
 export function ShareButton({ title, description, url }: ShareButtonProps) {
   const [copied, setCopied] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const isMobile = useIsMobile()
+  const closeTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const copiedTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current)
+      }
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current)
+      }
+    }
+  }, [])
 
   const getShareUrl = useCallback(() => {
     if (url) return url
@@ -24,7 +42,10 @@ export function ShareButton({ title, description, url }: ShareButtonProps) {
     try {
       await navigator.clipboard.writeText(getShareUrl())
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current)
+      }
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy link:', error)
     }
@@ -40,7 +61,7 @@ export function ShareButton({ title, description, url }: ShareButtonProps) {
         })
       } catch (error) {
         // User cancelled or share failed
-        if ((error as Error).name !== 'AbortError') {
+        if (error instanceof Error && error.name !== 'AbortError') {
           console.error('Share failed:', error)
         }
       }
@@ -49,6 +70,82 @@ export function ShareButton({ title, description, url }: ShareButtonProps) {
 
   const hasNativeShare = typeof navigator !== 'undefined' && 'share' in navigator
 
+  // Share options content - reusable for both dropdown and bottom sheet
+  const shareOptions = (
+    <>
+      {hasNativeShare && (
+        <button
+          onClick={() => {
+            handleNativeShare()
+            setIsSheetOpen(false)
+          }}
+          className={`flex w-full items-center gap-3 text-left text-zinc-700 ${
+            isMobile ? 'min-h-[48px] px-4 py-3 active:bg-zinc-100' : 'px-3 py-2 data-[focus]:bg-zinc-50'
+          }`}
+        >
+          <ShareIcon className={isMobile ? 'h-5 w-5 text-zinc-500' : 'h-4 w-4 text-zinc-400'} />
+          <span className={isMobile ? 'text-base' : 'text-sm'}>Share...</span>
+        </button>
+      )}
+
+      <button
+        onClick={() => {
+          handleCopyLink()
+          if (isMobile) {
+            closeTimerRef.current = setTimeout(() => setIsSheetOpen(false), 1500)
+          }
+        }}
+        className={`flex w-full items-center gap-3 text-left text-zinc-700 ${
+          isMobile ? 'min-h-[48px] px-4 py-3 active:bg-zinc-100' : 'px-3 py-2 data-[focus]:bg-zinc-50'
+        }`}
+      >
+        {copied ? (
+          <>
+            <CheckIcon className={isMobile ? 'h-5 w-5 text-green-500' : 'h-4 w-4 text-green-500'} />
+            <span className={isMobile ? 'text-base text-green-600' : 'text-sm'}>Copied!</span>
+          </>
+        ) : (
+          <>
+            <LinkIcon className={isMobile ? 'h-5 w-5 text-zinc-500' : 'h-4 w-4 text-zinc-400'} />
+            <span className={isMobile ? 'text-base' : 'text-sm'}>Copy Link</span>
+          </>
+        )}
+      </button>
+    </>
+  )
+
+  // Mobile: Button opens BottomSheet
+  if (isMobile) {
+    return (
+      <>
+        <button
+          onClick={() => setIsSheetOpen(true)}
+          className="inline-flex items-center gap-1.5 border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors active:bg-zinc-100 touch-target"
+        >
+          <ShareIcon className="h-4 w-4" />
+          Share
+        </button>
+
+        <BottomSheet
+          open={isSheetOpen}
+          onClose={() => {
+            if (closeTimerRef.current) {
+              clearTimeout(closeTimerRef.current)
+              closeTimerRef.current = null
+            }
+            setIsSheetOpen(false)
+          }}
+          title="Share"
+        >
+          <div className="pb-4">
+            {shareOptions}
+          </div>
+        </BottomSheet>
+      </>
+    )
+  }
+
+  // Desktop: Menu dropdown
   return (
     <Menu as="div" className="relative">
       <MenuButton className="inline-flex items-center gap-1.5 border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
@@ -95,7 +192,7 @@ export function ShareButton({ title, description, url }: ShareButtonProps) {
 
 function ShareIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -108,7 +205,7 @@ function ShareIcon({ className }: { className?: string }) {
 
 function LinkIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -121,7 +218,7 @@ function LinkIcon({ className }: { className?: string }) {
 
 function CheckIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

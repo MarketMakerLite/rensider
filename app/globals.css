@@ -394,3 +394,12 @@ code {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Bottom sheet utilities */
+.pb-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.overscroll-contain {
+  overscroll-behavior: contain;
+}

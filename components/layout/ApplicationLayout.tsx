@@ -37,12 +37,12 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Floating back button - mobile-first positioning */}
-      <div className="fixed left-14 top-3 z-50 lg:left-[calc(14rem+1.5rem)] lg:top-4">
+      {/* Floating back button - desktop only */}
+      <div className="fixed left-[calc(14rem+1.5rem)] top-4 z-50 hidden lg:block">
         <BackButton />
       </div>
-      {/* Floating font toggle - mobile-first positioning */}
-      <div className="fixed right-3 top-3 z-50 lg:right-4 lg:top-4">
+      {/* Floating font toggle - desktop only */}
+      <div className="fixed right-4 top-4 z-50 hidden lg:block">
         <FontToggle />
       </div>
       <SidebarLayout

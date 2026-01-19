@@ -566,6 +566,16 @@ const searchMessages = [
   'Digging through filings',
   'Consulting the archives',
   'Poking around',
+  'Sifting through data',
+  'Checking the records',
+  'Searching far and wide',
+  'Connecting the dots',
+  'Peeking behind curtains',
+  'Rummaging through SEC filings',
+  'Asking the database nicely',
+  'Following the paper trail',
+  'Dusting off old records',
+  'Querying the mothership',
 ]
 
 interface RotatingLoadingMessageProps {
@@ -602,8 +612,59 @@ export function RotatingLoadingMessage({
   )
 }
 
+/**
+ * Search Loading Message with Typewriter Effect
+ * Types out the message character by character, then cycles to the next
+ */
 export function SearchLoadingMessage({ className = '' }: { className?: string }) {
-  return <RotatingLoadingMessage messages={searchMessages} interval={1500} className={className} />
+  const [messageIndex, setMessageIndex] = useState(() => Math.floor(Math.random() * searchMessages.length))
+  const [displayedText, setDisplayedText] = useState('')
+  const [isTyping, setIsTyping] = useState(true)
+
+  const currentMessage = searchMessages[messageIndex]
+
+  useEffect(() => {
+    if (isTyping) {
+      // Type out the message
+      if (displayedText.length < currentMessage.length) {
+        const timeout = setTimeout(() => {
+          setDisplayedText(currentMessage.slice(0, displayedText.length + 1))
+        }, 35) // typing speed
+        return () => clearTimeout(timeout)
+      } else {
+        // Finished typing, wait then move to next
+        const timeout = setTimeout(() => {
+          setIsTyping(false)
+        }, 1200) // pause after typing complete
+        return () => clearTimeout(timeout)
+      }
+    } else {
+      // Clear and move to next message
+      const timeout = setTimeout(() => {
+        setMessageIndex((prev) => (prev + 1) % searchMessages.length)
+        setDisplayedText('')
+        setIsTyping(true)
+      }, 200) // brief pause before next message
+      return () => clearTimeout(timeout)
+    }
+  }, [displayedText, currentMessage, isTyping])
+
+  return (
+    <span className={className}>
+      {displayedText}
+      {isTyping && (
+        <motion.span
+          className="inline-block w-[1px] h-[1em] bg-current ml-0.5 align-middle"
+          animate={{ opacity: [1, 0] }}
+          transition={{
+            duration: 0.4,
+            repeat: Infinity,
+            repeatType: 'reverse',
+          }}
+        />
+      )}
+    </span>
+  )
 }
 
 export { loadingMessages, searchMessages }

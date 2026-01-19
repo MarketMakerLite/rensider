@@ -27,40 +27,45 @@ interface LayoutRect extends TreemapItem {
   h: number
 }
 
-// Sophisticated neutral palette with weight-based intensity
-const getColorStyle = (percentage: number, isHovered: boolean) => {
-  // Base colors scale from light to dark based on weight
-  let bgColor: string
-  let textColor: string
-  let borderColor: string
+// Interpolate between two hex colors
+function lerpColor(color1: string, color2: string, t: number): string {
+  const r1 = parseInt(color1.slice(1, 3), 16)
+  const g1 = parseInt(color1.slice(3, 5), 16)
+  const b1 = parseInt(color1.slice(5, 7), 16)
+  const r2 = parseInt(color2.slice(1, 3), 16)
+  const g2 = parseInt(color2.slice(3, 5), 16)
+  const b2 = parseInt(color2.slice(5, 7), 16)
 
-  if (percentage >= 15) {
-    bgColor = isHovered ? '#18181b' : '#27272a' // zinc-900/800
-    textColor = '#ffffff'
-    borderColor = '#3f3f46'
-  } else if (percentage >= 10) {
-    bgColor = isHovered ? '#27272a' : '#3f3f46' // zinc-800/700
-    textColor = '#ffffff'
-    borderColor = '#52525b'
-  } else if (percentage >= 5) {
-    bgColor = isHovered ? '#3f3f46' : '#52525b' // zinc-700/600
-    textColor = '#ffffff'
-    borderColor = '#71717a'
-  } else if (percentage >= 2) {
-    bgColor = isHovered ? '#52525b' : '#71717a' // zinc-600/500
-    textColor = '#ffffff'
-    borderColor = '#a1a1aa'
-  } else if (percentage >= 1) {
-    bgColor = isHovered ? '#71717a' : '#a1a1aa' // zinc-500/400
-    textColor = '#ffffff'
-    borderColor = '#d4d4d8'
-  } else {
-    bgColor = isHovered ? '#a1a1aa' : '#d4d4d8' // zinc-400/300
-    textColor = '#27272a'
-    borderColor = '#e4e4e7'
+  const r = Math.round(r1 + (r2 - r1) * t)
+  const g = Math.round(g1 + (g2 - g1) * t)
+  const b = Math.round(b1 + (b2 - b1) * t)
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
+// Scale colors based on relative percentage (0 = min, 1 = max)
+const getColorStyle = (percentage: number, maxPercentage: number, isHovered: boolean) => {
+  // Calculate relative intensity (0 to 1)
+  const t = maxPercentage > 0 ? percentage / maxPercentage : 0
+
+  // Color stops: zinc-300 (lightest) to zinc-900 (darkest)
+  const lightBg = '#d4d4d8' // zinc-300
+  const darkBg = '#27272a'  // zinc-800
+  const lightBorder = '#e4e4e7' // zinc-200
+  const darkBorder = '#3f3f46'  // zinc-700
+
+  const bgColor = lerpColor(lightBg, darkBg, t)
+  const hoverBg = lerpColor(lightBg, '#18181b', t) // hover goes to zinc-900
+  const borderColor = lerpColor(lightBorder, darkBorder, t)
+
+  // Text color: dark for light backgrounds, white for dark backgrounds
+  const textColor = t > 0.3 ? '#ffffff' : '#27272a'
+
+  return {
+    bgColor: isHovered ? hoverBg : bgColor,
+    textColor,
+    borderColor,
   }
-
-  return { bgColor, textColor, borderColor }
 }
 
 /**
@@ -269,7 +274,8 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
       <div className="relative h-80 w-full">
         {layout.map((item, index) => {
           const isHovered = hoveredItem?.ticker === item.ticker
-          const colors = getColorStyle(item.percentage, isHovered)
+          const maxPercentage = layout[0]?.percentage ?? 1
+          const colors = getColorStyle(item.percentage, maxPercentage, isHovered)
 
           // Calculate cell area for adaptive content
           const cellArea = item.w * item.h
@@ -347,19 +353,16 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
       {/* Refined legend */}
       <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50/50 px-4 py-2.5">
         <span className="text-xs font-medium text-zinc-500">Portfolio Weight</span>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-zinc-300" />
-            <span className="text-xs text-zinc-500">&lt;2%</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-500">Low</span>
+          <div className="flex h-3 w-20 overflow-hidden rounded-sm">
+            <div className="h-full flex-1 bg-zinc-300" />
+            <div className="h-full flex-1 bg-zinc-400" />
+            <div className="h-full flex-1 bg-zinc-500" />
+            <div className="h-full flex-1 bg-zinc-600" />
+            <div className="h-full flex-1 bg-zinc-800" />
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-zinc-500" />
-            <span className="text-xs text-zinc-500">2-10%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-sm bg-zinc-800" />
-            <span className="text-xs text-zinc-500">&gt;10%</span>
-          </div>
+          <span className="text-xs text-zinc-500">High</span>
         </div>
       </div>
     </div>

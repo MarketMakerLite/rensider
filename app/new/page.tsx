@@ -110,7 +110,7 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
 
   return (
     <TableRow>
-      <TableCell className="whitespace-nowrap text-zinc-500">
+      <TableCell className="whitespace-nowrap max-w-xs truncate text-zinc-500">
         {formatDate(transaction.transactionDate || transaction.filingDate)}
       </TableCell>
       <TableCell className="max-w-xs truncate">

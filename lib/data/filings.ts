@@ -107,9 +107,10 @@ export async function getRecentFilings(options: {
       LIMIT ${limit}
     `)
 
-    // Batch resolve filer names (fetchMissing: true to fetch from SEC API in serverless)
+    // Batch resolve filer names (fetchMissing: false to avoid rate limiting/hanging)
+    // Names show as placeholders initially, fetched in background for future requests
     const ciks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: true })
+    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: false })
 
     return results.map(r => ({
       accessionNumber: r.ACCESSION_NUMBER,
@@ -161,9 +162,10 @@ export async function getFilerFilings(cik: string, limit: number = 20): Promise<
       LIMIT ${limit}
     `)
 
-    // Batch resolve filer names (fetchMissing: true to fetch from SEC API in serverless)
+    // Batch resolve filer names (fetchMissing: false to avoid rate limiting/hanging)
+    // Names show as placeholders initially, fetched in background for future requests
     const ciks = [...new Set(results.map(r => r.CIK))]
-    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: true })
+    const filerNamesMap = await getFilerNames(ciks, { fetchMissing: false })
 
     return results.map(r => ({
       accessionNumber: r.ACCESSION_NUMBER,

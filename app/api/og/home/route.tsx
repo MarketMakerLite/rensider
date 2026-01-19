@@ -14,7 +14,7 @@ export async function GET() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#09090b',
-          backgroundImage: 'radial-gradient(circle at 25% 25%, #1e3a5f 0%, transparent 50%), radial-gradient(circle at 75% 75%, #1e3a5f 0%, transparent 50%)',
+          fontFamily: 'system-ui, sans-serif',
         }}
       >
         <div
@@ -22,58 +22,36 @@ export async function GET() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              marginBottom: '24px',
+              fontSize: 64,
+              fontWeight: 700,
+              color: '#ffffff',
+              marginBottom: 24,
             }}
           >
-            <svg
-              width="64"
-              height="64"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="1.5"
-            >
-              <path d="M3 3v18h18" />
-              <path d="M18 9l-5 5-4-4-3 3" />
-            </svg>
-            <span
-              style={{
-                fontSize: '64px',
-                fontWeight: 700,
-                color: '#ffffff',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Rensider
-            </span>
+            <span style={{ color: '#3b82f6' }}>Ren</span>sider
           </div>
-          <span
+          <div
             style={{
-              fontSize: '32px',
+              fontSize: 32,
               color: '#a1a1aa',
               textAlign: 'center',
-              maxWidth: '800px',
             }}
           >
             Institutional Ownership Tracker
-          </span>
-          <span
+          </div>
+          <div
             style={{
-              fontSize: '24px',
+              fontSize: 24,
               color: '#71717a',
-              marginTop: '16px',
+              marginTop: 16,
             }}
           >
             Track 13F filings & fund holdings
-          </span>
+          </div>
         </div>
       </div>
     ),

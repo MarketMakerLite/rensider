@@ -16,151 +16,87 @@ export async function GET(
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           backgroundColor: '#09090b',
-          backgroundImage: 'radial-gradient(circle at 25% 25%, #1e3a5f 0%, transparent 50%), radial-gradient(circle at 75% 75%, #1e3a5f 0%, transparent 50%)',
-          padding: '60px',
+          fontFamily: 'system-ui, sans-serif',
         }}
       >
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '12px',
-            marginBottom: '40px',
           }}
         >
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="1.5"
-          >
-            <path d="M3 3v18h18" />
-            <path d="M18 9l-5 5-4-4-3 3" />
-          </svg>
-          <span
+          <div
             style={{
-              fontSize: '24px',
-              color: '#a1a1aa',
+              fontSize: 32,
+              color: '#3b82f6',
+              marginBottom: 20,
             }}
           >
             Rensider
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            flex: 1,
-            justifyContent: 'center',
-          }}
-        >
+          </div>
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
+              fontSize: 72,
+              fontWeight: 700,
+              color: '#ffffff',
             }}
           >
-            <svg
-              width="64"
-              height="64"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="1.5"
-            >
-              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-            </svg>
-            <span
-              style={{
-                fontSize: '72px',
-                fontWeight: 700,
-                color: '#ffffff',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Fund Profile
-            </span>
+            Fund Profile
           </div>
-          <span
+          <div
             style={{
-              fontSize: '28px',
+              fontSize: 28,
               color: '#71717a',
-              marginTop: '16px',
+              marginTop: 16,
             }}
           >
             CIK: {cik}
-          </span>
-          <span
+          </div>
+          <div
             style={{
-              fontSize: '36px',
+              fontSize: 36,
               color: '#a1a1aa',
-              marginTop: '32px',
+              marginTop: 32,
             }}
           >
             13F Holdings & Portfolio Analysis
-          </span>
+          </div>
           <div
             style={{
               display: 'flex',
-              gap: '24px',
-              marginTop: '40px',
+              gap: 24,
+              marginTop: 40,
             }}
           >
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
                 backgroundColor: '#18181b',
-                padding: '12px 20px',
-                borderRadius: '8px',
+                padding: '12px 24px',
+                borderRadius: 8,
+                color: '#71717a',
+                fontSize: 18,
               }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#22c55e"
-                strokeWidth="2"
-              >
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                <polyline points="16 7 22 7 22 13" />
-              </svg>
-              <span style={{ color: '#71717a', fontSize: '18px' }}>
-                AUM Tracking
-              </span>
+              AUM Tracking
             </div>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
                 backgroundColor: '#18181b',
-                padding: '12px 20px',
-                borderRadius: '8px',
+                padding: '12px 24px',
+                borderRadius: 8,
+                color: '#71717a',
+                fontSize: 18,
               }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-              </svg>
-              <span style={{ color: '#71717a', fontSize: '18px' }}>
-                Quarterly Filings
-              </span>
+              Quarterly Filings
             </div>
           </div>
         </div>

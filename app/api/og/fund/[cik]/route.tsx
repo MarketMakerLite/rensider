@@ -47,7 +47,7 @@ export async function GET(
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#09090b',
+          backgroundColor: '#0C0A09',
           fontFamily: 'system-ui, sans-serif',
           padding: 60,
         }}
@@ -64,7 +64,7 @@ export async function GET(
             <div
               style={{
                 fontSize: 24,
-                color: '#3b82f6',
+                color: '#B8B3B3',
                 marginBottom: 8,
               }}
             >
@@ -74,7 +74,7 @@ export async function GET(
               style={{
                 fontSize: 48,
                 fontWeight: 700,
-                color: '#ffffff',
+                color: '#F3F1F1',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.1,
                 maxWidth: 900,
@@ -93,13 +93,13 @@ export async function GET(
                 <span style={{ fontSize: 32, fontWeight: 700, color: '#22c55e' }}>
                   {formatValue(latestValue)}
                 </span>
-                <span style={{ fontSize: 18, color: '#71717a' }}>AUM</span>
+                <span style={{ fontSize: 18, color: '#6B6363' }}>AUM</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 32, fontWeight: 700, color: '#ffffff' }}>
+                <span style={{ fontSize: 32, fontWeight: 700, color: '#F3F1F1' }}>
                   {latestPositions}
                 </span>
-                <span style={{ fontSize: 18, color: '#71717a' }}>positions</span>
+                <span style={{ fontSize: 18, color: '#6B6363' }}>positions</span>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export async function GET(
                   <div
                     style={{
                       fontSize: 16,
-                      color: '#71717a',
+                      color: '#6B6363',
                       marginTop: 12,
                     }}
                   >
@@ -168,7 +168,7 @@ export async function GET(
                   style={{
                     width: '100%',
                     height: 60 + Math.random() * 180,
-                    backgroundColor: '#27272a',
+                    backgroundColor: '#2E2A2A',
                     borderRadius: 8,
                   }}
                 />
@@ -201,11 +201,11 @@ export async function GET(
                   borderRadius: 2,
                 }}
               />
-              <span style={{ color: '#71717a', fontSize: 16 }}>Portfolio Value</span>
+              <span style={{ color: '#6B6363', fontSize: 16 }}>Portfolio Value</span>
             </div>
           </div>
-          <div style={{ color: '#52525b', fontSize: 14 }}>
-            13F Quarterly Filings
+          <div style={{ color: '#4A4444', fontSize: 14 }}>
+            Quarterly Holdings
           </div>
         </div>
       </div>

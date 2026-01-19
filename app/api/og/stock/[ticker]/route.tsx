@@ -31,7 +31,7 @@ export async function GET(
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#09090b',
+          backgroundColor: '#0C0A09',
           fontFamily: 'system-ui, sans-serif',
           padding: 60,
         }}
@@ -48,7 +48,7 @@ export async function GET(
             <div
               style={{
                 fontSize: 24,
-                color: '#3b82f6',
+                color: '#B8B3B3',
                 marginBottom: 8,
               }}
             >
@@ -58,7 +58,7 @@ export async function GET(
               style={{
                 fontSize: 80,
                 fontWeight: 700,
-                color: '#ffffff',
+                color: '#F3F1F1',
                 letterSpacing: '-0.02em',
               }}
             >
@@ -67,7 +67,7 @@ export async function GET(
             <div
               style={{
                 fontSize: 28,
-                color: '#71717a',
+                color: '#6B6363',
                 marginTop: 8,
               }}
             >
@@ -115,7 +115,7 @@ export async function GET(
                   <div
                     style={{
                       fontSize: 16,
-                      color: '#71717a',
+                      color: '#6B6363',
                       marginTop: 12,
                     }}
                   >
@@ -140,7 +140,7 @@ export async function GET(
                   style={{
                     width: '100%',
                     height: 60 + Math.random() * 180,
-                    backgroundColor: '#27272a',
+                    backgroundColor: '#2E2A2A',
                     borderRadius: 8,
                   }}
                 />
@@ -173,7 +173,7 @@ export async function GET(
                   borderRadius: 2,
                 }}
               />
-              <span style={{ color: '#71717a', fontSize: 16 }}>Net Buying</span>
+              <span style={{ color: '#6B6363', fontSize: 16 }}>Net Buying</span>
             </div>
             <div
               style={{
@@ -190,11 +190,11 @@ export async function GET(
                   borderRadius: 2,
                 }}
               />
-              <span style={{ color: '#71717a', fontSize: 16 }}>Net Selling</span>
+              <span style={{ color: '#6B6363', fontSize: 16 }}>Net Selling</span>
             </div>
           </div>
-          <div style={{ color: '#52525b', fontSize: 14 }}>
-            13F Quarterly Filings
+          <div style={{ color: '#4A4444', fontSize: 14 }}>
+            Quarterly Activity
           </div>
         </div>
       </div>

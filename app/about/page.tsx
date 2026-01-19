@@ -5,18 +5,16 @@ import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
 
 export const metadata: Metadata = {
-  title: 'About | SEC Ownership Filings (13F, 13D, 13G)',
-  description: 'Technical documentation on SEC ownership filings including Form 13F institutional holdings, Schedule 13D activist disclosures, and Schedule 13G passive ownership reports.',
+  title: 'About Rensider | How We Track Institutional Investors',
+  description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
   openGraph: {
-    title: 'About | SEC Ownership Filings (13F, 13D, 13G)',
-    description: 'Technical documentation on SEC ownership filings including Form 13F, Schedule 13D, and Schedule 13G.',
-    images: ['/api/og/about'],
+    title: 'About Rensider | How We Track Institutional Investors',
+    description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
     type: 'article',
   },
   twitter: {
-    title: 'About | SEC Ownership Filings (13F, 13D, 13G)',
-    description: 'Technical documentation on SEC ownership filings including Form 13F, Schedule 13D, and Schedule 13G.',
-    images: ['/api/og/about'],
+    title: 'About Rensider | How We Track Institutional Investors',
+    description: 'Learn how Rensider tracks hedge fund holdings, activist investors, and insider trades. Understand the data behind smart money movements.',
   },
 }
 

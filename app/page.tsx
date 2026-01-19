@@ -3,17 +3,17 @@ import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { HomeContent } from '@/components/home/HomeContent'
 
 export const metadata: Metadata = {
-  title: 'Institutional Ownership Tracker | 13F Filings',
-  description: 'Track institutional holdings from SEC 13F filings. Search by ticker symbol or fund CIK.',
+  title: 'Rensider | Track What the Smart Money is Buying',
+  description: 'See what hedge funds and institutional investors are buying and selling. Track insider trades and discover where the smart money is flowing.',
   openGraph: {
-    title: 'Institutional Ownership Tracker | 13F Filings',
-    description: 'Track institutional holdings from SEC 13F filings. Search by ticker symbol or fund CIK.',
+    title: 'Rensider | Track What the Smart Money is Buying',
+    description: 'See what hedge funds and institutional investors are buying and selling. Track insider trades and discover where the smart money is flowing.',
     images: ['/api/og/home'],
     type: 'website',
   },
   twitter: {
-    title: 'Institutional Ownership Tracker | 13F Filings',
-    description: 'Track institutional holdings from SEC 13F filings. Search by ticker symbol or fund CIK.',
+    title: 'Rensider | Track What the Smart Money is Buying',
+    description: 'See what hedge funds and institutional investors are buying and selling. Track insider trades and discover where the smart money is flowing.',
     images: ['/api/og/home'],
   },
 }

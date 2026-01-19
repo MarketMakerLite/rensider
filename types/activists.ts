@@ -287,6 +287,7 @@ export interface ActivistActivity {
   // Target
   ticker: string;
   issuerName: string;
+  issuerCik: string;
 
   // Position
   percentOfClass: number;

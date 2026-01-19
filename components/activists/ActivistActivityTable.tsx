@@ -144,8 +144,28 @@ export function ActivistActivityTable({
                   >
                     {activity.ticker}
                   </Link>
-                ) : (
+                ) : activity.issuerName && activity.issuerName !== activity.ownerName ? (
                   <span className="text-zinc-600">{activity.issuerName}</span>
+                ) : activity.issuerCik && activity.issuerCik !== activity.ownerCik ? (
+                  <a
+                    href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${activity.issuerCik}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                    title="View issuer on SEC"
+                  >
+                    CIK {activity.issuerCik}
+                  </a>
+                ) : (
+                  <a
+                    href={getSecFilingUrl(activity.accessionNumber)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-500 hover:text-blue-600"
+                    title="View filing on SEC"
+                  >
+                    See Filing
+                  </a>
                 )}
               </TableCell>
               <TableCell className="max-w-64 truncate font-medium">

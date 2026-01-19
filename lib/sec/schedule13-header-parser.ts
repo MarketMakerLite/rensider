@@ -46,13 +46,14 @@ function parseSecHeader(text: string): Map<string, string> {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Section markers
-    if (trimmed === 'SUBJECT COMPANY:') {
+    // Section markers - use startsWith for more robust matching
+    // SEC headers can have tabs/spaces after the colon
+    if (trimmed.startsWith('SUBJECT COMPANY:') || trimmed === 'SUBJECT COMPANY') {
       isSubjectCompany = true;
       isFiledBy = false;
       continue;
     }
-    if (trimmed === 'FILED BY:') {
+    if (trimmed.startsWith('FILED BY:') || trimmed === 'FILED BY') {
       isSubjectCompany = false;
       isFiledBy = true;
       continue;

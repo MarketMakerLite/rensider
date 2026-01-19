@@ -13,7 +13,7 @@ export async function GET() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#09090b',
+          backgroundColor: '#0C0A09',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
@@ -26,31 +26,34 @@ export async function GET() {
         >
           <div
             style={{
-              fontSize: 64,
+              fontSize: 72,
               fontWeight: 700,
-              color: '#ffffff',
+              color: '#F3F1F1',
               marginBottom: 24,
+              letterSpacing: '-0.02em',
             }}
           >
-            <span style={{ color: '#3b82f6' }}>Ren</span>sider
+            Rensider
           </div>
           <div
             style={{
               fontSize: 32,
-              color: '#a1a1aa',
+              color: '#B8B3B3',
               textAlign: 'center',
             }}
           >
-            Institutional Ownership Tracker
+            Track What the Smart Money is Buying
           </div>
           <div
             style={{
-              fontSize: 24,
-              color: '#71717a',
-              marginTop: 16,
+              fontSize: 22,
+              color: '#6B6363',
+              marginTop: 20,
+              textAlign: 'center',
+              maxWidth: 800,
             }}
           >
-            Track 13F filings & fund holdings
+            Hedge fund holdings · Insider trades · Institutional activity
           </div>
         </div>
       </div>

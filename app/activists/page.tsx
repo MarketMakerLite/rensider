@@ -11,20 +11,20 @@ import { ActivistActivityTable } from '@/components/activists/ActivistActivityTa
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Beneficial Ownership | Rensider',
-  description: 'Track beneficial ownership filings (Schedule 13D and 13G) from the SEC. Monitor activist investors and major shareholders with 5%+ positions.',
+  title: 'Activist Activity | Rensider',
+  description: 'Track activist investor filings (Schedule 13D and 13G) from the SEC. Monitor major shareholders with 5%+ positions and activist campaigns.',
   alternates: {
     canonical: 'https://renbot.app/activists',
   },
   openGraph: {
-    title: 'Beneficial Ownership | Rensider',
-    description: 'Track Schedule 13D/G beneficial ownership filings from the SEC',
+    title: 'Activist Activity | Rensider',
+    description: 'Track Schedule 13D/G activist investor filings from the SEC',
     images: ['/api/og/home'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Beneficial Ownership | Rensider',
-    description: 'Track Schedule 13D/G beneficial ownership filings from the SEC',
+    title: 'Activist Activity | Rensider',
+    description: 'Track Schedule 13D/G activist investor filings from the SEC',
     images: ['/api/og/home'],
   },
 }
@@ -38,7 +38,7 @@ export default async function BeneficialOwnersPage() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-3">
-            <Heading>Beneficial Ownership</Heading>
+            <Heading>Activist Activity</Heading>
             <Badge color="blue">Schedule 13D/G</Badge>
           </div>
           <Text className="mt-1 text-zinc-600">

@@ -81,18 +81,18 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
               </SidebarItem>
               <SidebarItem href="/activists" current={isCurrentRoute('/activists', true)}>
                 <UserGroupIcon data-slot="icon" />
-                <SidebarLabel>Activist Actions</SidebarLabel>
+                <SidebarLabel>Activist Activity</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/insiders" current={isCurrentRoute('/insiders', true) || isCurrentRoute('/insider', true)}>
                 <CurrencyDollarIcon data-slot="icon" />
-                <SidebarLabel>Insider Sales</SidebarLabel>
+                <SidebarLabel>Insider Activity</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
             <SidebarSpacer />
             <SidebarSection>
               <SidebarItem href="/about" current={isCurrentRoute('/about')}>
                 <BookOpenIcon data-slot="icon" />
-                <SidebarLabel>About 13F/D/G</SidebarLabel>
+                <SidebarLabel>About Disclosures</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
           </SidebarBody>

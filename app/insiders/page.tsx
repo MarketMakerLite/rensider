@@ -11,19 +11,19 @@ import { InsiderTransactionsTable } from '@/components/insider-sales/InsiderTran
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Insider Sales | Rensider',
+  title: 'Insider Activity | Rensider',
   description: 'Track insider trading activity from SEC Form 3, 4, and 5 filings. Monitor insider purchases and sales in public companies.',
   alternates: {
     canonical: 'https://renbot.app/insiders',
   },
   openGraph: {
-    title: 'Insider Sales | Rensider',
+    title: 'Insider Activity | Rensider',
     description: 'Track insider trading activity from SEC Form 3/4/5 filings',
     images: ['/api/og/home'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Insider Sales | Rensider',
+    title: 'Insider Activity | Rensider',
     description: 'Track insider trading activity from SEC Form 3/4/5 filings',
     images: ['/api/og/home'],
   },
@@ -38,7 +38,7 @@ export default async function InsiderSalesPage() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-3">
-            <Heading>Insider Sales</Heading>
+            <Heading>Insider Activity</Heading>
             <Badge color="amber">Form 3/4/5</Badge>
           </div>
           <Text className="mt-1 text-zinc-600">

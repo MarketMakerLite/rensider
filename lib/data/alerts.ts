@@ -235,8 +235,10 @@ async function detectAlerts(
       if (isValidCik(r.largest_holder_cik)) allCiks.add(r.largest_holder_cik)
       if (isValidCik(r.latest_filer_cik)) allCiks.add(r.latest_filer_cik)
     }
+    // Use fetchMissing: false to avoid SEC API rate limits on alerts page
+    // Filer names will show as CIK placeholders if not cached
     const filerNamesMap = allCiks.size > 0
-      ? await getFilerNames(Array.from(allCiks), { fetchMissing: true })
+      ? await getFilerNames(Array.from(allCiks), { fetchMissing: false })
       : new Map<string, string>()
 
     for (const r of results) {

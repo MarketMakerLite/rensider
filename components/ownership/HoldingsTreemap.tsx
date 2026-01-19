@@ -207,19 +207,40 @@ function TreemapTooltip({
 export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: HoldingsTreemapProps) {
   const [hoveredItem, setHoveredItem] = useState<LayoutRect | null>(null)
 
-  // Compute layout in single pass
+  // Compute layout - aggregate by ticker first to avoid duplicate boxes
   const layout = useMemo(() => {
-    const sorted = [...holdings]
+    // Aggregate holdings by ticker (or CUSIP if no ticker)
+    const aggregated = new Map<string, { value: number; cusip: string; hasTicker: boolean; name: string }>()
+
+    for (const h of holdings) {
+      const key = h.ticker || h.cusip
+      const existing = aggregated.get(key)
+
+      if (existing) {
+        // Sum values for same ticker
+        existing.value += h.value
+      } else {
+        aggregated.set(key, {
+          value: h.value,
+          cusip: h.cusip,
+          hasTicker: !!h.ticker,
+          name: h.securityName,
+        })
+      }
+    }
+
+    // Convert to array and sort by value
+    const sorted = Array.from(aggregated.entries())
+      .map(([ticker, data]) => ({
+        ticker,
+        cusip: data.cusip,
+        hasTicker: data.hasTicker,
+        value: data.value,
+        percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
+        name: data.name,
+      }))
       .sort((a, b) => b.value - a.value)
       .slice(0, maxItems)
-      .map(h => ({
-        ticker: h.ticker || h.cusip.substring(0, 6), // Fallback to issuer CUSIP
-        cusip: h.cusip,
-        hasTicker: !!h.ticker,
-        value: h.value,
-        percentage: totalValue > 0 ? (h.value / totalValue) * 100 : 0,
-        name: h.securityName,
-      }))
 
     return computeTreemapLayout(sorted)
   }, [holdings, totalValue, maxItems])

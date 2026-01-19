@@ -78,6 +78,15 @@ export default async function StockOwnershipPage({ params }: PageProps) {
                 {decodeHtmlEntities(data.companyName)}
               </Text>
             )}
+            <div className="mt-2">
+              <Link
+                href={`/insider-sales/${ticker}`}
+                prefetch={false}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                View Insider Transactions →
+              </Link>
+            </div>
           </div>
           <ShareButton
             title={`${ticker} Institutional Ownership`}

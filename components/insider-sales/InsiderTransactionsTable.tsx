@@ -151,7 +151,7 @@ export function InsiderTransactionsTable({
                   {formatDate(transaction.transactionDate || transaction.filingDate)}
                 </TableCell>
                 {showCompany && (
-                  <TableCell>
+                  <TableCell className="max-w-xs">
                     {transaction.ticker ? (
                       <Link
                         href={`/insider-sales/${transaction.ticker}`}
@@ -161,7 +161,12 @@ export function InsiderTransactionsTable({
                         {transaction.ticker}
                       </Link>
                     ) : (
-                      <span className="text-zinc-400">{decodeHtmlEntities(transaction.issuerName)}</span>
+                      <span className="text-zinc-400">-</span>
+                    )}
+                    {transaction.issuerName && (
+                      <div className="truncate text-xs text-zinc-500">
+                        {decodeHtmlEntities(transaction.issuerName)}
+                      </div>
                     )}
                   </TableCell>
                 )}

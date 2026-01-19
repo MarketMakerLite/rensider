@@ -59,12 +59,33 @@ function buildNameIndex(): void {
 }
 
 /**
+ * Ensure the filer_names table exists
+ */
+async function ensureTableExists(): Promise<void> {
+  try {
+    await execute(`
+      CREATE TABLE IF NOT EXISTS filer_names (
+        cik VARCHAR PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        cached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (error) {
+    // Ignore errors - table might already exist or we don't have permissions
+    console.debug('Failed to create filer_names table:', error instanceof Error ? error.message : error);
+  }
+}
+
+/**
  * Load filer names from database into memory cache
  */
 async function loadFromDatabase(): Promise<void> {
   if (dbCacheLoaded) return;
 
   try {
+    // Ensure table exists before querying
+    await ensureTableExists();
+
     const rows = await query<{ cik: string; name: string }>('SELECT cik, name FROM filer_names');
     for (const row of rows) {
       memoryCache.set(row.cik, row.name);

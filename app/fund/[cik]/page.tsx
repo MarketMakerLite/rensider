@@ -7,6 +7,7 @@ import { Text } from '@/components/twc/text'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/twc/table'
 import { FundAumChart } from '@/components/ownership/FundAumChart'
 import { HoldingsTreemap } from '@/components/ownership/HoldingsTreemap'
+import { TopHoldingsButtons } from '@/components/ownership/TopHoldingsButtons'
 import { ShareButton } from '@/components/ownership/ShareButton'
 import { PortfolioHoldingsTable } from '@/components/ownership/PortfolioHoldingsTable'
 import { formatDateTime, formatNumber, formatCurrency, decodeHtmlEntities } from '@/lib/format'
@@ -131,25 +132,11 @@ export default async function FundHoldingsPage({ params }: PageProps) {
         {/* Top Holdings */}
         <div className="mt-8">
           <Text className="text-sm font-medium text-zinc-600">Top Holdings</Text>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {data.topHoldings.slice(0, 10).map((h, i) => {
-              const pct = data.totalValue > 0 ? ((h.value / data.totalValue) * 100).toFixed(1) : '0'
-              return (
-                <Link
-                  key={h.id}
-                  href={`/stock/${h.ticker}`}
-                  prefetch={false}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
-                    i < 3
-                      ? 'border-zinc-300 bg-zinc-100 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-200'
-                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'
-                  }`}
-                >
-                  <span>{h.ticker}</span>
-                  <span className="text-zinc-500">{pct}%</span>
-                </Link>
-              )
-            })}
+          <div className="mt-3">
+            <TopHoldingsButtons
+              holdings={data.topHoldings.slice(0, 10)}
+              totalValue={data.totalValue}
+            />
           </div>
         </div>
 

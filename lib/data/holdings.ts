@@ -483,6 +483,80 @@ export async function getOwnershipHistoryData(
   }
 }
 
+/**
+ * Get fund portfolio history (AUM across quarters)
+ * Used for OG image chart generation
+ */
+export async function getFundPortfolioHistory(
+  cik: string,
+  quarterCount: number = 6
+): Promise<{ quarter: string; totalValue: number; positionCount: number }[]> {
+  const normalizedCik = cik.replace(/^0+/, '')
+
+  try {
+    const availableQuarters = await getAvailableQuarters()
+    const quartersToQuery = availableQuarters.slice(0, quarterCount)
+
+    if (quartersToQuery.length === 0) {
+      return []
+    }
+
+    // Build quarter filter helper
+    const getQuarterMonthFilter = (quarter: string): string | null => {
+      const quarterMatch = quarter.match(/^(\d{4})-Q([1-4])$/)
+      if (!quarterMatch) return null
+      const quarterYear = quarterMatch[1]
+      const quarterNum = parseInt(quarterMatch[2], 10)
+      const quarterMonths: Record<number, string[]> = {
+        1: ['JAN', 'FEB', 'MAR'],
+        2: ['APR', 'MAY', 'JUN'],
+        3: ['JUL', 'AUG', 'SEP'],
+        4: ['OCT', 'NOV', 'DEC'],
+      }
+      return quarterMonths[quarterNum].map(m => `s.PERIODOFREPORT LIKE '%-${m}-${quarterYear}'`).join(' OR ')
+    }
+
+    const history: { quarter: string; totalValue: number; positionCount: number }[] = []
+
+    for (const quarter of quartersToQuery) {
+      try {
+        const monthsFilter = getQuarterMonthFilter(quarter)
+        if (!monthsFilter) continue
+
+        // Get total AUM and position count for this fund in this quarter
+        const result = await query<{
+          total_value: number
+          position_count: number
+        }>(`
+          SELECT
+            SUM(h.VALUE) as total_value,
+            COUNT(*) as position_count
+          FROM holdings_13f h
+          JOIN submissions_13f s ON h.ACCESSION_NUMBER = s.ACCESSION_NUMBER
+          WHERE (${monthsFilter})
+            AND (LTRIM(s.CIK, '0') = '${normalizedCik}' OR s.CIK = '${normalizedCik}')
+        `)
+
+        if (result.length > 0 && result[0].total_value) {
+          history.push({
+            quarter,
+            totalValue: Number(result[0].total_value),
+            positionCount: Number(result[0].position_count),
+          })
+        }
+      } catch (error) {
+        console.debug(`Error reading quarter ${quarter} for CIK ${cik}:`, error instanceof Error ? error.message : error)
+      }
+    }
+
+    // Sort chronologically (oldest first for chart display)
+    return history.sort((a, b) => a.quarter.localeCompare(b.quarter))
+  } catch (error) {
+    console.error(`Error fetching fund portfolio history for CIK ${cik}:`, error instanceof Error ? error.message : error)
+    return []
+  }
+}
+
 // Helper functions
 
 async function lookupCompanyByTicker(ticker: string): Promise<{ name: string; cusips: string[] } | null> {

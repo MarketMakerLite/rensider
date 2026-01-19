@@ -13,7 +13,7 @@ import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
 import { formatNumber, formatCurrency, decodeHtmlEntities } from '@/lib/format'
 import type { Holding } from '@/types/ownership'
 
-type PortfolioSortKey = 'ticker' | 'securityName' | 'shares' | 'value' | 'portfolioPct'
+type PortfolioSortKey = 'ticker' | 'securityName' | 'shares' | 'value' | 'changePercent' | 'portfolioPct'
 
 interface PortfolioHoldingsTableProps {
   holdings: Holding[]
@@ -119,6 +119,17 @@ export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldin
                 </TableHeader>
                 <TableHeader className="text-right">
                   <SortableHeader
+                    column="changePercent"
+                    currentColumn={sortState.column}
+                    direction={sortState.direction}
+                    onSort={(col) => toggleSort(col as PortfolioSortKey)}
+                    className="justify-end"
+                  >
+                    Change
+                  </SortableHeader>
+                </TableHeader>
+                <TableHeader className="text-right">
+                  <SortableHeader
                     column="portfolioPct"
                     currentColumn={sortState.column}
                     direction={sortState.direction}
@@ -165,6 +176,9 @@ export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldin
                   </TableCell>
                   <TableCell className="text-right font-mono">
                     {formatCurrency(holding.value * 1000)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <ChangeCell changeType={holding.changeType} changePercent={holding.changePercent} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -216,5 +230,45 @@ export function PortfolioHoldingsTable({ holdings, totalValue }: PortfolioHoldin
         </div>
       )}
     </div>
+  )
+}
+
+function ChangeCell({
+  changeType,
+  changePercent,
+}: {
+  changeType: Holding['changeType']
+  changePercent: number | null
+}) {
+  if (!changeType || changeType === 'UNCHANGED') {
+    return <span className="text-zinc-400">—</span>
+  }
+
+  if (changeType === 'NEW') {
+    return (
+      <span className="inline-flex items-center gap-1 font-medium text-emerald-600">
+        <span className="text-xs">▲</span>
+        NEW
+      </span>
+    )
+  }
+
+  if (changeType === 'CLOSED') {
+    return (
+      <span className="inline-flex items-center gap-1 font-medium text-red-500">
+        <span className="text-xs">▼</span>
+        CLOSED
+      </span>
+    )
+  }
+
+  const isPositive = changeType === 'ADDED'
+  const colorClass = isPositive ? 'text-emerald-600' : 'text-red-500'
+
+  return (
+    <span className={`inline-flex items-center gap-1 font-mono font-medium ${colorClass}`}>
+      <span className="text-xs">{isPositive ? '▲' : '▼'}</span>
+      {changePercent != null ? `${isPositive ? '+' : ''}${changePercent.toFixed(1)}%` : ''}
+    </span>
   )
 }

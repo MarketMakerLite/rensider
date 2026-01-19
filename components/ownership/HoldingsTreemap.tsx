@@ -18,6 +18,8 @@ interface TreemapItem {
   value: number
   percentage: number
   name: string
+  changeType: 'NEW' | 'ADDED' | 'REDUCED' | 'CLOSED' | 'UNCHANGED' | null
+  changePercent: number | null
 }
 
 interface LayoutRect extends TreemapItem {
@@ -156,6 +158,8 @@ function computeTreemapLayout(items: TreemapItem[]): LayoutRect[] {
         value: item.value,
         percentage: item.percentage,
         name: item.name,
+        changeType: item.changeType,
+        changePercent: item.changePercent,
         x: vertical ? currentX : currentX + offset,
         y: vertical ? currentY + offset : currentY,
         w: vertical ? rowSize : itemSize,
@@ -180,6 +184,36 @@ function computeTreemapLayout(items: TreemapItem[]): LayoutRect[] {
 }
 
 /**
+ * Change indicator arrow
+ */
+function ChangeIndicator({
+  changeType,
+  changePercent,
+  size = 'sm',
+  showPercent = true,
+}: {
+  changeType: TreemapItem['changeType']
+  changePercent: number | null
+  size?: 'xs' | 'sm'
+  showPercent?: boolean
+}) {
+  if (!changeType || changeType === 'UNCHANGED' || changeType === 'CLOSED') return null
+
+  const isPositive = changeType === 'NEW' || changeType === 'ADDED'
+  const sizeClass = size === 'xs' ? 'text-[8px]' : 'text-xs'
+
+  return (
+    <span className={`inline-flex items-center gap-0.5 tabular-nums ${sizeClass} ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+      {isPositive ? '▲' : '▼'}
+      {showPercent && changePercent != null && (
+        <span>{Math.abs(changePercent).toFixed(0)}%</span>
+      )}
+      {changeType === 'NEW' && <span>NEW</span>}
+    </span>
+  )
+}
+
+/**
  * Elegant tooltip component
  */
 function TreemapTooltip({
@@ -191,6 +225,9 @@ function TreemapTooltip({
 }) {
   if (!visible || !item) return null
 
+  const isPositive = item.changeType === 'NEW' || item.changeType === 'ADDED'
+  const isNegative = item.changeType === 'REDUCED'
+
   return (
     <div className="pointer-events-none absolute left-1/2 top-3 z-30 -translate-x-1/2">
       <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-xl">
@@ -201,8 +238,19 @@ function TreemapTooltip({
           </span>
         </div>
         <div className="mt-0.5 max-w-52 truncate text-sm text-zinc-500">{decodeHtmlEntities(item.name)}</div>
-        <div className="mt-2 text-sm font-medium tabular-nums text-zinc-700">
-          {formatCurrency(item.value * 1000)}
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-sm font-medium tabular-nums text-zinc-700">
+            {formatCurrency(item.value * 1000)}
+          </span>
+          {item.changeType && item.changeType !== 'UNCHANGED' && (
+            <span className={`text-xs font-medium tabular-nums ${isPositive ? 'text-emerald-600' : isNegative ? 'text-red-500' : 'text-zinc-500'}`}>
+              {item.changeType === 'NEW' ? 'NEW' : (
+                <>
+                  {isPositive ? '+' : ''}{item.changePercent?.toFixed(1)}%
+                </>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -215,7 +263,15 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
   // Compute layout - deduplicate by ticker, keep most recent filing
   const layout = useMemo(() => {
     // Deduplicate holdings by ticker - keep only most recent filing
-    const byTicker = new Map<string, { value: number; cusip: string; hasTicker: boolean; name: string; filingDate: number }>()
+    const byTicker = new Map<string, {
+      value: number
+      cusip: string
+      hasTicker: boolean
+      name: string
+      filingDate: number
+      changeType: Holding['changeType']
+      changePercent: number | null
+    }>()
 
     for (const h of holdings) {
       const key = h.ticker || h.cusip
@@ -229,6 +285,8 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
           hasTicker: !!h.ticker,
           name: h.securityName,
           filingDate: h.filingDate,
+          changeType: h.changeType,
+          changePercent: h.changePercent,
         })
       }
     }
@@ -242,6 +300,8 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
         value: data.value,
         percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
         name: data.name,
+        changeType: data.changeType,
+        changePercent: data.changePercent,
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, maxItems)
@@ -284,6 +344,7 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
           // Adaptive typography based on cell size
           const showTicker = minDimension > 4
           const showPercentage = cellArea > 80 && minDimension > 6
+          const showChange = cellArea > 120 && minDimension > 8 && item.changeType && item.changeType !== 'UNCHANGED'
           const tickerSize = cellArea > 400 ? 'text-sm' : cellArea > 150 ? 'text-xs' : 'text-[10px]'
           const percentSize = cellArea > 400 ? 'text-xs' : 'text-[9px]'
 
@@ -298,6 +359,14 @@ export function HoldingsTreemap({ holdings, totalValue, maxItems = 25 }: Holding
                 <span className={`mt-0.5 tabular-nums opacity-75 ${percentSize}`}>
                   {item.percentage.toFixed(1)}%
                 </span>
+              )}
+              {showChange && (
+                <ChangeIndicator
+                  changeType={item.changeType}
+                  changePercent={item.changePercent}
+                  size={cellArea > 200 ? 'sm' : 'xs'}
+                  showPercent={cellArea > 200}
+                />
               )}
             </>
           )

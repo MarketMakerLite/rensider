@@ -721,12 +721,27 @@ export function RotatingLoadingMessage({
  * Search Loading Message with Typewriter Effect
  * Types out the message character by character, then cycles to the next
  */
-export function SearchLoadingMessage({ className = '' }: { className?: string }) {
-  const [messageIndex, setMessageIndex] = useState(() => Math.floor(Math.random() * searchMessages.length))
+interface TypewriterLoadingMessageProps {
+  className?: string
+  /** Milliseconds to pause after typing completes before cycling (default: 1500) */
+  pauseAfterTyping?: number
+  /** Milliseconds per character when typing (default: 35) */
+  typingSpeed?: number
+  /** Custom messages to use (default: searchMessages) */
+  messages?: string[]
+}
+
+export function SearchLoadingMessage({
+  className = '',
+  pauseAfterTyping = 1500,
+  typingSpeed = 35,
+  messages = searchMessages,
+}: TypewriterLoadingMessageProps) {
+  const [messageIndex, setMessageIndex] = useState(() => Math.floor(Math.random() * messages.length))
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(true)
 
-  const currentMessage = searchMessages[messageIndex]
+  const currentMessage = messages[messageIndex]
 
   useEffect(() => {
     if (isTyping) {
@@ -734,25 +749,25 @@ export function SearchLoadingMessage({ className = '' }: { className?: string })
       if (displayedText.length < currentMessage.length) {
         const timeout = setTimeout(() => {
           setDisplayedText(currentMessage.slice(0, displayedText.length + 1))
-        }, 35) // typing speed
+        }, typingSpeed)
         return () => clearTimeout(timeout)
       } else {
         // Finished typing, wait then move to next
         const timeout = setTimeout(() => {
           setIsTyping(false)
-        }, 1200) // pause after typing complete
+        }, pauseAfterTyping)
         return () => clearTimeout(timeout)
       }
     } else {
       // Clear and move to next message
       const timeout = setTimeout(() => {
-        setMessageIndex((prev) => (prev + 1) % searchMessages.length)
+        setMessageIndex((prev) => (prev + 1) % messages.length)
         setDisplayedText('')
         setIsTyping(true)
       }, 200) // brief pause before next message
       return () => clearTimeout(timeout)
     }
-  }, [displayedText, currentMessage, isTyping])
+  }, [displayedText, currentMessage, isTyping, pauseAfterTyping, typingSpeed, messages])
 
   return (
     <span className={className}>

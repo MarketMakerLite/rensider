@@ -15,6 +15,7 @@
 import { mapCUSIPs } from './openfigi';
 import { query } from './duckdb';
 import { validateCik, validateCusip } from '@/lib/validators';
+import { getFilerNames } from './filer-names';
 
 // ============================================================================
 // SQL Injection Protection
@@ -177,7 +178,6 @@ interface SubmissionRecord {
   SUBMISSIONTYPE: string;
   CIK: string;
   PERIODOFREPORT: string;
-  FILINGMANAGER_NAME?: string;
 }
 
 // 13D/13G Filing types
@@ -275,8 +275,9 @@ export async function getFilerHoldings(cik: string, quarter?: string) {
       WHERE h.ACCESSION_NUMBER = '${latestSubmission.ACCESSION_NUMBER}'
     `);
 
-    // Use filer name from submission record (from database)
-    const filerName = latestSubmission.FILINGMANAGER_NAME || `CIK ${cik}`;
+    // Get filer name from cache
+    const filerNamesMap = await getFilerNames([cik], { fetchMissing: false });
+    const filerName = filerNamesMap.get(cik) || `CIK ${cik}`;
 
     return holdings.map(h => ({
       cusip: h.CUSIP,
@@ -325,14 +326,13 @@ export async function getSecurityHolders(cusip: string, quarter?: string) {
       return [];
     }
 
-    // Use SQL JOIN to get holdings with submission metadata (including filer name)
+    // Use SQL JOIN to get holdings with submission metadata
     const results = await query<{
       CUSIP: string;
       VALUE: number;
       SSHPRNAMT: number;
       NAMEOFISSUER: string;
       CIK: string;
-      FILINGMANAGER_NAME: string | null;
       PERIODOFREPORT: string;
       FILING_DATE: string;
     }>(`
@@ -342,7 +342,6 @@ export async function getSecurityHolders(cusip: string, quarter?: string) {
         h.SSHPRNAMT,
         h.NAMEOFISSUER,
         s.CIK,
-        s.FILINGMANAGER_NAME,
         s.PERIODOFREPORT,
         s.FILING_DATE
       FROM holdings_13f h
@@ -352,13 +351,16 @@ export async function getSecurityHolders(cusip: string, quarter?: string) {
       ORDER BY h.VALUE DESC
     `);
 
-    // Get CUSIP mapping for ticker
-    const cusipMappings = await mapCUSIPs([cusip]);
+    // Get CUSIP mapping for ticker and filer names from cache
+    const [cusipMappings, filerNamesMap] = await Promise.all([
+      mapCUSIPs([cusip]),
+      getFilerNames([...new Set(results.map(r => r.CIK))], { fetchMissing: false }),
+    ]);
     const tickerInfo = cusipMappings[0];
 
     return results.map(r => ({
       cik: r.CIK,
-      filer_name: r.FILINGMANAGER_NAME || `CIK ${r.CIK}`,
+      filer_name: filerNamesMap.get(r.CIK) || `CIK ${r.CIK}`,
       cusip: validatedCusip,
       ticker: tickerInfo?.ticker,
       issuer_name: r.NAMEOFISSUER,
@@ -504,16 +506,14 @@ export async function getTopFilersByAUM(limit = 10) {
       return [];
     }
 
-    // Use SQL aggregation to calculate AUM per filer (includes filer name from DB)
+    // Use SQL aggregation to calculate AUM per filer
     const topFilers = await query<{
       cik: string;
-      filingmanager_name: string | null;
       total_aum: number;
       position_count: number;
     }>(`
       SELECT
         s.CIK as cik,
-        MAX(s.FILINGMANAGER_NAME) as filingmanager_name,
         SUM(h.VALUE) as total_aum,
         COUNT(*) as position_count
       FROM holdings_13f h
@@ -524,9 +524,12 @@ export async function getTopFilersByAUM(limit = 10) {
       LIMIT ${validatedLimit}
     `);
 
+    // Get filer names from cache
+    const filerNamesMap = await getFilerNames(topFilers.map(f => f.cik), { fetchMissing: false });
+
     return topFilers.map(f => ({
       cik: f.cik,
-      filingmanager_name: f.filingmanager_name || `CIK ${f.cik}`,
+      filingmanager_name: filerNamesMap.get(f.cik) || `CIK ${f.cik}`,
       total_aum: Number(f.total_aum),
       position_count: Number(f.position_count),
     }));
@@ -574,12 +577,15 @@ export async function getRecentFilings(
           LIMIT ${limit}
         `);
 
+        // Get filer names from cache
+        const filerNamesMap = await getFilerNames(submissions.map(s => s.CIK), { fetchMissing: false });
+
         for (const s of submissions) {
           filings.push({
             accessionNumber: s.ACCESSION_NUMBER,
             formType: s.SUBMISSIONTYPE,
             filingDate: s.FILING_DATE,
-            filerName: s.FILINGMANAGER_NAME || `CIK ${s.CIK}`,
+            filerName: filerNamesMap.get(s.CIK) || `CIK ${s.CIK}`,
             filerCik: s.CIK,
           });
         }

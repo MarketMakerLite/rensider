@@ -5,6 +5,7 @@
 
 import { getFilerHoldings as queryFilerHoldings } from '../sec/queries'
 import { query } from '../sec/duckdb'
+import { getFilerNames } from '../sec/filer-names'
 import { parseDate, parseDateToTimestamp } from '../validators/dates'
 import type {
   StockOwnershipData,
@@ -138,7 +139,6 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       PUTCALL: string | null
       INVESTMENTDISCRETION: string
       CIK: string
-      FILINGMANAGER_NAME: string | null
       PERIODOFREPORT: string
       FILING_DATE: string
     }>(`
@@ -152,7 +152,6 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
         h.PUTCALL,
         h.INVESTMENTDISCRETION,
         s.CIK,
-        s.FILINGMANAGER_NAME,
         s.PERIODOFREPORT,
         s.FILING_DATE
       FROM holdings_13f h
@@ -183,13 +182,9 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       }
     }
 
-    // Build filer names map from database results (FILINGMANAGER_NAME column)
-    const filerNamesMap = new Map<string, string>()
-    for (const r of results) {
-      if (!filerNamesMap.has(r.CIK)) {
-        filerNamesMap.set(r.CIK, r.FILINGMANAGER_NAME || `CIK ${r.CIK}`)
-      }
-    }
+    // Get filer names from cache (no SEC API calls)
+    const uniqueCiks = [...new Set(results.map(r => r.CIK))]
+    const filerNamesMap = await getFilerNames(uniqueCiks, { fetchMissing: false })
 
     // Aggregate current holdings by CIK for change calculation
     const currentByInstitution = new Map<string, { shares: number; value: number }>()
@@ -240,7 +235,7 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
       return {
         id: idx,
         cik: r.CIK,
-        institutionName: filerNamesMap.get(r.CIK) || 'Unknown',
+        institutionName: filerNamesMap.get(r.CIK) || `CIK ${r.CIK}`,
         ticker: upperTicker,
         cusip: r.CUSIP,
         securityName: r.NAMEOFISSUER,

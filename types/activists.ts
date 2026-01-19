@@ -286,6 +286,7 @@ export interface ActivistActivity {
 
   // Target
   ticker: string;
+  cusip: string | null;
   issuerName: string;
   issuerCik: string;
 

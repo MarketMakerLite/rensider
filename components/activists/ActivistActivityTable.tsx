@@ -25,7 +25,7 @@ export function ActivistActivityTable({
 }: ActivistActivityTableProps) {
   const { filteredData, filterValue, setFilterValue } = useTableFilter(
     activities,
-    ['ownerName', 'ticker', 'issuerName']
+    ['ownerName', 'ticker', 'issuerName', 'cusip']
   )
 
   const { sortedData, sortState, toggleSort } = useTableSort<ActivistActivity, ActivitySortKey>(
@@ -135,27 +135,33 @@ export function ActivistActivityTable({
               <TableCell className="max-w-16 whitespace-nowrap text-zinc-500">
                 {activity.filingDate ? formatDate(activity.filingDate) : '-'}
               </TableCell>
-              <TableCell className="max-w-56 truncate font-medium">
+              <TableCell className="max-w-56">
                 {activity.ticker ? (
-                  <Link
-                    href={`/stock/${activity.ticker}`}
-                    prefetch={false}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {activity.ticker}
-                  </Link>
-                ) : activity.issuerName && activity.issuerName !== activity.ownerName ? (
-                  <span className="text-zinc-600">{activity.issuerName}</span>
-                ) : activity.issuerCik && activity.issuerCik !== activity.ownerCik ? (
-                  <a
-                    href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${activity.issuerCik}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                    title="View issuer on SEC"
-                  >
-                    CIK {activity.issuerCik}
-                  </a>
+                  <div>
+                    <Link
+                      href={`/stock/${activity.ticker}`}
+                      prefetch={false}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {activity.ticker}
+                    </Link>
+                    {activity.issuerName && (
+                      <div className="truncate text-xs text-zinc-500" title={activity.issuerName}>
+                        {activity.issuerName}
+                      </div>
+                    )}
+                  </div>
+                ) : activity.issuerName ? (
+                  <div>
+                    <span className="font-medium text-zinc-900">{activity.issuerName}</span>
+                    {activity.cusip && (
+                      <div className="text-xs text-zinc-400">CUSIP: {activity.cusip}</div>
+                    )}
+                  </div>
+                ) : activity.cusip ? (
+                  <div>
+                    <span className="font-medium text-zinc-600">CUSIP: {activity.cusip}</span>
+                  </div>
                 ) : (
                   <a
                     href={getSecFilingUrl(activity.accessionNumber)}

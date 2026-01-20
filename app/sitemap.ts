@@ -104,13 +104,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  // Insider pages per ticker
-  const insiderTickerPages: MetadataRoute.Sitemap = tickers.slice(0, 500).map(ticker => ({
-    url: `${baseUrl}/insiders/${ticker}`,
-    lastModified: now,
-    changeFrequency: 'daily' as const,
-    priority: 0.6,
-  }))
-
-  return [...staticPages, ...stockPages, ...fundPages, ...insiderTickerPages]
+  return [...staticPages, ...stockPages, ...fundPages]
 }

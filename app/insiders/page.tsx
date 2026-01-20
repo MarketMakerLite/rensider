@@ -4,7 +4,6 @@ import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
 import { getRecentInsiderTransactions } from '@/actions/insider-sales'
-import { InsiderSearch } from '@/components/insider-sales/InsiderSearch'
 import { InsiderTransactionsTable } from '@/components/insider-sales/InsiderTransactionsTable'
 
 // Force dynamic rendering for database queries
@@ -44,11 +43,6 @@ export default async function InsiderSalesPage() {
           <Text className="mt-1 text-zinc-600">
             Track insider purchases and sales from SEC filings
           </Text>
-        </div>
-
-        {/* Search */}
-        <div className="mt-6">
-          <InsiderSearch />
         </div>
 
         {/* Explanation Cards */}

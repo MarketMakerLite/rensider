@@ -111,20 +111,3 @@ export function insiderProfileSchema(cik: string, name: string) {
   }
 }
 
-/**
- * WebPage schema for ticker insider trading pages
- */
-export function tickerInsiderSchema(ticker: string, issuerName: string | null) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: `${ticker} Insider Trading`,
-    description: `Track insider purchases and sales for ${ticker}${issuerName ? ` (${issuerName})` : ''}. View officer and director transactions from SEC Form 4 filings.`,
-    url: `${baseUrl}/insiders/${ticker}`,
-    breadcrumb: breadcrumbSchema([
-      { name: 'Home', url: baseUrl },
-      { name: 'Insider Sales', url: `${baseUrl}/insiders` },
-      { name: ticker, url: `${baseUrl}/insiders/${ticker}` },
-    ]),
-  }
-}

@@ -125,7 +125,7 @@ function InsiderTransactionRow({ transaction }: { transaction: InsiderTransactio
       <TableCell className="max-w-xs">
         {transaction.ticker ? (
           <Link
-            href={`/insiders/${transaction.ticker}`}
+            href={`/stock/${transaction.ticker}#insiders`}
             prefetch={false}
             className="font-medium text-blue-600 hover:underline"
           >

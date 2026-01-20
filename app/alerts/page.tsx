@@ -144,11 +144,11 @@ export default function AlertsPage() {
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-4">
             <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
               <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Total Alerts</Text>
-              <div className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900">{stats.total}</div>
+              <div className="mt-2 text-lg font-semibold tabular-nums text-zinc-900 sm:text-2xl">{stats.total}</div>
             </div>
             <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
               <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Criteria</Text>
-              <div className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900">{settings.minChange}x-{settings.maxChange}x / {settings.lookbackMonths}mo</div>
+              <div className="mt-2 text-lg font-semibold tabular-nums text-zinc-900 sm:text-2xl">{settings.minChange}x-{settings.maxChange}x / {settings.lookbackMonths}mo</div>
             </div>
             <div className="col-span-2 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
               <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Top Signals (by 12mo momentum)</Text>
@@ -255,7 +255,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
 
       {alerts.length > 0 ? (
         <>
-          <Table className="mt-4" striped fixed>
+          <Table className="mt-4" striped>
             <TableHead>
               <TableRow>
                 <TableHeader className="w-16">

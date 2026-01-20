@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getStockOwnership, getOwnershipHistory } from '@/actions/ownership'
+import { getTickerInsiderActivity } from '@/actions/insider-sales'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
@@ -12,6 +13,7 @@ import { RecentFilers } from '@/components/ownership/RecentFilers'
 import { ConcentrationMetrics } from '@/components/ownership/ConcentrationMetrics'
 import { ShareButton } from '@/components/ownership/ShareButton'
 import { StockHoldersSection } from '@/components/ownership/StockHoldersSection'
+import { InsiderActivitySection } from '@/components/insider-sales/InsiderActivitySection'
 import { formatDateTime, decodeHtmlEntities } from '@/lib/format'
 
 interface PageProps {
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${upperTicker} Institutional Ownership | Rensider`,
-    description: `Track institutional holdings and 13F filings for ${upperTicker}. View fund sentiment, ownership concentration, and recent filer activity.`,
+    description: `Track institutional holdings, 13F filings, and insider transactions for ${upperTicker}. View fund sentiment, ownership concentration, and insider activity.`,
     alternates: {
       canonical: `https://renbot.app/stock/${upperTicker}`,
     },
@@ -45,10 +47,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StockOwnershipPage({ params }: PageProps) {
   const { ticker } = await params
 
-  // Fetch both data sources in parallel
-  const [data, historyData] = await Promise.all([
+  // Fetch all data sources in parallel
+  const [data, historyData, insiderData] = await Promise.all([
     getStockOwnership({ ticker }),
     getOwnershipHistory({ ticker }),
+    getTickerInsiderActivity({ ticker }),
   ])
 
   if (!data) {
@@ -81,15 +84,6 @@ export default async function StockOwnershipPage({ params }: PageProps) {
                 {decodeHtmlEntities(data.companyName)}
               </Text>
             )}
-            <div className="mt-2">
-              <Link
-                href={`/insiders/${ticker}`}
-                prefetch={false}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                View Insider Transactions →
-              </Link>
-            </div>
           </div>
           <ShareButton
             title={`${ticker} Institutional Ownership`}
@@ -137,6 +131,9 @@ export default async function StockOwnershipPage({ params }: PageProps) {
 
         {/* Holdings Section with Table/Treemap toggle */}
         <StockHoldersSection holders={data.holders} totalValue={data.metrics.totalValue} />
+
+        {/* Insider Activity Section */}
+        {insiderData && <InsiderActivitySection data={insiderData} />}
 
         {/* Last Updated - mobile-first spacing */}
         <div className="mt-6 border-t border-zinc-200 pt-3 sm:mt-8 sm:pt-4">

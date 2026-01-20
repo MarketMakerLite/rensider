@@ -11,7 +11,7 @@ import { MetricsGrid } from '@/components/ownership/MetricsGrid'
 import { RecentFilers } from '@/components/ownership/RecentFilers'
 import { ConcentrationMetrics } from '@/components/ownership/ConcentrationMetrics'
 import { ShareButton } from '@/components/ownership/ShareButton'
-import { StockHoldingsTable } from '@/components/ownership/StockHoldingsTable'
+import { StockHoldersSection } from '@/components/ownership/StockHoldersSection'
 import { formatDateTime, decodeHtmlEntities } from '@/lib/format'
 
 interface PageProps {
@@ -135,8 +135,8 @@ export default async function StockOwnershipPage({ params }: PageProps) {
         {/* Recent Filers */}
         <RecentFilers filers={data.recentFilers} />
 
-        {/* Holdings Table */}
-        <StockHoldingsTable holders={data.holders} />
+        {/* Holdings Section with Table/Treemap toggle */}
+        <StockHoldersSection holders={data.holders} totalValue={data.metrics.totalValue} />
 
         {/* Last Updated - mobile-first spacing */}
         <div className="mt-6 border-t border-zinc-200 pt-3 sm:mt-8 sm:pt-4">

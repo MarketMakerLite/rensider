@@ -1,5 +1,26 @@
 import pLimit from 'p-limit';
 
+/**
+ * Decode HTML entities commonly found in SEC filings
+ * Handles both named entities (&amp;, &lt;, etc.) and numeric entities (&#38;, &#x26;)
+ */
+export function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+
+  return text
+    // Named entities
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    // Numeric entities (decimal)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    // Numeric entities (hex)
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+}
+
 // Form index entry from SEC EDGAR index files
 export interface FormIndexEntry {
   formType: string;
@@ -163,15 +184,33 @@ function parseFormIndex(indexText: string): FormIndexEntry[] {
 
     // Fixed-width format: Form Type (12), Company Name (62), CIK (12), Date Filed (12), File Name
     // But fields can overflow, so we parse more carefully
-    const parts = line.split(/\s{2,}/);
-    if (parts.length >= 5) {
+    // Try fixed-width parsing first, then fall back to split
+    const formType = line.substring(0, 12).trim();
+    const remaining = line.substring(12);
+
+    // Find CIK (10-digit number) and date (YYYY-MM-DD) patterns from the end
+    const cikDateMatch = remaining.match(/\s+(\d{10})\s+(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+    if (cikDateMatch) {
+      const companyName = remaining.substring(0, remaining.indexOf(cikDateMatch[0])).trim();
       entries.push({
-        formType: parts[0].trim(),
-        companyName: parts[1].trim(),
-        cik: parts[2].trim(),
-        dateFiled: parts[3].trim(),
-        fileName: parts[4].trim(),
+        formType,
+        companyName: decodeHtmlEntities(companyName),
+        cik: cikDateMatch[1],
+        dateFiled: cikDateMatch[2],
+        fileName: cikDateMatch[3].trim(),
       });
+    } else {
+      // Fallback to split parsing
+      const parts = line.split(/\s{2,}/);
+      if (parts.length >= 5) {
+        entries.push({
+          formType: parts[0].trim(),
+          companyName: decodeHtmlEntities(parts[1].trim()),
+          cik: parts[2].trim(),
+          dateFiled: parts[3].trim(),
+          fileName: parts[4].trim(),
+        });
+      }
     }
   }
 

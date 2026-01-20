@@ -80,33 +80,70 @@ function parseSecHeader(text: string): Map<string, string> {
 }
 
 /**
+ * Decode HTML entities commonly found in SEC filings
+ */
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+
+  return text
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+}
+
+/**
  * Extract CUSIP from HTML content
  * CUSIP format: 9 characters, typically alphanumeric (e.g., G1645N101, 037833100)
  */
 function extractCusip(htmlContent: string): string | undefined {
-  // Look for CUSIP patterns - must be exactly 9 characters
-  // CUSIP format: 6-char issuer + 2-char issue + 1-char check digit
+  // Standard CUSIP format: 6 alphanumeric + 2 alphanumeric + 1 digit
+  const CUSIP_PATTERN = /[A-Z0-9]{6}[A-Z0-9]{2}[0-9]/;
+
+  // Decode HTML entities
+  const decoded = decodeHtmlEntities(htmlContent);
+
+  // Patterns ordered by specificity (most specific first)
   const patterns = [
-    // After "CUSIP Number" label, capture the 9-char code
-    /\(CUSIP\s*Number\)<\/[^>]+>[\s\S]{0,500}?([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i,
-    // CUSIP in centered text
-    /text-align:\s*center[^>]*>[\s]*([A-Z0-9]{6}[A-Z0-9]{2}[0-9])[\s]*</i,
-    // After CUSIP label with colon
-    /CUSIP[:\s]+([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i,
-    // Standalone 9-char code that looks like CUSIP (letter+numbers pattern common)
-    />([A-Z][0-9]{5}[A-Z0-9]{2}[0-9])</,
+    // 1. CUSIP with label variations: "CUSIP No.", "CUSIP Number", "CUSIP #", "CUSIP:"
+    /CUSIP\s*(?:No\.?|Number|#|:)?\s*(?:<[^>]*>|\s)*([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i,
+
+    // 2. "(CUSIP Number)" label pattern with flexible spacing/tags
+    /\(CUSIP\s*(?:No\.?|Number)?\)\s*(?:<[^>]*>|\s)*([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i,
+
+    // 3. CUSIP in table cell - look for pattern after CUSIP text within 200 chars
+    /CUSIP[\s\S]{0,200}?([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i,
+
+    // 4. 9-char alphanumeric in HTML tag (broader than current pattern 4)
+    />[\s]*([A-Z0-9]{6}[A-Z0-9]{2}[0-9])[\s]*</,
   ];
 
   for (const pattern of patterns) {
-    const match = htmlContent.match(pattern);
-    if (match && match[1]) {
+    const match = decoded.match(pattern);
+    if (match?.[1]) {
       const cusip = match[1].toUpperCase();
-      // Validate: CUSIPs typically have numbers in specific positions
-      if (/^[A-Z0-9]{6}[A-Z0-9]{2}[0-9]$/.test(cusip)) {
+      if (CUSIP_PATTERN.test(cusip)) {
         return cusip;
       }
     }
   }
+
+  // Fallback: strip HTML tags and find CUSIP after "CUSIP" text
+  const stripped = decoded.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const cusipLabelIdx = stripped.toUpperCase().indexOf('CUSIP');
+
+  if (cusipLabelIdx >= 0) {
+    const afterLabel = stripped.slice(cusipLabelIdx);
+    const match = afterLabel.match(/([A-Z0-9]{6}[A-Z0-9]{2}[0-9])/i);
+    if (match?.[1]) {
+      return match[1].toUpperCase();
+    }
+  }
+
   return undefined;
 }
 
@@ -114,6 +151,8 @@ function extractCusip(htmlContent: string): string | undefined {
  * Extract securities class title from HTML content
  */
 function extractSecuritiesClass(htmlContent: string): string | undefined {
+  const decoded = decodeHtmlEntities(htmlContent);
+
   // Look for title of class patterns
   const patterns = [
     /Title of Class of Securities[^>]*>[\s\S]*?<[^>]+>([^<]+)</i,
@@ -122,7 +161,7 @@ function extractSecuritiesClass(htmlContent: string): string | undefined {
   ];
 
   for (const pattern of patterns) {
-    const match = htmlContent.match(pattern);
+    const match = decoded.match(pattern);
     if (match && match[1]) {
       return match[1].trim();
     }
@@ -210,11 +249,24 @@ export function parseSchedule13Header(
     const filedByCik = headerData.get('FILEDBY_CENTRAL INDEX KEY') || '';
     const filedByName = headerData.get('FILEDBY_COMPANY CONFORMED NAME') || 'Unknown Filer';
 
-    // Extract data from HTML content (everything after the header)
+    // Extract data from document content (XML and/or HTML sections)
+    // Some filings have CUSIP in XML, others in HTML - search both
+    const xmlStart = submissionText.indexOf('<XML>');
+    const xmlEnd = submissionText.indexOf('</XML>');
     const htmlStart = submissionText.indexOf('<HTML>');
-    const htmlContent = htmlStart > -1 ? submissionText.slice(htmlStart) : submissionText;
 
-    const cusip = extractCusip(htmlContent);
+    // Build content to search: prefer XML first (more structured), then HTML
+    let searchContent = submissionText; // fallback to full content
+    if (xmlStart > -1 && xmlEnd > xmlStart) {
+      searchContent = submissionText.slice(xmlStart, xmlEnd);
+    }
+
+    // Try XML first, then fall back to HTML content
+    let cusip = extractCusip(searchContent);
+    if (!cusip && htmlStart > -1) {
+      cusip = extractCusip(submissionText.slice(htmlStart));
+    }
+    const htmlContent = htmlStart > -1 ? submissionText.slice(htmlStart) : submissionText;
     const securitiesClassTitle = extractSecuritiesClass(htmlContent);
     const percentOfClass = extractPercentOfClass(htmlContent);
     const sharesOwned = extractSharesOwned(htmlContent);

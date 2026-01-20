@@ -86,8 +86,26 @@ export interface SignatureInfo {
 
 // XML parsing utilities
 
+/**
+ * Decode HTML entities commonly found in SEC filings
+ */
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+
+  return text
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+}
+
 function getTextContent(element: Element | null): string | undefined {
-  return element?.textContent?.trim() || undefined;
+  const text = element?.textContent?.trim();
+  return text ? decodeHtmlEntities(text) : undefined;
 }
 
 function getNumberContent(element: Element | null): number | undefined {
@@ -99,10 +117,13 @@ function getNumberContent(element: Element | null): number | undefined {
 
 function querySelectorAll(parent: Element | Document, selector: string): Element[] {
   const results: Element[] = [];
-  const tagName = selector.replace(/[[\]]/g, '');
+  const tagName = selector.replace(/[[\]]/g, '').toLowerCase();
 
   const search = (el: Element) => {
-    if (el.localName === tagName || el.tagName === tagName) {
+    // Case-insensitive tag matching
+    const localName = el.localName?.toLowerCase() || '';
+    const elTagName = el.tagName?.toLowerCase() || '';
+    if (localName === tagName || elTagName === tagName) {
       results.push(el);
     }
     for (const child of Array.from(el.children)) {
@@ -229,11 +250,17 @@ export function parseSchedule13Xml(
     const coverPageEl = findElement(doc, 'coverPageHeader');
     const issuerInfoEl = findElement(doc, 'issuerInfo');
 
-    // Get CUSIP numbers
-    const cusipElements = querySelectorAll(doc, 'issuerCusipNumber');
-    const cusips = cusipElements
-      .map(el => getTextContent(el))
-      .filter((c): c is string => !!c);
+    // Get CUSIP numbers - support multiple tag variations
+    const cusipTagVariants = ['issuerCusipNumber', 'issuerCUSIP', 'cusip', 'CUSIP'];
+    const cusipSet = new Set<string>();
+    for (const tagName of cusipTagVariants) {
+      const elements = querySelectorAll(doc, tagName);
+      for (const el of elements) {
+        const cusip = getTextContent(el);
+        if (cusip) cusipSet.add(cusip);
+      }
+    }
+    const cusips = Array.from(cusipSet);
 
     // Get purpose of transaction (for intent parsing)
     const purposeOfTransaction = findElementText(doc, 'transactionPurpose');

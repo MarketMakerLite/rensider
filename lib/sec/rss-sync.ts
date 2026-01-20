@@ -8,7 +8,7 @@
  * https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type={form}&count=100&output=atom
  */
 
-import { fetchFromSEC, fetchText } from './client';
+import { fetchFromSEC, fetchText, decodeHtmlEntities } from './client';
 import {
   readSyncState,
   markSyncStarted,
@@ -94,7 +94,7 @@ export function parseAtomFeed(xml: string): RSSFeedResult {
     // Parse title to extract form type, company name, CIK
     const titleParts = title.match(/^([^\s-]+(?:\s*\/\s*[A-Z])?)\s*-\s*(.+?)\s*\((\d+)\)/);
     const formType = titleParts?.[1]?.trim() || '';
-    const companyName = titleParts?.[2]?.trim() || '';
+    const companyName = decodeHtmlEntities(titleParts?.[2]?.trim() || '');
     const cik = titleParts?.[3] || '';
 
     // Extract link
@@ -107,7 +107,8 @@ export function parseAtomFeed(xml: string): RSSFeedResult {
 
     // Parse summary fields (HTML entities are encoded as &lt; &gt;)
     const filedMatch = summary.match(/Filed:(?:&lt;\/b&gt;|<\/b>)\s*(\d{4}-\d{2}-\d{2})/);
-    const accNoMatch = summary.match(/AccNo:(?:&lt;\/b&gt;|<\/b>)\s*(\d+-\d+-\d+)/);
+    // Accession number format: 0001234567-YY-NNNNNN (flexible digit counts)
+    const accNoMatch = summary.match(/AccNo:(?:&lt;\/b&gt;|<\/b>)\s*(\d{10}-\d{2}-\d{6})/);
     const sizeMatch = summary.match(/Size:(?:&lt;\/b&gt;|<\/b>)\s*([^<&\n]+)/);
 
     const filingDate = filedMatch?.[1] || '';
@@ -367,38 +368,49 @@ async function fetchFilingIndex(cik: string, accessionNumber: string): Promise<{
 
 /**
  * Parse 13F infotable XML to extract holdings
+ * Searches both XML <infoTable> tags and namespace-prefixed variants
  */
 function parseInfoTableXml(xml: string, accessionNumber: string): Holding13F[] {
   const holdings: Holding13F[] = [];
-  const entryPattern = /<infoTable[^>]*>([\s\S]*?)<\/infoTable>/gi;
+
+  // Helper to extract and decode values (case-insensitive, with optional namespace)
+  const getValue = (entry: string, tag: string): string => {
+    // Try without namespace first, then with common ns1: prefix
+    const patterns = [
+      new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 'i'),
+      new RegExp(`<\\w+:${tag}[^>]*>([^<]*)</\\w+:${tag}>`, 'i'),
+    ];
+    for (const pattern of patterns) {
+      const tagMatch = entry.match(pattern);
+      if (tagMatch) return decodeHtmlEntities(tagMatch[1].trim());
+    }
+    return '';
+  };
+
+  const getNumValue = (entry: string, tag: string): number => {
+    const val = getValue(entry, tag);
+    return val ? parseInt(val.replace(/,/g, ''), 10) || 0 : 0;
+  };
+
+  // Match both <infoTable> and namespace-prefixed variants like <ns1:infoTable>
+  const entryPattern = /<(?:\w+:)?infoTable[^>]*>([\s\S]*?)<\/(?:\w+:)?infoTable>/gi;
   let match;
 
   while ((match = entryPattern.exec(xml)) !== null) {
     const entry = match[1];
-
-    const getValue = (tag: string): string => {
-      const tagMatch = entry.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`, 'i'));
-      return tagMatch ? tagMatch[1].trim() : '';
-    };
-
-    const getNumValue = (tag: string): number => {
-      const val = getValue(tag);
-      return val ? parseInt(val.replace(/,/g, ''), 10) || 0 : 0;
-    };
-
     holdings.push({
       accessionNumber,
-      cusip: getValue('cusip'),
-      nameOfIssuer: getValue('nameOfIssuer'),
-      titleOfClass: getValue('titleOfClass'),
-      value: getNumValue('value'),
-      shares: getNumValue('sshPrnamt') || getNumValue('shrsOrPrnAmt'),
-      shrsOrPrnAmt: getValue('sshPrnamtType') || 'SH',
-      putCall: getValue('putCall') || undefined,
-      investmentDiscretion: getValue('investmentDiscretion'),
-      votingAuthSole: getNumValue('Sole') || getNumValue('sole'),
-      votingAuthShared: getNumValue('Shared') || getNumValue('shared'),
-      votingAuthNone: getNumValue('None') || getNumValue('none'),
+      cusip: getValue(entry, 'cusip'),
+      nameOfIssuer: getValue(entry, 'nameOfIssuer'),
+      titleOfClass: getValue(entry, 'titleOfClass'),
+      value: getNumValue(entry, 'value'),
+      shares: getNumValue(entry, 'sshPrnamt') || getNumValue(entry, 'shrsOrPrnAmt'),
+      shrsOrPrnAmt: getValue(entry, 'sshPrnamtType') || 'SH',
+      putCall: getValue(entry, 'putCall') || undefined,
+      investmentDiscretion: getValue(entry, 'investmentDiscretion'),
+      votingAuthSole: getNumValue(entry, 'Sole') || getNumValue(entry, 'sole'),
+      votingAuthShared: getNumValue(entry, 'Shared') || getNumValue(entry, 'shared'),
+      votingAuthNone: getNumValue(entry, 'None') || getNumValue(entry, 'none'),
     });
   }
 
@@ -694,12 +706,7 @@ function parseForm345Xml(xml: string, accessionNumber: string, filingDate: strin
   try {
     const getValue = (pattern: RegExp): string => {
       const match = xml.match(pattern);
-      return match?.[1]?.trim() || '';
-    };
-
-    const getNumValue = (pattern: RegExp): number => {
-      const val = getValue(pattern);
-      return val ? parseFloat(val.replace(/,/g, '')) || 0 : 0;
+      return match?.[1]?.trim() ? decodeHtmlEntities(match[1].trim()) : '';
     };
 
     // Parse issuer info
@@ -738,7 +745,7 @@ function parseForm345Xml(xml: string, accessionNumber: string, filingDate: strin
       const ownerXml = ownerMatch[1];
       const getOwnerValue = (tag: string): string => {
         const match = ownerXml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`, 'i'));
-        return match?.[1]?.trim() || '';
+        return match?.[1]?.trim() ? decodeHtmlEntities(match[1].trim()) : '';
       };
 
       owners.push({
@@ -769,7 +776,7 @@ function parseForm345Xml(xml: string, accessionNumber: string, filingDate: strin
       const transXml = transMatch[1];
       const getTransValue = (tag: string): string => {
         const match = transXml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`, 'i'));
-        return match?.[1]?.trim() || '';
+        return match?.[1]?.trim() ? decodeHtmlEntities(match[1].trim()) : '';
       };
       const getTransNum = (tag: string): number => {
         const val = getTransValue(tag);
@@ -800,7 +807,7 @@ function parseForm345Xml(xml: string, accessionNumber: string, filingDate: strin
       const holdingXml = holdingMatch[1];
       const getHoldingValue = (tag: string): string => {
         const match = holdingXml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`, 'i'));
-        return match?.[1]?.trim() || '';
+        return match?.[1]?.trim() ? decodeHtmlEntities(match[1].trim()) : '';
       };
       const getHoldingNum = (tag: string): number => {
         const val = getHoldingValue(tag);

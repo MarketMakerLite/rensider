@@ -53,6 +53,31 @@ Rensider provides:
 - Transaction significance filtering
 - Insider profiles across multiple companies
 
+## Recent Changes
+
+### New Features
+
+- **Treemap Visualization**: Stock pages now have a toggle to switch between table and treemap views for institutional holders, with cells sized by position value
+- **Mobile Bottom Sheet UI**: Search interface with hydration-safe patterns for mobile devices
+- **Dynamic OG Images**: Open Graph images now include chart visualizations with ownership data
+- **Instant Filer Names**: Denormalized filer names in 13F submissions for faster display without API lookups
+- **Persistent Filer Cache**: Filer names cached to MotherDuck database for better performance
+- **Insider Sales Links**: Direct links to insider transaction pages from ownership tables
+
+### Improvements
+
+- **SEO Enhancements**: Comprehensive metadata, canonical URLs, and structured data
+- **Rensider Branding**: Updated OG tags and images with consistent branding
+- **URL Path Clarity**: Renamed URL paths and backend files for better organization
+- **Chart Formatting**: Improved axis formatting and spacing in visualizations
+
+### Bug Fixes
+
+- Fixed data processing order for institutional holders and recent filings tables
+- Fixed target stock/CUSIP display in activist activity table
+- Resolved SEC API rate limiting issues
+- Fixed OG image generation with next/og
+
 ## Tech Stack
 
 | Category | Technologies |

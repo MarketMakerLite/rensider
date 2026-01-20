@@ -23,7 +23,6 @@ const ALLOWED_TABLES = new Set([
   'form345_deriv_trans',
   'form345_deriv_holding',
   'cusip_mappings',
-  'reporting_persons_13dg',
   'filer_names',
 ]);
 
@@ -837,18 +836,7 @@ export async function pruneOldData(yearsToKeep: number = 3): Promise<{
     const subAfter = await getCount('SELECT COUNT(*) as cnt FROM submissions_13f');
     deletedByTable['submissions_13f'] = subBefore - subAfter;
 
-    // 3. reporting_persons_13dg (child of filings_13dg)
-    const rpBefore = await getCount('SELECT COUNT(*) as cnt FROM reporting_persons_13dg');
-    await execute(`
-      DELETE FROM reporting_persons_13dg
-      WHERE ACCESSION_NUMBER IN (
-        SELECT ACCESSION_NUMBER FROM filings_13dg WHERE FILING_DATE < '${cutoffStr}'
-      )
-    `);
-    const rpAfter = await getCount('SELECT COUNT(*) as cnt FROM reporting_persons_13dg');
-    deletedByTable['reporting_persons_13dg'] = rpBefore - rpAfter;
-
-    // 4. filings_13dg (parent)
+    // 3. filings_13dg
     const filBefore = await getCount('SELECT COUNT(*) as cnt FROM filings_13dg');
     await execute(`DELETE FROM filings_13dg WHERE FILING_DATE < '${cutoffStr}'`);
     const filAfter = await getCount('SELECT COUNT(*) as cnt FROM filings_13dg');

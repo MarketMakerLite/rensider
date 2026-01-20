@@ -86,7 +86,6 @@ async function main() {
       'submissions_13f',
       'holdings_13f',
       'filings_13dg',
-      'reporting_persons_13dg',
       'form345_submissions',
       'form345_reporting_owners',
       'form345_nonderiv_trans',
@@ -151,16 +150,6 @@ async function main() {
     // filings_13dg: FILING_DATE format is YYYY-MM-DD
     const filings13dgToDelete = await getCountWhere(`
       SELECT COUNT(*) as cnt FROM filings_13dg WHERE FILING_DATE < '2023-10-01'
-    `);
-
-    // reporting_persons_13dg linked via ACCESSION_NUMBER
-    const rp13dgToDelete = await getCountWhere(`
-      SELECT COUNT(*) as cnt FROM reporting_persons_13dg rp
-      WHERE EXISTS (
-        SELECT 1 FROM filings_13dg f
-        WHERE f.ACCESSION_NUMBER = rp.ACCESSION_NUMBER
-        AND f.FILING_DATE < '2023-10-01'
-      )
     `);
 
     // form345_submissions: FILING_DATE format is YYYY-MM-DD
@@ -230,7 +219,6 @@ async function main() {
     console.log(`  submissions_13f: ${sub13fToDelete.toLocaleString()}`);
     console.log(`  holdings_13f: ${hold13fToDelete.toLocaleString()}`);
     console.log(`  filings_13dg: ${filings13dgToDelete.toLocaleString()}`);
-    console.log(`  reporting_persons_13dg: ${rp13dgToDelete.toLocaleString()}`);
     console.log(`  form345_submissions: ${form345SubToDelete.toLocaleString()}`);
     console.log(`  form345_reporting_owners: ${form345OwnersToDelete.toLocaleString()}`);
     console.log(`  form345_nonderiv_trans: ${form345NdTransToDelete.toLocaleString()}`);
@@ -243,7 +231,7 @@ async function main() {
     }
 
     const totalToDelete =
-      sub13fToDelete + hold13fToDelete + filings13dgToDelete + rp13dgToDelete +
+      sub13fToDelete + hold13fToDelete + filings13dgToDelete +
       form345SubToDelete + form345OwnersToDelete + form345NdTransToDelete +
       form345NdHoldToDelete + form345DTransToDelete + form345DHoldToDelete +
       cusipToDelete + filerToDelete;
@@ -312,7 +300,7 @@ async function main() {
     console.log('\n🗑️  Deleting pre-Q4 2023 data...\n');
 
     // 1. holdings_13f (child of submissions_13f)
-    console.log('   [1/10] Deleting holdings_13f...');
+    console.log('   [1/9] Deleting holdings_13f...');
     await conn.run(`
       DELETE FROM holdings_13f
       WHERE ACCESSION_NUMBER IN (
@@ -330,7 +318,7 @@ async function main() {
     `);
 
     // 2. submissions_13f (parent)
-    console.log('   [2/10] Deleting submissions_13f...');
+    console.log('   [2/9] Deleting submissions_13f...');
     await conn.run(`
       DELETE FROM submissions_13f
       WHERE PERIODOFREPORT LIKE '%-2020'
@@ -344,24 +332,14 @@ async function main() {
               PERIODOFREPORT LIKE '__-SEP-%'))
     `);
 
-    // 3. reporting_persons_13dg (child of filings_13dg)
-    console.log('   [3/10] Deleting reporting_persons_13dg...');
-    await conn.run(`
-      DELETE FROM reporting_persons_13dg
-      WHERE ACCESSION_NUMBER IN (
-        SELECT ACCESSION_NUMBER FROM filings_13dg
-        WHERE FILING_DATE < '2023-10-01'
-      )
-    `);
-
-    // 4. filings_13dg (parent)
-    console.log('   [4/10] Deleting filings_13dg...');
+    // 3. filings_13dg
+    console.log('   [3/9] Deleting filings_13dg...');
     await conn.run(`
       DELETE FROM filings_13dg WHERE FILING_DATE < '2023-10-01'
     `);
 
-    // 5-9. form345 child tables
-    console.log('   [5/10] Deleting form345_reporting_owners...');
+    // 4-8. form345 child tables
+    console.log('   [4/9] Deleting form345_reporting_owners...');
     await conn.run(`
       DELETE FROM form345_reporting_owners
       WHERE ACCESSION_NUMBER IN (
@@ -370,7 +348,7 @@ async function main() {
       )
     `);
 
-    console.log('   [6/10] Deleting form345_nonderiv_trans...');
+    console.log('   [5/9] Deleting form345_nonderiv_trans...');
     await conn.run(`
       DELETE FROM form345_nonderiv_trans
       WHERE ACCESSION_NUMBER IN (
@@ -379,7 +357,7 @@ async function main() {
       )
     `);
 
-    console.log('   [7/10] Deleting form345_nonderiv_holding...');
+    console.log('   [6/9] Deleting form345_nonderiv_holding...');
     await conn.run(`
       DELETE FROM form345_nonderiv_holding
       WHERE ACCESSION_NUMBER IN (
@@ -388,7 +366,7 @@ async function main() {
       )
     `);
 
-    console.log('   [8/10] Deleting form345_deriv_trans...');
+    console.log('   [7/9] Deleting form345_deriv_trans...');
     await conn.run(`
       DELETE FROM form345_deriv_trans
       WHERE ACCESSION_NUMBER IN (
@@ -397,7 +375,7 @@ async function main() {
       )
     `);
 
-    console.log('   [9/10] Deleting form345_deriv_holding...');
+    console.log('   [8/9] Deleting form345_deriv_holding...');
     await conn.run(`
       DELETE FROM form345_deriv_holding
       WHERE ACCESSION_NUMBER IN (
@@ -406,8 +384,8 @@ async function main() {
       )
     `);
 
-    // 10. form345_submissions (parent)
-    console.log('   [10/10] Deleting form345_submissions...');
+    // 9. form345_submissions (parent)
+    console.log('   [9/9] Deleting form345_submissions...');
     await conn.run(`
       DELETE FROM form345_submissions WHERE FILING_DATE < '2023-10-01'
     `);

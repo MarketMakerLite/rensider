@@ -66,6 +66,7 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
           <div className="fixed inset-x-0 bottom-0 flex items-end justify-center">
             <Headless.DialogPanel
               as={motion.div}
+              id="mobile-sidebar"
               initial="hidden"
               animate="visible"
               exit="exit"
@@ -83,6 +84,9 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
               <div
                 className="flex cursor-grab justify-center pt-3 pb-2 active:cursor-grabbing"
                 onPointerDown={(e) => dragControls.start(e)}
+                role="button"
+                aria-label="Drag to dismiss navigation"
+                tabIndex={0}
               >
                 <div className="h-1 w-10 rounded-full bg-zinc-300" />
               </div>
@@ -130,6 +134,8 @@ export function SidebarLayout({
           <NavbarItem
             onClick={() => setShowSidebar(true)}
             aria-label="Open navigation"
+            aria-expanded={showSidebar}
+            aria-controls="mobile-sidebar"
             className="touch-target flex items-center justify-center"
           >
             <OpenMenuIcon />

@@ -52,29 +52,23 @@ async function main() {
   try {
     await conn.run("INSTALL 'motherduck'");
     await conn.run("LOAD 'motherduck'");
-    await conn.run(`SET motherduck_token='${MOTHERDUCK_TOKEN}'`);
+    // Escape single quotes in token to prevent SQL injection
+    const escapedToken = MOTHERDUCK_TOKEN.replace(/'/g, "''");
+    await conn.run(`SET motherduck_token='${escapedToken}'`);
     await conn.run(`ATTACH 'md:${MOTHERDUCK_DATABASE}'`);
     await conn.run(`USE ${MOTHERDUCK_DATABASE}`);
     console.log('✅ Connected\n');
 
-    // Helper to get count
+    // Helper to get count - throws on error for visibility
     async function getCount(table: string): Promise<number> {
-      try {
-        const result = await conn.runAndReadAll(`SELECT COUNT(*) as cnt FROM ${table}`);
-        return Number((result.getRowObjects() as { cnt: bigint }[])[0]?.cnt ?? 0);
-      } catch {
-        return 0;
-      }
+      const result = await conn.runAndReadAll(`SELECT COUNT(*) as cnt FROM ${table}`);
+      return Number((result.getRowObjects() as { cnt: bigint }[])[0]?.cnt ?? 0);
     }
 
-    // Helper to get count with condition
+    // Helper to get count with condition - throws on error for visibility
     async function getCountWhere(sql: string): Promise<number> {
-      try {
-        const result = await conn.runAndReadAll(sql);
-        return Number((result.getRowObjects() as { cnt: bigint }[])[0]?.cnt ?? 0);
-      } catch {
-        return 0;
-      }
+      const result = await conn.runAndReadAll(sql);
+      return Number((result.getRowObjects() as { cnt: bigint }[])[0]?.cnt ?? 0);
     }
 
     // ========================================
@@ -296,9 +290,15 @@ async function main() {
 
     // ========================================
     // EXECUTE DELETIONS (children before parents)
+    // Wrapped in transaction for data integrity
     // ========================================
     console.log('\n🗑️  Deleting pre-Q4 2023 data...\n');
 
+    // Start transaction for atomicity
+    await conn.run('BEGIN TRANSACTION');
+    let transactionStarted = true;
+
+    try {
     // 1. holdings_13f (child of submissions_13f)
     console.log('   [1/9] Deleting holdings_13f...');
     await conn.run(`
@@ -397,6 +397,21 @@ async function main() {
 
       console.log('   [+] Deleting old filer_names...');
       await conn.run(`DELETE FROM filer_names WHERE cached_at < '2023-10-01'`);
+    }
+
+    // Commit transaction - all deletions succeeded
+    await conn.run('COMMIT');
+    transactionStarted = false;
+    console.log('   ✅ All deletions committed successfully\n');
+
+    } catch (deleteError) {
+      // Rollback transaction on any deletion error
+      if (transactionStarted) {
+        console.error('\n❌ Deletion failed, rolling back transaction...');
+        await conn.run('ROLLBACK');
+        console.log('   ✅ Transaction rolled back - no data was deleted');
+      }
+      throw deleteError;
     }
 
     // ========================================

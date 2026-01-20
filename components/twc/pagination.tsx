@@ -2,6 +2,7 @@
 
 import clsx from 'clsx'
 import type React from 'react'
+import { useMemo } from 'react'
 import { Button } from './button'
 
 export function Pagination({
@@ -110,6 +111,9 @@ interface TablePaginationProps {
   pageSizeOptions?: number[]
 }
 
+// Type for page numbers including ellipsis markers
+type PageItem = number | 'ellipsis';
+
 export function TablePagination({
   page,
   pageSize,
@@ -124,9 +128,9 @@ export function TablePagination({
   const startItem = (page - 1) * pageSize + 1
   const endItem = Math.min(page * pageSize, totalItems)
 
-  // Generate page numbers to show
-  const getPageNumbers = (): (number | 'ellipsis')[] => {
-    const pages: (number | 'ellipsis')[] = []
+  // Generate page numbers to show - memoized to avoid recalculation on every render
+  const pageNumbers = useMemo((): PageItem[] => {
+    const pages: PageItem[] = []
     const maxVisible = 5
 
     if (totalPages <= maxVisible + 2) {
@@ -147,7 +151,7 @@ export function TablePagination({
       pages.push(totalPages)
     }
     return pages
-  }
+  }, [page, totalPages])
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -220,25 +224,25 @@ export function TablePagination({
               </svg>
             </button>
 
-            {getPageNumbers().map((pageNum, idx) =>
-              pageNum === 'ellipsis' ? (
-                <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-zinc-400">
+            {pageNumbers.map((pageItem, idx) =>
+              pageItem === 'ellipsis' ? (
+                <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-zinc-400" aria-hidden="true">
                   ...
                 </span>
               ) : (
                 <button
-                  key={pageNum}
-                  onClick={() => onPageChange(pageNum)}
+                  key={pageItem}
+                  onClick={() => onPageChange(pageItem)}
                   className={clsx(
                     'flex h-8 w-8 items-center justify-center border text-sm font-medium transition-colors',
-                    page === pageNum
+                    page === pageItem
                       ? 'border-[#4A4444] bg-green-800 text-white'
                       : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
                   )}
-                  aria-label={`Page ${pageNum}`}
-                  aria-current={page === pageNum ? 'page' : undefined}
+                  aria-label={`Page ${pageItem}`}
+                  aria-current={page === pageItem ? 'page' : undefined}
                 >
-                  {pageNum}
+                  {pageItem}
                 </button>
               )
             )}

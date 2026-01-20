@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 
@@ -13,7 +13,7 @@ interface MobileFilterSheetProps {
 
 /**
  * Bottom sheet component for mobile filter controls
- * Features drag-to-dismiss and larger touch targets
+ * Features drag-to-dismiss, keyboard escape handler, and larger touch targets
  */
 export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFilterSheetProps) {
   const [mounted, setMounted] = useState(false)
@@ -22,20 +22,33 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
   const dragStartY = useRef(0)
   const currentY = useRef(0)
 
+  // SSR safety - only mount portal on client
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  // Handle body scroll lock and keyboard escape
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
+
+      // Keyboard escape handler
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose()
+        }
+      }
+      document.addEventListener('keydown', handleKeyDown)
+
+      return () => {
+        document.body.style.overflow = ''
+        document.removeEventListener('keydown', handleKeyDown)
+      }
     }
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isOpen])
+  }, [isOpen, onClose])
 
   const handleClose = () => {
     setIsClosing(true)
@@ -71,10 +84,11 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
     currentY.current = 0
   }
 
-  if (!mounted || !isOpen) return null
+  // SSR safety: ensure document.body exists before rendering portal
+  if (!mounted || !isOpen || typeof document === 'undefined') return null
 
   return createPortal(
-    <div className="fixed inset-0 z-50 md:hidden">
+    <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-labelledby="filter-sheet-title">
       {/* Backdrop */}
       <div
         className={clsx(
@@ -82,6 +96,7 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
           isClosing ? 'opacity-0' : 'opacity-100'
         )}
         onClick={handleClose}
+        aria-hidden="true"
       />
 
       {/* Sheet */}
@@ -103,15 +118,19 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
           onMouseMove={handleDrag}
           onMouseUp={handleDragEnd}
           onMouseLeave={handleDragEnd}
+          role="button"
+          aria-label="Drag to dismiss"
+          tabIndex={0}
         >
           <div className="h-1 w-10 rounded-full bg-zinc-300" />
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-200 px-4 pb-3">
-          <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
+          <h2 id="filter-sheet-title" className="text-lg font-semibold text-zinc-900">{title}</h2>
           <button
             onClick={handleClose}
+            aria-label="Close filters"
             className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

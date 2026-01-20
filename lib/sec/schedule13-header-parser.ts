@@ -81,6 +81,7 @@ function parseSecHeader(text: string): Map<string, string> {
 
 /**
  * Decode HTML entities commonly found in SEC filings
+ * Validates Unicode code points to prevent invalid character conversion
  */
 function decodeHtmlEntities(text: string): string {
   if (!text) return text;
@@ -92,8 +93,23 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&quot;/gi, '"')
     .replace(/&apos;/gi, "'")
     .replace(/&nbsp;/gi, ' ')
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+    // Numeric entities (decimal) - validate code point is in valid Unicode range
+    .replace(/&#(\d+);/g, (match, code) => {
+      const codePoint = parseInt(code, 10);
+      // Valid Unicode code points: 0-0x10FFFF, excluding surrogates (0xD800-0xDFFF)
+      if (codePoint >= 0 && codePoint <= 0x10FFFF && !(codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
+        return String.fromCodePoint(codePoint);
+      }
+      return match; // Return original if invalid
+    })
+    // Numeric entities (hex) - validate code point is in valid Unicode range
+    .replace(/&#x([0-9a-fA-F]+);/g, (match, code) => {
+      const codePoint = parseInt(code, 16);
+      if (codePoint >= 0 && codePoint <= 0x10FFFF && !(codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
+        return String.fromCodePoint(codePoint);
+      }
+      return match; // Return original if invalid
+    });
 }
 
 /**

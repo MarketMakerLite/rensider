@@ -57,6 +57,21 @@ export interface RSSSyncResult {
 const SEC_RSS_BASE = 'https://www.sec.gov/cgi-bin/browse-edgar';
 
 /**
+ * Escape a value for safe SQL insertion
+ * Handles strings, numbers, null, and undefined
+ */
+function escapeSqlValue(v: unknown): string {
+  if (v === null || v === undefined) return 'NULL';
+  if (typeof v === 'number') {
+    if (!Number.isFinite(v)) return 'NULL';
+    return String(v);
+  }
+  if (typeof v === 'boolean') return v ? '1' : '0';
+  // Escape single quotes by doubling them
+  return `'${String(v).replace(/'/g, "''")}'`;
+}
+
+/**
  * Build RSS feed URL for a specific form type
  */
 export function buildRSSFeedUrl(formType: string, count = 100): string {
@@ -389,7 +404,10 @@ function parseInfoTableXml(xml: string, accessionNumber: string): Holding13F[] {
 
   const getNumValue = (entry: string, tag: string): number => {
     const val = getValue(entry, tag);
-    return val ? parseInt(val.replace(/,/g, ''), 10) || 0 : 0;
+    if (!val) return 0;
+    // Use Number() instead of parseInt() to avoid precision loss for large share counts
+    const num = Number(val.replace(/,/g, ''));
+    return Number.isFinite(num) ? num : 0;
   };
 
   // Match both <infoTable> and namespace-prefixed variants like <ns1:infoTable>
@@ -620,12 +638,7 @@ export async function sync13FFromRSS(options: RSSSyncOptions): Promise<RSSSyncRe
       for (const holding of holdingsRecords) {
         try {
           const cols = Object.keys(holding);
-          const vals = cols.map(c => {
-            const v = holding[c];
-            if (v === null) return 'NULL';
-            if (typeof v === 'string') return `'${String(v).replace(/'/g, "''")}'`;
-            return String(v);
-          });
+          const vals = cols.map(c => escapeSqlValue(holding[c]));
           await execute(`INSERT OR IGNORE INTO holdings_13f (${cols.join(', ')}) VALUES (${vals.join(', ')})`);
         } catch {
           // Ignore individual insert errors
@@ -1047,12 +1060,7 @@ export async function syncForm345FromRSS(options: RSSSyncOptions): Promise<RSSSy
       for (const record of records) {
         try {
           const cols = Object.keys(record);
-          const vals = cols.map(c => {
-            const v = record[c];
-            if (v === null || v === undefined) return 'NULL';
-            if (typeof v === 'string') return `'${String(v).replace(/'/g, "''")}'`;
-            return String(v);
-          });
+          const vals = cols.map(c => escapeSqlValue(record[c]));
           await execute(`INSERT OR IGNORE INTO ${table} (${cols.join(', ')}) VALUES (${vals.join(', ')})`);
           inserted++;
         } catch {

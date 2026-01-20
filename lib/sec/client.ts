@@ -15,10 +15,23 @@ export function decodeHtmlEntities(text: string): string {
     .replace(/&quot;/gi, '"')
     .replace(/&apos;/gi, "'")
     .replace(/&nbsp;/gi, ' ')
-    // Numeric entities (decimal)
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
-    // Numeric entities (hex)
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+    // Numeric entities (decimal) - validate code point is in valid Unicode range
+    .replace(/&#(\d+);/g, (match, code) => {
+      const codePoint = parseInt(code, 10);
+      // Valid Unicode code points: 0-0x10FFFF, excluding surrogates (0xD800-0xDFFF)
+      if (codePoint >= 0 && codePoint <= 0x10FFFF && !(codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
+        return String.fromCodePoint(codePoint);
+      }
+      return match; // Return original if invalid
+    })
+    // Numeric entities (hex) - validate code point is in valid Unicode range
+    .replace(/&#x([0-9a-fA-F]+);/g, (match, code) => {
+      const codePoint = parseInt(code, 16);
+      if (codePoint >= 0 && codePoint <= 0x10FFFF && !(codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
+        return String.fromCodePoint(codePoint);
+      }
+      return match; // Return original if invalid
+    });
 }
 
 // Form index entry from SEC EDGAR index files
@@ -88,6 +101,12 @@ async function fetchWithTimeout(url: string, options: FetchOptions = {}): Promis
   }
 }
 
+// Maximum delay cap for exponential backoff (30 seconds)
+const MAX_RETRY_DELAY = 30000;
+
+// HTTP status codes that should not be retried (non-recoverable)
+const NON_RETRYABLE_STATUS_CODES = new Set([400, 401, 403, 404, 405, 410, 422]);
+
 async function fetchWithRetry(
   url: string,
   options: FetchOptions = {},
@@ -104,6 +123,7 @@ async function fetchWithRetry(
         return response;
       }
 
+      // Rate limit errors - always retry these
       if (response.status === 429 || response.status === 503) {
         const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
         throw new SECRateLimitError(
@@ -112,6 +132,15 @@ async function fetchWithRetry(
         );
       }
 
+      // Don't retry non-recoverable errors (404, 400, etc.)
+      if (NON_RETRYABLE_STATUS_CODES.has(response.status)) {
+        throw new SECFetchError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          response.status
+        );
+      }
+
+      // Other server errors (5xx except 503) - may be worth retrying
       throw new SECFetchError(
         `HTTP ${response.status}: ${response.statusText}`,
         response.status
@@ -119,14 +148,20 @@ async function fetchWithRetry(
     } catch (error) {
       lastError = error as Error;
 
+      // Don't retry non-recoverable errors
+      if (error instanceof SECFetchError && NON_RETRYABLE_STATUS_CODES.has(error.status)) {
+        throw error;
+      }
+
       if (attempt === maxRetries) {
         throw lastError;
       }
 
-      let delay = baseDelay * Math.pow(2, attempt);
+      // Calculate delay with exponential backoff, capped at MAX_RETRY_DELAY
+      let delay = Math.min(baseDelay * Math.pow(2, attempt), MAX_RETRY_DELAY);
 
       if (error instanceof SECRateLimitError && error.retryAfter) {
-        delay = error.retryAfter * 1000;
+        delay = Math.min(error.retryAfter * 1000, MAX_RETRY_DELAY);
       }
 
       console.warn(

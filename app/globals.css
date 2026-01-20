@@ -117,45 +117,70 @@ button:active:not(:disabled),
   transform: scale(0.98);
 }
 
-/* Font switching */
-body.font-bodoni {
-  font-family: var(--font-bodoni-moda), Georgia, 'Times New Roman', serif;
+/* Font switching - Noto Sans */
+body.font-noto-sans {
+  font-family: var(--font-noto-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+/* Moderate text scaling for Noto Sans */
+body.font-noto-sans .text-xs {
+  font-size: 0.8125rem; /* 13px instead of 12px */
+}
+
+body.font-noto-sans .text-sm {
+  font-size: 0.875rem; /* 14px - same as default */
+}
+
+body.font-noto-sans code {
+  font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Override font-mono for table cells when Noto Sans is active (keep mono for actual code) */
+body.font-noto-sans .font-mono:not(code):not(pre):not(kbd) {
+  font-family: var(--font-noto-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Font switching - Noto Serif */
+body.font-noto-serif {
+  font-family: var(--font-noto-serif), Georgia, 'Times New Roman', serif;
   font-size: var(--font-size-serif-base);
   line-height: 1.7;
 }
 
-/* Scale up all text sizes when Bodoni is active */
-body.font-bodoni .text-xs {
+/* Scale up all text sizes when Noto Serif is active */
+body.font-noto-serif .text-xs {
   font-size: 1rem; /* 16px instead of 12px */
 }
 
-body.font-bodoni .text-sm {
+body.font-noto-serif .text-sm {
   font-size: 0.9375rem; /* 15px instead of 14px */
 }
 
-body.font-bodoni .text-lg {
+body.font-noto-serif .text-lg {
   font-size: 1.5rem; /* 24px instead of 18px */
 }
 
-body.font-bodoni .text-xl {
+body.font-noto-serif .text-xl {
   font-size: 1.75rem; /* 28px instead of 20px */
 }
 
-body.font-bodoni .text-2xl {
+body.font-noto-serif .text-2xl {
   font-size: 1.875rem; /* 30px instead of 24px */
 }
 
-body.font-bodoni .text-3xl {
+body.font-noto-serif .text-3xl {
   font-size: 2.75rem; /* 44px instead of 30px */
 }
 
-body.font-bodoni code {
+body.font-noto-serif code {
   font-family: var(--font-fira-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* Override font-mono for table cells when Bodoni is active (keep mono for actual code) */
-body.font-bodoni .font-mono:not(code):not(pre):not(kbd) {
-  font-family: var(--font-bodoni-moda), Georgia, 'Times New Roman', serif;
+/* Override font-mono for table cells when Noto Serif is active (keep mono for actual code) */
+body.font-noto-serif .font-mono:not(code):not(pre):not(kbd) {
+  font-family: var(--font-noto-serif), Georgia, 'Times New Roman', serif;
 }
 
 code {

@@ -2,7 +2,21 @@
 
 import { useState, useEffect } from 'react'
 
-type FontType = 'mono' | 'serif'
+type FontType = 'mono' | 'sans' | 'serif'
+
+const fontClasses: Record<FontType, string | null> = {
+  mono: null,
+  sans: 'font-noto-sans',
+  serif: 'font-noto-serif',
+}
+
+const fontLabels: Record<FontType, string> = {
+  mono: 'Fira Code',
+  sans: 'Noto Sans',
+  serif: 'Noto Serif',
+}
+
+const fontCycle: FontType[] = ['mono', 'sans', 'serif']
 
 export function FontToggle() {
   const [font, setFont] = useState<FontType>('mono')
@@ -11,26 +25,38 @@ export function FontToggle() {
   useEffect(() => {
     setMounted(true)
     const saved = localStorage.getItem('font-preference') as FontType | null
-    if (saved === 'serif') {
-      setFont('serif')
-      document.body.classList.add('font-bodoni')
+    if (saved && fontCycle.includes(saved)) {
+      setFont(saved)
+      const fontClass = fontClasses[saved]
+      if (fontClass) {
+        document.body.classList.add(fontClass)
+      }
     }
   }, [])
 
-  const toggleFont = () => {
-    const newFont = font === 'mono' ? 'serif' : 'mono'
+  const cycleFont = () => {
+    const currentIndex = fontCycle.indexOf(font)
+    const nextIndex = (currentIndex + 1) % fontCycle.length
+    const newFont = fontCycle[nextIndex]
+
+    // Remove current font class
+    const currentClass = fontClasses[font]
+    if (currentClass) {
+      document.body.classList.remove(currentClass)
+    }
+
+    // Add new font class
+    const newClass = fontClasses[newFont]
+    if (newClass) {
+      document.body.classList.add(newClass)
+    }
+
     setFont(newFont)
     localStorage.setItem('font-preference', newFont)
-
-    if (newFont === 'serif') {
-      document.body.classList.add('font-bodoni')
-    } else {
-      document.body.classList.remove('font-bodoni')
-    }
   }
 
   // Fixed dimensions to prevent any layout shift
-  const buttonClass = "flex items-center justify-center w-[88px] h-9 gap-1.5 border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+  const buttonClass = "flex items-center justify-center w-[120px] h-9 gap-1 border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
   const labelClass = "inline-flex w-6 justify-center text-sm"
 
   // Avoid hydration mismatch - render same dimensions while loading
@@ -39,23 +65,34 @@ export function FontToggle() {
       <button className={buttonClass} disabled aria-label="Font toggle loading">
         <span className={`${labelClass} font-mono`}>Aa</span>
         <span className="text-zinc-300">|</span>
-        <span className={`${labelClass} opacity-50`} style={{ fontFamily: "'Bodoni Moda', serif" }}>Aa</span>
+        <span className={`${labelClass} opacity-50`} style={{ fontFamily: "'Noto Sans', sans-serif" }}>Aa</span>
+        <span className="text-zinc-300">|</span>
+        <span className={`${labelClass} opacity-50`} style={{ fontFamily: "'Noto Serif', serif" }}>Aa</span>
       </button>
     )
   }
 
+  const nextFont = fontCycle[(fontCycle.indexOf(font) + 1) % fontCycle.length]
+
   return (
     <button
-      onClick={toggleFont}
+      onClick={cycleFont}
       className={buttonClass}
-      title={`Switch to ${font === 'mono' ? 'Bodoni Moda' : 'Fira Code'}`}
-      aria-label={`Current font: ${font === 'mono' ? 'Fira Code' : 'Bodoni Moda'}. Click to switch.`}
+      title={`Switch to ${fontLabels[nextFont]}`}
+      aria-label={`Current font: ${fontLabels[font]}. Click to switch to ${fontLabels[nextFont]}.`}
     >
       <span className={`${labelClass} font-mono transition-opacity ${font === 'mono' ? 'text-zinc-900' : 'opacity-40'}`}>Aa</span>
       <span className="text-zinc-300">|</span>
       <span
+        className={`${labelClass} transition-opacity ${font === 'sans' ? 'text-zinc-900' : 'opacity-40'}`}
+        style={{ fontFamily: "'Noto Sans', sans-serif" }}
+      >
+        Aa
+      </span>
+      <span className="text-zinc-300">|</span>
+      <span
         className={`${labelClass} transition-opacity ${font === 'serif' ? 'text-zinc-900' : 'opacity-40'}`}
-        style={{ fontFamily: "'Bodoni Moda', serif" }}
+        style={{ fontFamily: "'Noto Serif', serif" }}
       >
         Aa
       </span>

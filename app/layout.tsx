@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fira_Code, Bodoni_Moda } from "next/font/google";
+import { Fira_Code, Noto_Sans, Noto_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
@@ -11,10 +11,16 @@ const firaCode = Fira_Code({
   variable: "--font-fira-code",
 });
 
-const bodoniModa = Bodoni_Moda({
+const notoSans = Noto_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-bodoni-moda",
+  variable: "--font-noto-sans",
+});
+
+const notoSerif = Noto_Serif({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-noto-serif",
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL
@@ -76,7 +82,7 @@ export const viewport: Viewport = {
 
 // Inline script to apply font preference before render (prevents flash)
 // This is a static trusted string, not user input - safe to use with dangerouslySetInnerHTML
-const fontInitScript = `try{if(localStorage.getItem('font-preference')==='serif')document.body.classList.add('font-bodoni')}catch(e){}`;
+const fontInitScript = `try{const f=localStorage.getItem('font-preference');if(f==='sans')document.body.classList.add('font-noto-sans');else if(f==='serif')document.body.classList.add('font-noto-serif')}catch(e){}`;
 
 export default function RootLayout({
   children,
@@ -84,7 +90,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${firaCode.variable} ${bodoniModa.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={`${firaCode.variable} ${notoSans.variable} ${notoSerif.variable}`} data-scroll-behavior="smooth">
       <head>
         <script
           type="application/ld+json"

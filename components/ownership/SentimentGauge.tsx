@@ -57,7 +57,7 @@ export function SentimentGauge({ score, signal }: SentimentGaugeProps) {
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       className="rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md"
     >
-      <Text className="text-sm text-zinc-500">Fund Sentiment</Text>
+      <Text className="text-sm text-zinc-500">Institutional Sentiment</Text>
 
       {/* Score and interpretation inline */}
       <div className="mt-1 flex items-baseline justify-between gap-3">
@@ -115,8 +115,8 @@ export function SentimentGauge({ score, signal }: SentimentGaugeProps) {
         {/* Scale labels */}
         <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
           <span>Selling</span>
-          <span>Neutral</span>
-          <span>Buying</span>
+          <span>Mixed</span>
+          <span>Accumulating</span>
         </div>
       </div>
     </motion.div>

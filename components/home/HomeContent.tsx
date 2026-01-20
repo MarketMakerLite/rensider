@@ -13,7 +13,7 @@ import {
   transition,
 } from '@/lib/animations'
 
-const heroDescription = 'Track institutional holdings from SEC 13F filings. Search by ticker symbol or fund CIK to discover what the smart money is buying.'
+const heroDescription = 'Monitor hedge fund holdings, insider trades, and activist positions from SEC filings. Search any stock to see who\'s buying and selling.'
 
 const quickLinks = [
   {
@@ -27,7 +27,7 @@ const quickLinks = [
   {
     href: '/alerts',
     title: 'Accumulation Alerts',
-    description: 'Track significant ownership increase signals',
+    description: 'Stocks with surging institutional interest',
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     ),
@@ -44,12 +44,12 @@ const topFunds = [
 const aboutItems = [
   {
     title: '13F Filings',
-    description: 'Quarterly reports from institutional investment managers with over $100M in assets.',
+    description: 'Quarterly reports revealing what hedge funds, banks, and institutions own.',
     icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />,
   },
   {
-    title: 'Fund Sentiment',
-    description: '0-100 score based on institutional accumulation patterns and buying signals.',
+    title: 'Institutional Sentiment',
+    description: 'A 0-100 score showing whether institutions are buying or selling.',
     icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
   },
   {
@@ -70,7 +70,7 @@ export function HomeContent() {
         className="relative"
       >
         <Heading className="text-2xl font-medium tracking-tight text-zinc-800 sm:text-3xl lg:text-2xl">
-          Institutional Ownership Tracker
+          See What Wall Street Is Buying
         </Heading>
         <Text className="mt-3 min-h-[3.5rem] max-w-7xl text-base leading-relaxed text-zinc-500 sm:mt-4 sm:min-h-[3.75rem] sm:text-lg">
           <TypewriterText

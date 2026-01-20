@@ -68,7 +68,79 @@ export function InsiderTransactionsTable({
         />
       </div>
 
-      <Table className="mt-4" striped>
+      {/* Mobile Card View */}
+      <div className="mt-4 space-y-3 md:hidden">
+        {paginatedData.map((transaction, index) => {
+          const isSale = transaction.acquiredDisposed === 'D'
+          return (
+            <div
+              key={`mobile-${transaction.accessionNumber}-${index}`}
+              className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/insider/${transaction.insiderCik}`}
+                    prefetch={false}
+                    className="font-medium text-zinc-900 hover:text-blue-600"
+                  >
+                    {decodeHtmlEntities(transaction.insiderName)}
+                  </Link>
+                  {transaction.insiderTitle && (
+                    <div className="text-xs text-zinc-500">{transaction.insiderTitle}</div>
+                  )}
+                </div>
+                <TransactionBadge code={transaction.transactionCode} isAcquired={!isSale} />
+              </div>
+              {showCompany && transaction.ticker && (
+                <div className="mt-2">
+                  <Link
+                    href={`/stock/${transaction.ticker}#insiders`}
+                    prefetch={false}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {transaction.ticker}
+                  </Link>
+                  {transaction.issuerName && (
+                    <span className="ml-2 text-xs text-zinc-500">
+                      {decodeHtmlEntities(transaction.issuerName)}
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                <div className="text-xs text-zinc-500">
+                  {formatDate(transaction.transactionDate || transaction.filingDate)}
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className={`font-mono text-sm font-medium ${isSale ? 'text-red-600' : 'text-green-600'}`}>
+                      {isSale ? '-' : '+'}
+                      {formatLargeNumber(transaction.shares)} shares
+                    </div>
+                    {transaction.totalValue && (
+                      <div className={`font-mono text-xs ${isSale ? 'text-red-500' : 'text-green-500'}`}>
+                        {formatCurrency(transaction.totalValue)}
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href={getSecFilingUrl(transaction.accessionNumber)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-200"
+                  >
+                    Filing
+                  </a>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <Table className="mt-4 hidden md:block" striped>
         <TableHead>
           <TableRow>
             <TableHeader>

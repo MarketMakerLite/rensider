@@ -18,10 +18,11 @@ export function Table({
   grid = false,
   striped = false,
   fixed = false,
+  caption,
   className,
   children,
   ...props
-}: { bleed?: boolean; dense?: boolean; grid?: boolean; striped?: boolean; fixed?: boolean } & React.ComponentPropsWithoutRef<'div'>) {
+}: { bleed?: boolean; dense?: boolean; grid?: boolean; striped?: boolean; fixed?: boolean; caption?: string } & React.ComponentPropsWithoutRef<'div'>) {
   return (
     <TableContext.Provider value={{ bleed, dense, grid, striped } as React.ContextType<typeof TableContext>}>
       <div className="flow-root">
@@ -37,7 +38,10 @@ export function Table({
             <table className={clsx(
               'w-full text-left text-sm/6 text-zinc-950',
               fixed && 'table-fixed'
-            )}>{children}</table>
+            )}>
+              {caption && <caption className="sr-only">{caption}</caption>}
+              {children}
+            </table>
           </div>
         </div>
       </div>

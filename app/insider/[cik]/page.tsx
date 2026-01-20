@@ -6,6 +6,7 @@ import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
 import { getInsiderProfile } from '@/actions/insider-sales'
 import { formatDate, formatLargeNumber, decodeHtmlEntities } from '@/lib/format'
+import { insiderProfileSchema } from '@/lib/seo/structured-data'
 import { InsiderTransactionsTable } from '@/components/insider-sales/InsiderTransactionsTable'
 
 // Force dynamic rendering for database queries
@@ -58,8 +59,15 @@ export default async function InsiderProfilePage({ params }: PageProps) {
     )
   }
 
+  // JSON-LD structured data for SEO
+  const structuredData = insiderProfileSchema(cik, decodeHtmlEntities(profile.name))
+
   return (
     <ApplicationLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="max-w-6xl">
         {/* Header */}
         <div>

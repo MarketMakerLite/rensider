@@ -313,7 +313,7 @@ function ResponsiveChart({ data, width, height }: { data: QuarterlyChange[]; wid
             </div>
             <div className="mt-2 border-t border-zinc-200 pt-2">
               <div className="flex items-center justify-between gap-6">
-                <span className="text-zinc-600">Total Holders</span>
+                <span className="text-zinc-600">Institutional Holders</span>
                 <span className="font-mono font-semibold text-zinc-900">{formatNumber(tooltipData.original.totalHolders)}</span>
               </div>
             </div>

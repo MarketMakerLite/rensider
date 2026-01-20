@@ -15,6 +15,7 @@ import { ShareButton } from '@/components/ownership/ShareButton'
 import { StockHoldersSection } from '@/components/ownership/StockHoldersSection'
 import { InsiderActivitySection } from '@/components/insider-sales/InsiderActivitySection'
 import { formatDateTime, decodeHtmlEntities } from '@/lib/format'
+import { stockPageSchema, financialProductSchema } from '@/lib/seo/structured-data'
 
 interface PageProps {
   params: Promise<{ ticker: string }>
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${upperTicker} Institutional Ownership | Rensider`,
-    description: `Track institutional holdings, 13F filings, and insider transactions for ${upperTicker}. View fund sentiment, ownership concentration, and insider activity.`,
+    description: `Track institutional holdings, 13F filings, and insider transactions for ${upperTicker}. View institutional sentiment, ownership concentration, and insider activity.`,
     alternates: {
       canonical: `https://renbot.app/stock/${upperTicker}`,
     },
@@ -57,8 +58,11 @@ export default async function StockOwnershipPage({ params }: PageProps) {
   if (!data) {
     return (
       <ApplicationLayout>
-        <div className="flex h-64 flex-col items-center justify-center gap-4">
-          <Text>No ownership data found for {ticker}</Text>
+        <div className="flex h-64 flex-col items-center justify-center gap-4 text-center">
+          <Text className="font-medium text-zinc-900">No institutional ownership data for {ticker.toUpperCase()}</Text>
+          <Text className="max-w-md text-sm text-zinc-500">
+            This may be a small-cap stock, foreign listing, or recent IPO not yet in 13F filings.
+          </Text>
           <Link href="/" className="text-blue-600 hover:underline">
             Back to Dashboard
           </Link>
@@ -67,8 +71,24 @@ export default async function StockOwnershipPage({ params }: PageProps) {
     )
   }
 
+  // JSON-LD structured data for SEO
+  const webPageSchema = stockPageSchema(ticker.toUpperCase(), data.companyName ? decodeHtmlEntities(data.companyName) : null)
+  const productSchema = financialProductSchema(
+    ticker.toUpperCase(),
+    data.companyName ? decodeHtmlEntities(data.companyName) : null,
+    {
+      totalHolders: data.metrics.totalHolders,
+      sentimentScore: data.sentiment.score,
+      sentimentSignal: data.sentiment.signal,
+    }
+  )
+
   return (
     <ApplicationLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([webPageSchema, productSchema]) }}
+      />
       <div className="max-w-7xl">
         {/* Header - mobile-first layout */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">

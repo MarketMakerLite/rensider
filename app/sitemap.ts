@@ -45,6 +45,26 @@ async function getTopFilers(): Promise<string[]> {
   }
 }
 
+/**
+ * Get insider CIKs for sitemap
+ * Returns CIKs of insiders with recent transactions
+ */
+async function getInsiderCiks(): Promise<string[]> {
+  try {
+    const result = await query<{ cik: string }>(`
+      SELECT DISTINCT LTRIM(insider_cik, '0') as cik
+      FROM rensider.insider_transactions
+      WHERE insider_cik IS NOT NULL
+      ORDER BY filing_date DESC
+      LIMIT 500
+    `)
+    return result.map(r => r.cik)
+  } catch (error) {
+    console.error('Error fetching insider CIKs for sitemap:', error)
+    return []
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
@@ -55,6 +75,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/new`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -83,9 +109,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Fetch dynamic data in parallel
-  const [tickers, filers] = await Promise.all([
+  const [tickers, filers, insiders] = await Promise.all([
     getPopularTickers(),
     getTopFilers(),
+    getInsiderCiks(),
   ])
 
   // Stock pages
@@ -104,5 +131,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...stockPages, ...fundPages]
+  // Insider profile pages
+  const insiderPages: MetadataRoute.Sitemap = insiders.map(cik => ({
+    url: `${baseUrl}/insider/${cik}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }))
+
+  return [...staticPages, ...stockPages, ...fundPages, ...insiderPages]
 }

@@ -3,6 +3,43 @@ import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
+import { faqPageSchema } from '@/lib/seo/structured-data'
+
+// FAQ items for structured data
+const faqItems = [
+  {
+    question: 'What is a Form 13F filing?',
+    answer: 'Form 13F is a quarterly SEC filing required from institutional investment managers with over $100 million in qualifying equity securities. It discloses their long equity positions as of quarter-end, due within 45 days.',
+  },
+  {
+    question: 'Who is required to file Form 13F?',
+    answer: 'Institutional investment managers with at least $100 million in Section 13(f) securities must file. This includes hedge funds, mutual funds, banks, insurance companies, pension funds, and registered investment advisers.',
+  },
+  {
+    question: 'What is Schedule 13D?',
+    answer: 'Schedule 13D is required when any person or group acquires more than 5% of a company\'s voting shares with the intent to influence or control the company. It must be filed within 10 business days and discloses the investor\'s plans and intentions.',
+  },
+  {
+    question: 'What is Schedule 13G?',
+    answer: 'Schedule 13G is a shorter alternative to 13D available to passive investors who acquire more than 5% of a company without intent to influence control. It has less detailed disclosure requirements and longer filing deadlines.',
+  },
+  {
+    question: 'What is the 45-day reporting lag for 13F filings?',
+    answer: 'Form 13F filings are due 45 days after each calendar quarter ends. This means reported positions may be 45-135 days old when published, so traders should focus on multi-quarter trends rather than short-term moves.',
+  },
+  {
+    question: 'What securities are covered by Form 13F?',
+    answer: 'Section 13(f) securities include exchange-traded equities (NYSE, NASDAQ), listed options, closed-end funds, and exchange-traded warrants. Open-end mutual funds, private placements, and most foreign securities are excluded.',
+  },
+  {
+    question: 'How can I use institutional ownership data for trading?',
+    answer: 'Traders use 13F data to identify accumulation patterns, follow high-conviction managers, assess crowding risk, and spot distribution signals. 13D filings provide early warning of activist campaigns that often precede major corporate changes.',
+  },
+  {
+    question: 'What is the difference between 13F, 13D, and 13G?',
+    answer: 'Form 13F reports all holdings from large institutions quarterly. Schedule 13D requires disclosure of 5%+ stakes with activist intent within 10 days. Schedule 13G is for passive 5%+ holders with annual filing requirements.',
+  },
+]
 
 export const metadata: Metadata = {
   title: 'About Rensider | How We Track Institutional Investors',
@@ -25,8 +62,15 @@ export const metadata: Metadata = {
 }
 
 export default function AboutPage() {
+  const faqSchema = faqPageSchema(faqItems)
+
   return (
     <ApplicationLayout>
+      {/* FAQ Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="max-w-6xl">
         {/* Header */}
         <div>

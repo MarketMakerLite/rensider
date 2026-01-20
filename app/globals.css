@@ -56,6 +56,11 @@
 
   /* Touch target minimum (44px per WCAG) */
   --touch-target-min: 2.75rem;
+
+  /* Dynamic viewport height for mobile browser chrome handling */
+  --vh-dynamic: 1dvh;
+  --vh-small: 1svh;
+  --vh-large: 1lvh;
 }
 
 html {

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getNewFilings } from '@/actions/filings'
 import { getRecentInsiderTransactions } from '@/actions/insider-sales'
@@ -13,6 +14,25 @@ import type { InsiderTransaction, TransactionCode } from '@/types/insider-sales'
 // Force dynamic rendering to ensure DuckDB tables are loaded
 export const dynamic = 'force-dynamic'
 
+export const metadata: Metadata = {
+  title: 'Latest SEC Filings | Rensider',
+  description: 'Fresh institutional holdings and insider trades from SEC filings, updated daily. Track 13F institutional disclosures and Form 4 insider transactions.',
+  alternates: {
+    canonical: 'https://renbot.app/new',
+  },
+  openGraph: {
+    title: 'Latest SEC Filings | Rensider',
+    description: 'Fresh institutional holdings and insider trades, updated daily',
+    images: ['/api/og/home'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Latest SEC Filings | Rensider',
+    description: 'Fresh institutional holdings and insider trades, updated daily',
+    images: ['/api/og/home'],
+  },
+}
+
 export default async function NewFilingsPage() {
   const [filings, insiderData] = await Promise.all([
     getNewFilings({ days: 365, limit: 100 }),
@@ -24,9 +44,9 @@ export default async function NewFilingsPage() {
       <div className="max-w-7xl">
         {/* Header */}
         <div>
-          <Heading>New Filings</Heading>
+          <Heading>Latest SEC Filings</Heading>
           <Text className="mt-1 text-zinc-600">
-            Live SEC filings from institutional and insider disclosures
+            Fresh institutional holdings and insider trades, updated daily
           </Text>
         </div>
 
@@ -74,7 +94,7 @@ export default async function NewFilingsPage() {
         {/* Info */}
         <div className="mt-8 border-t border-zinc-200 pt-4">
           <Text className="text-sm text-zinc-500">
-            13F filings are due within 45 days of quarter-end. Form 4 insider transactions must be filed within 2 business days.
+            13F filings report quarter-end holdings (45-day delay). Insider trades appear within 2 business days.
           </Text>
         </div>
       </div>

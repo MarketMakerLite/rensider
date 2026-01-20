@@ -111,3 +111,71 @@ export function insiderProfileSchema(cik: string, name: string) {
   }
 }
 
+/**
+ * FinancialProduct schema for stock pages (rich snippets)
+ * @see https://schema.org/FinancialProduct
+ */
+export function financialProductSchema(
+  ticker: string,
+  companyName: string | null,
+  metrics?: {
+    totalHolders?: number
+    sentimentScore?: number
+    sentimentSignal?: string
+  }
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FinancialProduct',
+    name: companyName ? `${companyName} (${ticker})` : ticker,
+    description: `Institutional ownership data for ${ticker}${companyName ? ` - ${companyName}` : ''}. Track 13F filings, fund sentiment, and holder activity.`,
+    url: `${baseUrl}/stock/${ticker}`,
+    category: 'Publicly Traded Security',
+    provider: {
+      '@type': 'Organization',
+      name: 'Rensider',
+      url: baseUrl,
+    },
+    ...(metrics?.totalHolders && {
+      additionalProperty: [
+        {
+          '@type': 'PropertyValue',
+          name: 'Institutional Holders',
+          value: metrics.totalHolders,
+        },
+        ...(metrics.sentimentScore !== undefined ? [{
+          '@type': 'PropertyValue',
+          name: 'Institutional Sentiment Score',
+          value: metrics.sentimentScore,
+          minValue: 0,
+          maxValue: 100,
+        }] : []),
+        ...(metrics.sentimentSignal ? [{
+          '@type': 'PropertyValue',
+          name: 'Sentiment Signal',
+          value: metrics.sentimentSignal,
+        }] : []),
+      ],
+    }),
+  }
+}
+
+/**
+ * FAQPage schema for pages with Q&A content
+ * @see https://schema.org/FAQPage
+ */
+export function faqPageSchema(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
+

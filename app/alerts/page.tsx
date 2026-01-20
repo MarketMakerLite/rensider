@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
@@ -10,6 +10,8 @@ import { FilterInput } from '@/components/twc/filter-input'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/twc/table'
 import { SortableHeader } from '@/components/twc/sortable-header'
 import { TablePagination } from '@/components/twc/pagination'
+import { SkeletonResponsiveTable, SkeletonCard } from '@/components/ui/Skeleton'
+import { MobileFilterSheet, FilterSelect, FilterCheckbox } from '@/components/ui/MobileFilterSheet'
 import { getAlertsWithStats } from '@/actions/alerts'
 import { formatDate, formatCurrency } from '@/lib/format'
 import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
@@ -24,6 +26,7 @@ import { useServerAction } from '@/lib/useServerAction'
 import type { Alert } from '@/types/ownership'
 
 export default function AlertsPage() {
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false)
   const {
     settings,
     isLoaded,
@@ -65,7 +68,7 @@ export default function AlertsPage() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-3">
-            <Heading>Ownership Alerts</Heading>
+            <Heading>Accumulation Signals</Heading>
             {stats && stats.total > 0 && (
               <Badge color="amber">{stats.total} found</Badge>
             )}
@@ -75,8 +78,58 @@ export default function AlertsPage() {
           </Text>
         </div>
 
-        {/* Settings Panel */}
-        <div className="mt-6 flex flex-wrap items-center gap-4">
+        {/* Mobile Filter Button */}
+        <div className="mt-6 md:hidden">
+          <button
+            onClick={() => setIsFilterSheetOpen(true)}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white text-base font-medium text-zinc-700 shadow-sm hover:bg-zinc-50"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Adjust Filters
+          </button>
+        </div>
+
+        {/* Mobile Filter Sheet */}
+        <MobileFilterSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+          title="Filter Signals"
+        >
+          <FilterSelect
+            label="Minimum Change"
+            value={settings.minChange}
+            options={MIN_CHANGE_OPTIONS}
+            onChange={(v) => updateMinChange(Number(v))}
+          />
+          <FilterSelect
+            label="Maximum Change"
+            value={settings.maxChange}
+            options={MAX_CHANGE_OPTIONS}
+            onChange={(v) => updateMaxChange(Number(v))}
+          />
+          <FilterSelect
+            label="Minimum Starting Value"
+            value={settings.minStartValue}
+            options={MIN_START_VALUE_OPTIONS}
+            onChange={(v) => updateMinStartValue(Number(v))}
+          />
+          <FilterSelect
+            label="Lookback Period"
+            value={settings.lookbackMonths}
+            options={LOOKBACK_OPTIONS}
+            onChange={(v) => updateLookbackMonths(Number(v))}
+          />
+          <FilterCheckbox
+            label="Known tickers only"
+            checked={settings.onlyMappedAssets}
+            onChange={updateOnlyMappedAssets}
+          />
+        </MobileFilterSheet>
+
+        {/* Desktop Settings Panel */}
+        <div className="mt-6 hidden flex-wrap items-center gap-4 md:flex">
           <div className="flex items-center gap-2">
             <Text className="text-sm font-medium text-zinc-700">Min Change:</Text>
             <select
@@ -143,15 +196,15 @@ export default function AlertsPage() {
         {stats && (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-4">
             <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
-              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Total Alerts</Text>
+              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Signals Found</Text>
               <div className="mt-2 text-lg font-semibold tabular-nums text-zinc-900 sm:text-2xl">{stats.total}</div>
             </div>
             <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
-              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Criteria</Text>
+              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Filter Settings</Text>
               <div className="mt-2 text-lg font-semibold tabular-nums text-zinc-900 sm:text-2xl">{settings.minChange}x-{settings.maxChange}x / {settings.lookbackMonths}mo</div>
             </div>
             <div className="col-span-2 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
-              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Top Signals (by 12mo momentum)</Text>
+              <Text className="text-xs font-medium uppercase tracking-wide text-zinc-500">Strongest Momentum</Text>
               <div className="mt-3 flex flex-wrap gap-2">
                 {stats.topAlerts?.slice(0, 5).map((alert) => (
                   <Link key={alert.ticker} href={`/stock/${alert.ticker}`} prefetch={false}>
@@ -168,11 +221,9 @@ export default function AlertsPage() {
         {/* Alerts Table */}
         {isLoading ? (
           <div className="mt-8">
-            <Subheading level={2}>All Alerts</Subheading>
-            <div className="mt-4 animate-pulse space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 rounded-lg bg-zinc-100" />
-              ))}
+            <Subheading level={2}>All Signals</Subheading>
+            <div className="mt-4">
+              <SkeletonResponsiveTable rows={5} columns={8} />
             </div>
           </div>
         ) : (
@@ -181,14 +232,14 @@ export default function AlertsPage() {
 
         {/* Explanation */}
         <div className="mt-8 border-t border-zinc-200 pt-8">
-          <Subheading level={2}>How Alerts Work</Subheading>
+          <Subheading level={2}>How Signals Work</Subheading>
           <div className="mt-4 grid gap-4 sm:gap-6 md:grid-cols-2">
             <div>
               <div className="flex items-center gap-2">
                 <svg className="h-4 w-4 shrink-0 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
-                <Text className="font-medium text-zinc-900">Detection Criteria</Text>
+                <Text className="font-medium text-zinc-900">How We Find Signals</Text>
               </div>
               <Text className="mt-1 pl-6 text-sm text-zinc-600">
                 Scanning 13F filings for stocks where institutional ownership increased {settings.minChange}x-{settings.maxChange}x
@@ -240,7 +291,7 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
   return (
     <div className="mt-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Subheading level={2}>All Alerts</Subheading>
+        <Subheading level={2}>All Signals</Subheading>
         <div className="flex items-center gap-4">
           <FilterInput
             type="text"
@@ -427,9 +478,9 @@ function AlertsTable({ alerts }: { alerts: Alert[] }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <Text className="font-medium text-zinc-700">No alerts match your criteria</Text>
+          <Text className="font-medium text-zinc-700">No accumulation signals found</Text>
           <Text className="mt-2 text-sm text-zinc-500">
-            Try lowering the min change, raising the max change, or extending the lookback period
+            Try adjusting filters: lower the minimum change, extend the lookback period, or include all tickers.
           </Text>
         </div>
       )}

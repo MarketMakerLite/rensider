@@ -115,7 +115,7 @@ export function SidebarLayout({
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className="relative isolate flex min-h-svh w-full flex-col bg-zinc-50 lg:flex-row lg:bg-zinc-100">
+    <div className="relative isolate flex min-h-dvh w-full flex-col bg-zinc-50 lg:flex-row lg:bg-zinc-100">
       {/* Sidebar on desktop - hidden on mobile, fixed on desktop */}
       <div className="fixed inset-y-0 left-0 hidden w-56 lg:block">{sidebar}</div>
 
@@ -139,7 +139,7 @@ export function SidebarLayout({
       </header>
 
       {/* Main content area */}
-      <main className="flex flex-1 flex-col lg:min-w-0 lg:pl-56">
+      <main role="main" className="flex flex-1 flex-col lg:min-w-0 lg:pl-56">
         <div className="grow px-4 pb-6 pt-12 sm:px-6 lg:bg-zinc-50 lg:px-10 lg:pb-10 lg:pt-14">
           <div className="mx-auto max-w-7xl px-0 sm:px-4 lg:px-8">{children}</div>
         </div>

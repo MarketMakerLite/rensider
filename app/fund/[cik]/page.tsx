@@ -11,6 +11,7 @@ import { TopHoldingsButtons } from '@/components/ownership/TopHoldingsButtons'
 import { ShareButton } from '@/components/ownership/ShareButton'
 import { PortfolioHoldingsTable } from '@/components/ownership/PortfolioHoldingsTable'
 import { formatDateTime, formatNumber, formatCurrency, decodeHtmlEntities } from '@/lib/format'
+import { fundPageSchema } from '@/lib/seo/structured-data'
 import type { FundPositionChanges, Filing } from '@/types/ownership'
 
 interface PageProps {
@@ -63,8 +64,15 @@ export default async function FundHoldingsPage({ params }: PageProps) {
     ? ((data.totalValue - data.previousQuarterValue) / data.previousQuarterValue) * 100
     : null
 
+  // JSON-LD structured data for SEO
+  const structuredData = fundPageSchema(cik, decodeHtmlEntities(data.institutionName))
+
   return (
     <ApplicationLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="max-w-7xl">
         {/* Header Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

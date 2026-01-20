@@ -175,52 +175,86 @@ export function TablePagination({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onPageChange(page - 1)}
-            disabled={page === 1}
-            className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-            aria-label="Previous page"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+        <>
+          {/* Mobile pagination - larger touch targets, simplified */}
+          <div className="flex items-center justify-between gap-2 sm:hidden">
+            <button
+              onClick={() => onPageChange(page - 1)}
+              disabled={page === 1}
+              className="flex h-11 min-w-[5rem] items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Prev
+            </button>
 
-          {getPageNumbers().map((pageNum, idx) =>
-            pageNum === 'ellipsis' ? (
-              <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-zinc-400">
-                ...
-              </span>
-            ) : (
-              <button
-                key={pageNum}
-                onClick={() => onPageChange(pageNum)}
-                className={clsx(
-                  'flex h-8 w-8 items-center justify-center border text-sm font-medium transition-colors',
-                  page === pageNum
-                    ? 'border-[#4A4444] bg-green-800 text-white'
-                    : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
-                )}
-                aria-label={`Page ${pageNum}`}
-                aria-current={page === pageNum ? 'page' : undefined}
-              >
-                {pageNum}
-              </button>
-            )
-          )}
+            <span className="text-sm text-zinc-600">
+              {page} / {totalPages}
+            </span>
 
-          <button
-            onClick={() => onPageChange(page + 1)}
-            disabled={page === totalPages}
-            className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-            aria-label="Next page"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+            <button
+              onClick={() => onPageChange(page + 1)}
+              disabled={page === totalPages}
+              className="flex h-11 min-w-[5rem] items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next page"
+            >
+              Next
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Desktop pagination - full page numbers */}
+          <div className="hidden items-center gap-1 sm:flex">
+            <button
+              onClick={() => onPageChange(page - 1)}
+              disabled={page === 1}
+              className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+              aria-label="Previous page"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {getPageNumbers().map((pageNum, idx) =>
+              pageNum === 'ellipsis' ? (
+                <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-zinc-400">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={pageNum}
+                  onClick={() => onPageChange(pageNum)}
+                  className={clsx(
+                    'flex h-8 w-8 items-center justify-center border text-sm font-medium transition-colors',
+                    page === pageNum
+                      ? 'border-[#4A4444] bg-green-800 text-white'
+                      : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                  )}
+                  aria-label={`Page ${pageNum}`}
+                  aria-current={page === pageNum ? 'page' : undefined}
+                >
+                  {pageNum}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={() => onPageChange(page + 1)}
+              disabled={page === totalPages}
+              className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+              aria-label="Next page"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </>
       )}
     </div>
   )

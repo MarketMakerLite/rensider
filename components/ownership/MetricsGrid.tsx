@@ -29,7 +29,7 @@ export const MetricsGrid = memo(function MetricsGrid({ metrics }: MetricsGridPro
 
   return (
     <>
-      {/* Total Holders */}
+      {/* Institutional Holders */}
       <motion.div
         custom={0}
         initial="hidden"
@@ -37,7 +37,7 @@ export const MetricsGrid = memo(function MetricsGrid({ metrics }: MetricsGridPro
         variants={cardVariants}
         className="rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md"
       >
-        <Text className="text-sm text-zinc-500">Total Holders</Text>
+        <Text className="text-sm text-zinc-500">Institutional Holders</Text>
         <div className="mt-1 flex items-baseline justify-between">
           <div className="text-2xl font-bold tabular-nums">
             {formatNumber(metrics.totalHolders)}

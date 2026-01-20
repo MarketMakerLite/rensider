@@ -151,7 +151,7 @@ export function ChartTooltip({
           {/* Summary Section */}
           <div className="border-t border-zinc-700 pt-2">
             <div className="flex items-center justify-between">
-              <span className="text-zinc-400">Total Holders</span>
+              <span className="text-zinc-400">Institutional Holders</span>
               <span className="font-mono font-semibold">{formatNumber(dataPoint.totalHolders)}</span>
             </div>
             {dataPoint.rollingAvg !== null && (

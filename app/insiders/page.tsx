@@ -41,7 +41,7 @@ export default async function InsiderSalesPage() {
             <Badge color="amber">Form 3/4/5</Badge>
           </div>
           <Text className="mt-1 text-zinc-600">
-            Track insider purchases and sales from SEC filings
+            When executives buy their own stock, it often means something
           </Text>
         </div>
 
@@ -70,7 +70,7 @@ export default async function InsiderSalesPage() {
               <Text className="font-medium text-zinc-900">Form 4</Text>
             </div>
             <Text className="mt-3 text-sm leading-relaxed text-zinc-600">
-              Statement of changes in ownership. Must be filed within 2 business days of a transaction.
+              The main filing for insider trades. Executives must report within 2 days.
             </Text>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">

@@ -152,7 +152,7 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
 interface FilterSelectProps {
   label: string
   value: string | number
-  options: Array<{ value: string | number; label: string }>
+  options: ReadonlyArray<{ readonly value: string | number; readonly label: string }>
   onChange: (value: string | number) => void
 }
 

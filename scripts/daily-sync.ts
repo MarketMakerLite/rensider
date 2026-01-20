@@ -76,6 +76,10 @@ async function main() {
     if (r.message) console.log(`     ${r.message}`);
   }
 
+  if (result.pruned && result.pruned.totalDeleted > 0) {
+    console.log(`\nPruned: ${result.pruned.totalDeleted.toLocaleString()} old records (>3 years)`);
+  }
+
   console.log(`Started: ${result.startedAt}`);
   console.log(`Completed: ${result.completedAt}`);
 }

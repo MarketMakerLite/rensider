@@ -27,7 +27,7 @@ import {
   TABLE_TSV_MAPPING,
   initForm345Schema,
 } from '../lib/sec/form345-db';
-import { withConnection } from '../lib/sec/duckdb';
+import { withConnection, pruneOldData } from '../lib/sec/duckdb';
 import { fetchFromSEC } from '../lib/sec/client';
 
 const SEC_BASE_URL = 'https://www.sec.gov/files/structureddata/data/form-345-data-sets';
@@ -292,6 +292,21 @@ async function main() {
   console.log(`Synced: ${synced}`);
   console.log(`Failed: ${failed}`);
   console.log(`New rows: ${totalNewRows.toLocaleString()}`);
+
+  // Prune old data (>3 years)
+  if (!options.dryRun) {
+    console.log('\nPruning old data (>3 years)...');
+    try {
+      const pruneResult = await pruneOldData(3);
+      if (pruneResult.totalDeleted > 0) {
+        console.log(`Pruned: ${pruneResult.totalDeleted.toLocaleString()} old records`);
+      } else {
+        console.log('No old data to prune');
+      }
+    } catch (error) {
+      console.error('Warning: Failed to prune old data:', error);
+    }
+  }
 
   // Final stats
   const stats = await getForm345Stats();

@@ -24,6 +24,7 @@ import {
   upsertRows,
   initializeSchema,
   isCloudMode,
+  pruneOldData,
 } from './duckdb';
 
 export interface SyncOptions {
@@ -42,6 +43,10 @@ export interface SyncResult {
 export interface FullSyncResult {
   '13F'?: SyncResult;
   '13DG'?: SyncResult;
+  pruned?: {
+    totalDeleted: number;
+    deletedByTable: Record<string, number>;
+  };
   startedAt: string;
   completedAt: string;
 }
@@ -339,6 +344,15 @@ export async function runSync(options: SyncOptions): Promise<FullSyncResult> {
   // Sync 13D/13G if requested
   if (options.forms.includes('13DG')) {
     result['13DG'] = await sync13DG(options);
+  }
+
+  // Prune old data (>3 years) after syncing
+  if (!options.dryRun) {
+    try {
+      result.pruned = await pruneOldData(3);
+    } catch (error) {
+      console.error('Warning: Failed to prune old data:', error);
+    }
   }
 
   result.completedAt = new Date().toISOString();

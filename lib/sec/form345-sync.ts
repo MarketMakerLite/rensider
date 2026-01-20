@@ -13,7 +13,7 @@ import {
   TABLE_TSV_MAPPING,
   initForm345Schema,
 } from './form345-db';
-import { withConnection } from './duckdb';
+import { withConnection, pruneOldData } from './duckdb';
 import { fetchFromSEC } from './client';
 
 const SEC_BASE_URL = 'https://www.sec.gov/files/structureddata/data/form-345-data-sets';
@@ -33,6 +33,10 @@ export interface Form345SyncResult {
     error?: string;
   }[];
   totalNewRows: number;
+  pruned?: {
+    totalDeleted: number;
+    deletedByTable: Record<string, number>;
+  };
   stats?: {
     submissions: number;
     reportingOwners: number;
@@ -245,6 +249,18 @@ export async function runForm345Sync(options: Form345SyncOptions = {}): Promise<
     console.log(`[form345-sync] ${quarter.quarterStr}: ${result.success ? 'success' : 'failed'} (+${result.newRows} rows)`);
   }
 
+  // Prune old data (>3 years)
+  let pruned: Form345SyncResult['pruned'];
+  try {
+    console.log('[form345-sync] Pruning old data (>3 years)...');
+    pruned = await pruneOldData(3);
+    if (pruned.totalDeleted > 0) {
+      console.log(`[form345-sync] Pruned ${pruned.totalDeleted} old records`);
+    }
+  } catch (error) {
+    console.error('[form345-sync] Warning: Failed to prune old data:', error);
+  }
+
   // Get final stats
   const stats = await getForm345Stats();
 
@@ -252,6 +268,7 @@ export async function runForm345Sync(options: Form345SyncOptions = {}): Promise<
     success: results.every(r => r.success),
     quarters: results,
     totalNewRows,
+    pruned,
     stats: {
       submissions: stats.submissions,
       reportingOwners: stats.reportingOwners,

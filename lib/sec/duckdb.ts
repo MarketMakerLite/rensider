@@ -733,6 +733,13 @@ export async function initializeSchema(): Promise<void> {
   await execute(`CREATE INDEX IF NOT EXISTS idx_form345_nonderiv_trans_code ON form345_nonderiv_trans(TRANS_CODE)`);
   await execute(`CREATE INDEX IF NOT EXISTS idx_form345_deriv_trans_date ON form345_deriv_trans(TRANS_DATE)`);
 
+  // High-impact performance indexes
+  await execute(`CREATE INDEX IF NOT EXISTS idx_holdings_13f_cusip ON holdings_13f(CUSIP)`);
+  await execute(`CREATE INDEX IF NOT EXISTS idx_filings_13dg_issuer_cusip ON filings_13dg(ISSUER_CUSIP)`);
+  await execute(`CREATE INDEX IF NOT EXISTS idx_filings_13dg_form_type ON filings_13dg(FORM_TYPE)`);
+  await execute(`CREATE INDEX IF NOT EXISTS idx_filings_13dg_filed_by_cik ON filings_13dg(FILED_BY_CIK)`);
+  await execute(`CREATE INDEX IF NOT EXISTS idx_submissions_13f_period ON submissions_13f(PERIODOFREPORT)`);
+
   dbLogger.info('Database schema initialized');
 }
 
@@ -760,4 +767,131 @@ export async function withConnection<T>(
   } finally {
     connection.closeSync();
   }
+}
+
+/**
+ * Prune data older than specified years
+ * Deletes old records from all SEC filing tables to keep database size manageable.
+ * Returns summary of deleted rows.
+ */
+export async function pruneOldData(yearsToKeep: number = 3): Promise<{
+  totalDeleted: number;
+  deletedByTable: Record<string, number>;
+}> {
+  const cutoffDate = new Date();
+  cutoffDate.setFullYear(cutoffDate.getFullYear() - yearsToKeep);
+  const cutoffStr = cutoffDate.toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // For PERIODOFREPORT format DD-MMM-YYYY, calculate cutoff year/month
+  const cutoffYear = cutoffDate.getFullYear();
+  const cutoffMonth = cutoffDate.getMonth(); // 0-indexed
+
+  // Build month patterns for submissions_13f (months before cutoff in cutoff year)
+  const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const monthsBeforeCutoff = monthNames.slice(0, cutoffMonth).map(m => `PERIODOFREPORT LIKE '__-${m}-%'`);
+
+  const deletedByTable: Record<string, number> = {};
+  let totalDeleted = 0;
+
+  dbLogger.info('Pruning old data', { cutoffDate: cutoffStr, yearsToKeep });
+
+  try {
+    // Helper to get count
+    async function getCount(sql: string): Promise<number> {
+      const result = await query<{ cnt: number }>(sql);
+      return result[0]?.cnt ?? 0;
+    }
+
+    // 1. holdings_13f (child of submissions_13f)
+    const holdBefore = await getCount('SELECT COUNT(*) as cnt FROM holdings_13f');
+
+    // Build year patterns for years before cutoff year
+    const yearPatterns: string[] = [];
+    for (let y = 2010; y < cutoffYear; y++) {
+      yearPatterns.push(`PERIODOFREPORT LIKE '%-${y}'`);
+    }
+
+    // Add cutoff year with months before cutoff
+    let cutoffYearCondition = '';
+    if (monthsBeforeCutoff.length > 0) {
+      cutoffYearCondition = `OR (PERIODOFREPORT LIKE '%-${cutoffYear}' AND (${monthsBeforeCutoff.join(' OR ')}))`;
+    }
+
+    const sub13fWhereClause = yearPatterns.length > 0
+      ? `WHERE ${yearPatterns.join(' OR ')} ${cutoffYearCondition}`
+      : (cutoffYearCondition ? `WHERE ${cutoffYearCondition.replace(/^OR /, '')}` : 'WHERE 1=0');
+
+    await execute(`
+      DELETE FROM holdings_13f
+      WHERE ACCESSION_NUMBER IN (
+        SELECT ACCESSION_NUMBER FROM submissions_13f ${sub13fWhereClause}
+      )
+    `);
+
+    const holdAfter = await getCount('SELECT COUNT(*) as cnt FROM holdings_13f');
+    deletedByTable['holdings_13f'] = holdBefore - holdAfter;
+
+    // 2. submissions_13f (parent)
+    const subBefore = await getCount('SELECT COUNT(*) as cnt FROM submissions_13f');
+    await execute(`DELETE FROM submissions_13f ${sub13fWhereClause}`);
+    const subAfter = await getCount('SELECT COUNT(*) as cnt FROM submissions_13f');
+    deletedByTable['submissions_13f'] = subBefore - subAfter;
+
+    // 3. reporting_persons_13dg (child of filings_13dg)
+    const rpBefore = await getCount('SELECT COUNT(*) as cnt FROM reporting_persons_13dg');
+    await execute(`
+      DELETE FROM reporting_persons_13dg
+      WHERE ACCESSION_NUMBER IN (
+        SELECT ACCESSION_NUMBER FROM filings_13dg WHERE FILING_DATE < '${cutoffStr}'
+      )
+    `);
+    const rpAfter = await getCount('SELECT COUNT(*) as cnt FROM reporting_persons_13dg');
+    deletedByTable['reporting_persons_13dg'] = rpBefore - rpAfter;
+
+    // 4. filings_13dg (parent)
+    const filBefore = await getCount('SELECT COUNT(*) as cnt FROM filings_13dg');
+    await execute(`DELETE FROM filings_13dg WHERE FILING_DATE < '${cutoffStr}'`);
+    const filAfter = await getCount('SELECT COUNT(*) as cnt FROM filings_13dg');
+    deletedByTable['filings_13dg'] = filBefore - filAfter;
+
+    // 5-9. form345 child tables
+    const form345ChildTables = [
+      'form345_reporting_owners',
+      'form345_nonderiv_trans',
+      'form345_nonderiv_holding',
+      'form345_deriv_trans',
+      'form345_deriv_holding',
+    ];
+
+    for (const table of form345ChildTables) {
+      const before = await getCount(`SELECT COUNT(*) as cnt FROM ${table}`);
+      await execute(`
+        DELETE FROM ${table}
+        WHERE ACCESSION_NUMBER IN (
+          SELECT ACCESSION_NUMBER FROM form345_submissions WHERE FILING_DATE < '${cutoffStr}'
+        )
+      `);
+      const after = await getCount(`SELECT COUNT(*) as cnt FROM ${table}`);
+      deletedByTable[table] = before - after;
+    }
+
+    // 10. form345_submissions (parent)
+    const f345Before = await getCount('SELECT COUNT(*) as cnt FROM form345_submissions');
+    await execute(`DELETE FROM form345_submissions WHERE FILING_DATE < '${cutoffStr}'`);
+    const f345After = await getCount('SELECT COUNT(*) as cnt FROM form345_submissions');
+    deletedByTable['form345_submissions'] = f345Before - f345After;
+
+    // Calculate total
+    totalDeleted = Object.values(deletedByTable).reduce((a, b) => a + b, 0);
+
+    if (totalDeleted > 0) {
+      dbLogger.info('Pruned old data', { totalDeleted, deletedByTable });
+    }
+
+  } catch (error) {
+    dbLogger.error('Error pruning old data', {}, error as Error);
+    throw error;
+  }
+
+  return { totalDeleted, deletedByTable };
 }

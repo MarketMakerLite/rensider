@@ -255,13 +255,16 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
     const metrics = calculateMetrics(latestHoldings, closedCiks.length)
     const sentiment = calculateSentiment(latestHoldings, latestQuarter, closedCiks.length)
     const concentrationMetrics = await calculateConcentration(latestHoldings)
+    // Aggregate holdings by institution for the holders table
+    const aggregatedHolders = aggregateHoldersByInstitution(latestHoldings)
+    // Recent filings shows individual (non-aggregated) holdings sorted by date
     const recentFilers = getRecentFilers(latestHoldings)
     const putCallRatio = calculatePutCallRatio(latestHoldings)
 
     return {
       ticker: upperTicker,
       companyName: companyInfo.name,
-      holders: latestHoldings,
+      holders: aggregatedHolders,
       metrics,
       sentiment,
       putCallRatio,
@@ -271,8 +274,8 @@ export async function getStockOwnershipData(ticker: string): Promise<StockOwners
         addedPositions: 0,
         reducedPositions: 0,
         closedPositions: 0,
-        totalHolders: new Set(latestHoldings.map(h => h.cik)).size,
-        totalValue: latestHoldings.reduce((sum, h) => sum + h.value, 0),
+        totalHolders: aggregatedHolders.length,
+        totalValue: aggregatedHolders.reduce((sum, h) => sum + h.value, 0),
       }],
       recentFilers,
       concentrationMetrics,
@@ -768,17 +771,56 @@ function calculateConcentration(holdings: Holding[]): ConcentrationMetrics {
   }
 }
 
-function getRecentFilers(holdings: Holding[]): RecentFiler[] {
-  const byInstitution = new Map<string, Holding>()
+/**
+ * Aggregate holdings by institution (CIK)
+ * Groups all holdings by CIK, summing shares and value, taking most recent filing date
+ */
+function aggregateHoldersByInstitution(holdings: Holding[]): Holding[] {
+  const byInstitution = new Map<string, {
+    shares: number
+    value: number
+    filingDate: number
+    changeType: Holding['changeType']
+    changePercent: number | null
+    institutionName: string
+    baseHolding: Holding
+  }>()
 
   for (const h of holdings) {
     const existing = byInstitution.get(h.cik)
-    if (!existing || h.filingDate > existing.filingDate) {
-      byInstitution.set(h.cik, h)
+    if (!existing) {
+      byInstitution.set(h.cik, {
+        shares: h.shares,
+        value: h.value,
+        filingDate: h.filingDate,
+        changeType: h.changeType,
+        changePercent: h.changePercent,
+        institutionName: h.institutionName || '',
+        baseHolding: h,
+      })
+    } else {
+      existing.shares += h.shares
+      existing.value += h.value
+      if (h.filingDate > existing.filingDate) {
+        existing.filingDate = h.filingDate
+      }
     }
   }
 
-  return Array.from(byInstitution.values())
+  return Array.from(byInstitution.entries()).map(([cik, data], idx) => ({
+    ...data.baseHolding,
+    id: idx,
+    shares: data.shares,
+    value: data.value,
+    filingDate: data.filingDate,
+  }))
+}
+
+/**
+ * Get recent filings - returns non-aggregated holdings sorted by filing date
+ */
+function getRecentFilers(holdings: Holding[]): RecentFiler[] {
+  return holdings
     .sort((a, b) => b.filingDate - a.filingDate)
     .slice(0, 10)
     .map(h => ({

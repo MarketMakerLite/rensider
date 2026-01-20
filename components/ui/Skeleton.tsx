@@ -208,3 +208,162 @@ export function SkeletonResponsiveTable({ rows = 5, columns = 6 }: { rows?: numb
     </>
   )
 }
+
+/**
+ * Skeleton for filing card (matches FilingsTable mobile card layout)
+ */
+export function SkeletonFilingCard({ className, delay = 0 }: SkeletonProps & { delay?: number }) {
+  return (
+    <div
+      className={clsx('rounded-lg border border-zinc-200 bg-white p-4 shadow-sm', className)}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="mt-1.5 h-3 w-24" />
+        </div>
+        <Skeleton className="h-5 w-14 rounded-full" />
+      </div>
+      <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-9 w-9 rounded-md" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Skeleton for holding card (matches PortfolioHoldingsTable mobile card layout)
+ */
+export function SkeletonHoldingCard({ className, delay = 0 }: SkeletonProps & { delay?: number }) {
+  return (
+    <div
+      className={clsx('rounded-lg border border-zinc-200 bg-white p-4 shadow-sm', className)}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="mt-1.5 h-3 w-32" />
+        </div>
+        <div className="text-right">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="mt-1 h-3 w-12 ml-auto" />
+        </div>
+      </div>
+      <div className="mt-2 flex justify-center">
+        <Skeleton className="h-4 w-4" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Skeleton for activist activity card (matches ActivistActivityTable mobile card layout)
+ */
+export function SkeletonActivityCard({ className, delay = 0 }: SkeletonProps & { delay?: number }) {
+  return (
+    <div
+      className={clsx('rounded-lg border border-zinc-200 bg-white p-4 shadow-sm', className)}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="mt-1.5 h-3 w-28" />
+        </div>
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </div>
+      <Skeleton className="mt-2 h-3 w-36" />
+      <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+        <Skeleton className="h-3 w-14" />
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-9 w-9 rounded-md" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Skeleton for insider transaction card (matches InsiderTransactionsTable mobile card layout)
+ */
+export function SkeletonTransactionCard({ className, delay = 0 }: SkeletonProps & { delay?: number }) {
+  return (
+    <div
+      className={clsx('rounded-lg border border-zinc-200 bg-white p-4 shadow-sm', className)}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+          <Skeleton className="mt-1.5 h-3 w-12" />
+        </div>
+        <Skeleton className="h-5 w-12 rounded-full" />
+      </div>
+      <div className="mt-2 flex items-center justify-between">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+      <div className="mt-2 flex justify-center">
+        <Skeleton className="h-4 w-4" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Skeleton for filing cards list with staggered animation
+ */
+export function SkeletonFilingCards({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonFilingCard key={i} delay={i * 100} />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Skeleton for holding cards list with staggered animation
+ */
+export function SkeletonHoldingCards({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonHoldingCard key={i} delay={i * 100} />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Skeleton for activity cards list with staggered animation
+ */
+export function SkeletonActivityCards({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonActivityCard key={i} delay={i * 100} />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Skeleton for transaction cards list with staggered animation
+ */
+export function SkeletonTransactionCards({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonTransactionCard key={i} delay={i * 100} />
+      ))}
+    </div>
+  )
+}

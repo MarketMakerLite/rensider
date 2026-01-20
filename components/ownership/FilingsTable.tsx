@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { ChangeIndicator } from '@/components/common/ChangeIndicator'
 import { Subheading } from '@/components/twc/heading'
 import { Text } from '@/components/twc/text'
 import { Badge } from '@/components/twc/badge'
@@ -10,7 +9,7 @@ import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@
 import { SortableHeader } from '@/components/twc/sortable-header'
 import { TablePagination } from '@/components/twc/pagination'
 import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
-import { formatDate, formatLargeNumber, formatNumber, decodeHtmlEntities } from '@/lib/format'
+import { formatDate, formatShortDate, formatLargeNumber, formatNumber, decodeHtmlEntities } from '@/lib/format'
 import type { Filing } from '@/types/ownership'
 
 type FilingSortKey = 'institutionName' | 'cik' | 'quarter' | 'filingDate' | 'holdingsCount' | 'holdingsCountChange' | 'totalValue' | 'totalValueChange'
@@ -50,7 +49,47 @@ export function FilingsTable({ filings }: FilingsTableProps) {
 
       {filings.length > 0 ? (
         <>
-          <Table className="mt-4" striped fixed>
+          {/* Mobile Card View */}
+          <div className="mt-4 space-y-3 md:hidden">
+            {paginatedData.map((filing) => (
+              <div
+                key={`mobile-${filing.accessionNumber}`}
+                className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm active:scale-[0.98] transition-transform"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/fund/${filing.cik}`}
+                      prefetch={false}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {decodeHtmlEntities(filing.institutionName)}
+                    </Link>
+                    <div className="text-xs text-zinc-500">CIK: {filing.cik}</div>
+                  </div>
+                  <Badge color="blue">{filing.formType}</Badge>
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                  <span className="text-sm text-zinc-500">{filing.quarter}</span>
+                  <span className="text-xs text-zinc-500">{formatShortDate(filing.filingDate)}</span>
+                  <a
+                    href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${filing.cik}&type=13F&dateb=&owner=include&count=40`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-11 w-11 items-center justify-center rounded-md bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    title="View on SEC EDGAR"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <Table className="mt-4 hidden md:block" striped fixed>
             <TableHead>
               <TableRow>
                 <TableHeader className="w-64">

@@ -9,7 +9,7 @@ import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@
 import { SortableHeader } from '@/components/twc/sortable-header'
 import { TablePagination } from '@/components/twc/pagination'
 import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
-import { formatDate, formatLargeNumber, getSecFilingUrl } from '@/lib/format'
+import { formatDate, formatShortDate, formatLargeNumber, getSecFilingUrl } from '@/lib/format'
 import type { ActivistActivity } from '@/types/activists'
 
 type ActivitySortKey = 'filingDate' | 'ownerName' | 'ticker' | 'percentOfClass' | 'shares'
@@ -70,7 +70,82 @@ export function ActivistActivityTable({
         />
       </div>
 
-      <Table className="mt-4" striped>
+      {/* Mobile Card View */}
+      <div className="mt-4 space-y-3 md:hidden">
+        {paginatedData.map((activity) => (
+          <div
+            key={`mobile-${activity.accessionNumber}`}
+            className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm active:scale-[0.98] transition-transform"
+          >
+            {/* Header: Target + Intent badge */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                {activity.ticker ? (
+                  <Link
+                    href={`/stock/${activity.ticker}`}
+                    prefetch={false}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {activity.ticker}
+                  </Link>
+                ) : activity.issuerName ? (
+                  <span className="font-medium text-zinc-900">{activity.issuerName}</span>
+                ) : (
+                  <span className="font-mono text-xs text-zinc-500">CUSIP: {activity.cusip}</span>
+                )}
+                {activity.issuerName && activity.ticker && (
+                  <div className="truncate text-xs text-zinc-500">{activity.issuerName}</div>
+                )}
+              </div>
+              <IntentBadgeMobile intent={activity.intentCategory ?? 'passive'} />
+            </div>
+
+            {/* Investor name */}
+            <div className="mt-2">
+              {activity.ownerCik ? (
+                <Link
+                  href={`/fund/${activity.ownerCik}`}
+                  prefetch={false}
+                  className="text-sm text-zinc-700 hover:text-blue-600 hover:underline"
+                >
+                  {activity.ownerName}
+                </Link>
+              ) : (
+                <span className="text-sm text-zinc-700">{activity.ownerName}</span>
+              )}
+            </div>
+
+            {/* Footer: Date + Position + Filing */}
+            <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+              <span className="text-xs text-zinc-500">
+                {activity.filingDate ? formatShortDate(activity.filingDate) : '-'}
+              </span>
+              {activity.percentOfClass ? (
+                <span
+                  className="font-mono text-sm font-medium"
+                  style={{ color: getPositionColor(activity.percentOfClass) }}
+                >
+                  {activity.percentOfClass.toFixed(1)}%
+                </span>
+              ) : (
+                <span className="text-xs text-zinc-400">NA</span>
+              )}
+              <a
+                href={getSecFilingUrl(activity.accessionNumber)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 w-11 items-center justify-center rounded-md bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                title="View Filing"
+              >
+                <LinkIcon className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <Table className="mt-4 hidden md:block" striped stickyFirstColumn showScrollIndicators>
         <TableHead>
           <TableRow>
             <TableHeader className="w-24">
@@ -274,6 +349,40 @@ function IntentBadge({ intent }: { intent: string }) {
 
   return (
     <Badge color={colorMap[intent] || 'zinc'}>
+      {intent.charAt(0).toUpperCase() + intent.slice(1)}
+    </Badge>
+  )
+}
+
+/**
+ * Enhanced intent badge for mobile with icon prefix
+ */
+function IntentBadgeMobile({ intent }: { intent: string }) {
+  const colorMap: Record<string, 'red' | 'orange' | 'yellow' | 'blue' | 'zinc'> = {
+    activist: 'red',
+    board: 'orange',
+    merger: 'yellow',
+    proxy: 'orange',
+    restructuring: 'yellow',
+    passive: 'blue',
+  }
+
+  const iconMap: Record<string, React.ReactNode> = {
+    activist: (
+      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    passive: (
+      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+      </svg>
+    ),
+  }
+
+  return (
+    <Badge color={colorMap[intent] || 'zinc'} className="text-sm inline-flex items-center gap-1">
+      {iconMap[intent]}
       {intent.charAt(0).toUpperCase() + intent.slice(1)}
     </Badge>
   )

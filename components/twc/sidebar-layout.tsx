@@ -2,10 +2,12 @@
 
 import * as Headless from '@headlessui/react'
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence, useDragControls, useMotionValue, type PanInfo } from 'motion/react'
+import { motion, AnimatePresence, useDragControls, useMotionValue, useReducedMotion, type PanInfo } from 'motion/react'
 import { NavbarItem } from './navbar'
-import { bottomSheet } from '@/lib/animations'
+import { rightDrawer } from '@/lib/animations'
 import { FontToggle } from '@/components/common/FontToggle'
+import Link from 'next/link'
+import Image from 'next/image'
 
 const DISMISS_THRESHOLD = 100
 
@@ -27,80 +29,91 @@ function CloseMenuIcon() {
 
 function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open: boolean; close: () => void }>) {
   const dragControls = useDragControls()
-  const dragY = useMotionValue(0)
+  const dragX = useMotionValue(0)
+  const shouldReduceMotion = useReducedMotion()
 
-  // Lock body scroll when sheet is open
+  // Lock body scroll when drawer is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
-      dragY.set(0)
+      dragX.set(0)
       return () => {
         document.body.style.overflow = ''
       }
     }
-  }, [open, dragY])
+  }, [open, dragX])
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.y > DISMISS_THRESHOLD || info.velocity.y > 500) {
+    // Dismiss if dragged right past threshold or with velocity
+    if (info.offset.x > DISMISS_THRESHOLD || info.velocity.x > 500) {
       close()
     } else {
-      dragY.set(0)
+      dragX.set(0)
     }
+  }
+
+  // Reduced motion variants - instant transitions for users who prefer reduced motion
+  const reducedMotionVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
   }
 
   return (
     <AnimatePresence>
       {open && (
-        <Headless.Dialog static open={open} onClose={close} className="relative z-50 lg:hidden">
-          {/* Backdrop */}
+        <Headless.Dialog static open={open} onClose={close} className="relative z-40 lg:hidden">
+          {/* Backdrop - starts below header */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/40"
+            transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
+            className="fixed inset-0 top-[calc(3rem+env(safe-area-inset-top,0px))] bg-black/40"
             aria-hidden="true"
           />
 
-          {/* Bottom sheet panel */}
-          <div className="fixed inset-x-0 bottom-0 flex items-end justify-center">
+          {/* Right drawer - full height below header */}
+          <div className="fixed inset-0 top-[calc(3rem+env(safe-area-inset-top,0px))] right-0 flex justify-end">
             <Headless.DialogPanel
               as={motion.div}
               id="mobile-sidebar"
               initial="hidden"
               animate="visible"
               exit="exit"
-              variants={bottomSheet}
-              drag="y"
+              variants={shouldReduceMotion ? reducedMotionVariants : rightDrawer}
+              drag={shouldReduceMotion ? false : "x"}
               dragControls={dragControls}
               dragListener={false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={{ left: 0, right: 0.5 }}
               onDragEnd={handleDragEnd}
-              className="w-full max-h-[85vh] touch-none overflow-hidden bg-zinc-50 pb-safe"
-              style={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px', y: dragY }}
+              className="w-72 h-full touch-none overflow-hidden bg-zinc-50"
+              style={{ x: shouldReduceMotion ? undefined : dragX }}
             >
-              {/* Drag handle */}
-              <div
-                className="flex cursor-grab justify-center pt-3 pb-2 active:cursor-grabbing"
-                onPointerDown={(e) => dragControls.start(e)}
-                role="button"
-                aria-label="Drag to dismiss navigation"
-                tabIndex={0}
-              >
-                <div className="h-1 w-10 rounded-full bg-zinc-300" />
-              </div>
-
-              {/* Close button */}
-              <div className="flex items-center justify-between px-4 pb-2">
+              {/* Drawer header with close button */}
+              <div className="flex items-center justify-between border-b border-zinc-200/60 px-4 py-3">
                 <FontToggle />
                 <Headless.CloseButton as={NavbarItem} aria-label="Close navigation" className="touch-target">
                   <CloseMenuIcon />
                 </Headless.CloseButton>
               </div>
 
-              {/* Content with overflow scroll */}
-              <div className="touch-auto overflow-y-auto overscroll-contain" style={{ maxHeight: 'calc(85vh - 5rem)' }}>
+              {/* Drag handle - vertical bar on left edge (hidden when reduced motion is enabled) */}
+              {!shouldReduceMotion && (
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-4 cursor-grab flex items-center justify-center active:cursor-grabbing"
+                  onPointerDown={(e) => dragControls.start(e)}
+                  role="button"
+                  aria-label="Drag to dismiss navigation"
+                  tabIndex={0}
+                >
+                  <div className="h-16 w-1 rounded-full bg-zinc-300" />
+                </div>
+              )}
+
+              {/* Content with scroll */}
+              <div className="touch-auto overflow-y-auto overscroll-contain h-full pb-safe pl-2">
                 {children}
               </div>
             </Headless.DialogPanel>
@@ -112,10 +125,9 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
 }
 
 export function SidebarLayout({
-  navbar,
   sidebar,
   children,
-}: React.PropsWithChildren<{ navbar: React.ReactNode; sidebar: React.ReactNode }>) {
+}: React.PropsWithChildren<{ sidebar: React.ReactNode }>) {
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
@@ -128,8 +140,21 @@ export function SidebarLayout({
         {sidebar}
       </MobileSidebar>
 
-      {/* Mobile header with hamburger menu */}
-      <header className="flex items-center border-b border-zinc-200/60 px-4 safe-area-inset-top lg:hidden">
+      {/* Mobile header with logo and menu button */}
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-zinc-200/60 bg-zinc-50 px-4 safe-area-inset-top lg:hidden">
+        {/* Logo/Title on left */}
+        <Link href="/" className="flex items-center gap-2 py-2">
+          <Image
+            src="/logo.svg"
+            alt="Rensider"
+            width={24}
+            height={24}
+            className="h-6 w-6"
+          />
+          <span className="text-sm font-semibold text-zinc-950">Rensider</span>
+        </Link>
+
+        {/* Menu button on right */}
         <div className="py-2">
           <NavbarItem
             onClick={() => setShowSidebar(true)}
@@ -141,7 +166,6 @@ export function SidebarLayout({
             <OpenMenuIcon />
           </NavbarItem>
         </div>
-        <div className="min-w-0 flex-1">{navbar}</div>
       </header>
 
       {/* Main content area */}

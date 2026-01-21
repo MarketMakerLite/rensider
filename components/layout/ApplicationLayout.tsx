@@ -11,9 +11,9 @@ import {
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Navbar, NavbarSpacer } from '@/components/twc/navbar'
 import { FontToggle } from '@/components/common/FontToggle'
 import { BackButton } from '@/components/common/BackButton'
+import { GitHubLinkFloating } from '@/components/common/GitHubLink'
 import {
   Sidebar,
   SidebarHeader,
@@ -41,16 +41,12 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
       <div className="fixed left-[calc(14rem+1.5rem)] top-4 z-50 hidden lg:block">
         <BackButton />
       </div>
-      {/* Floating font toggle - desktop only */}
-      <div className="fixed right-4 top-4 z-50 hidden lg:block">
+      {/* Floating controls - desktop only */}
+      <div className="fixed right-4 top-4 z-50 hidden items-center gap-2 lg:flex">
+        <GitHubLinkFloating />
         <FontToggle />
       </div>
       <SidebarLayout
-        navbar={
-          <Navbar>
-            <NavbarSpacer />
-          </Navbar>
-        }
         sidebar={
         <Sidebar>
           <SidebarHeader>

@@ -79,7 +79,7 @@ export function BackButton() {
   // Show back button on any page except index
   const showButton = pathname !== '/'
 
-  const buttonClass = "flex items-center justify-center h-9 px-3 gap-1 border border-zinc-200 text-zinc-600 transition-all hover:border-zinc-300 hover:bg-zinc-50"
+  const buttonClass = "flex items-center justify-center h-9 px-3 gap-1 border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2"
 
   // Avoid hydration mismatch
   if (!mounted) {

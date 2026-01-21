@@ -56,7 +56,7 @@ export function FontToggle() {
   }
 
   // Fixed dimensions to prevent any layout shift
-  const buttonClass = "flex items-center justify-center w-[120px] h-9 gap-1 border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+  const buttonClass = "flex items-center justify-center w-[120px] h-9 gap-1 border border-zinc-200 bg-white text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2"
   const labelClass = "inline-flex w-6 justify-center text-sm"
 
   // Avoid hydration mismatch - render same dimensions while loading

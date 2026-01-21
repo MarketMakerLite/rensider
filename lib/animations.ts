@@ -222,3 +222,27 @@ export const bottomSheet: Variants = {
   },
 }
 
+/**
+ * Right drawer animation - slides in from right edge
+ */
+export const rightDrawer: Variants = {
+  hidden: {
+    x: '100%',
+  },
+  visible: {
+    x: 0,
+    transition: {
+      type: 'spring',
+      damping: 25,
+      stiffness: 300,
+    },
+  },
+  exit: {
+    x: '100%',
+    transition: {
+      duration: duration.fast,
+      ease: easing.accelerate,
+    },
+  },
+}
+

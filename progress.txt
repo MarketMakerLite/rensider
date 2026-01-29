@@ -7,7 +7,6 @@
 
 ## Iteration 2
 - Fixed 9 unused import/variable warnings across 8 files
-- Removed: SkeletonCard, unused catch params (e), _yScale, yScale/singleBarWidth in BarLayer, formatLargeNumber/formatNumber, useCallback, unused cik destructuring
 - Lint: 30 → 21 problems (19 errors, 2 warnings)
 
 ## Iteration 3
@@ -16,20 +15,22 @@
 
 ## Iteration 4
 - Fixed conditional useMemo in pagination.tsx by moving early return after hooks
-- Fixed aria-sort on button (not valid role) → replaced with aria-label in sortable-header.tsx
+- Fixed aria-sort on button → replaced with aria-label in sortable-header.tsx
 - Lint: 11 → 9 problems (8 errors, 1 warning)
 
 ## Iteration 5
-- Fixed unused `_` variable in useChartInteraction (use props pattern instead)
+- Fixed unused `_` variable in useChartInteraction
 - Lint: 9 → 8 problems (8 errors, 0 warnings)
-- Remaining 8 errors are all `set-state-in-effect` — standard Next.js hydration guard patterns (setMounted/localStorage reads in useEffect). These are intentional and cannot be refactored away without breaking SSR safety.
+- Remaining 8 errors are all `set-state-in-effect` — legitimate Next.js hydration guards
 
 ## Iteration 6
 - Verified tasks 5-6: /new and /alerts pages already have robust error handling
-- Added error.tsx boundaries to /stock/[ticker] and /fund/[cik] routes (tasks 7-8)
-- Added task 9: not-found.tsx for dynamic routes
-- Lint: still 8 problems (all pre-existing set-state-in-effect)
+- Added error.tsx boundaries to /stock/[ticker] and /fund/[cik] routes
+- Added not-found.tsx to /stock/[ticker], /fund/[cik], /insider/[cik] with notFound() calls
+- Removed unused Link import from stock page after refactoring
+- Added task 10: verify build passes
 
 ## Lessons learned
-- `set-state-in-effect` rule flags legitimate hydration guards; these are false positives for Next.js apps
-- Check existing code before assuming error handling is missing — Promise.allSettled and error.tsx may already be in place
+- `set-state-in-effect` rule flags legitimate hydration guards; false positives for Next.js
+- Check existing code before assuming error handling is missing
+- When removing inline UI that uses imports, check if the import is still needed

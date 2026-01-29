@@ -82,13 +82,13 @@ export async function POST(request: NextRequest) {
     // Invalidate caches after successful sync
     if (!options.dryRun) {
       if (options.forms.includes('13F')) {
-        revalidateTag('filings', {});
-        revalidateTag('alerts', {});
+        revalidateTag('filings');
+        revalidateTag('alerts');
       }
       if (options.forms.includes('13DG')) {
-        revalidateTag('filings', {});
-        revalidateTag('alerts', {});
-        revalidateTag('activists', {});
+        revalidateTag('filings');
+        revalidateTag('alerts');
+        revalidateTag('activists');
       }
       syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'activists'] });
     }

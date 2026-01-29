@@ -58,3 +58,5 @@ next-env.d.ts
 # Scripts - local dev/maintenance only, not used in production
 /scripts/
 /PROJECT.md
+
+/claude

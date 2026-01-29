@@ -36,8 +36,8 @@ export async function GET(
     ])
     fundName = filerNamesMap.get(normalizedCik) || fundName
     historyData = history
-  } catch {
-    // Continue with empty data
+  } catch (error) {
+    console.error(`OG image error for CIK ${normalizedCik}:`, error)
   }
 
   // Calculate max value for scaling (multiply by 1000 since values are in thousands)

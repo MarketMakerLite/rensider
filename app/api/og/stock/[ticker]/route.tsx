@@ -22,8 +22,8 @@ export async function GET(
   try {
     const data = await getOwnershipHistoryData(upperTicker, 6)
     historyData = data.slice(0, 6).reverse() // Last 6 quarters, oldest first
-  } catch {
-    // Continue with empty data
+  } catch (error) {
+    console.error(`OG image error for ticker ${upperTicker}:`, error)
   }
 
   // Calculate max value for scaling

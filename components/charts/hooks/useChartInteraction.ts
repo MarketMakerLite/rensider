@@ -62,13 +62,8 @@ const initialState: ChartInteractionState = {
 /**
  * Hook to manage all chart interaction state and event handlers
  */
-export function useChartInteraction({
-  data,
-  dimensions,
-  xScale,
-  yScale: _,
-  enabled,
-}: UseChartInteractionProps): UseChartInteractionReturn {
+export function useChartInteraction(props: UseChartInteractionProps): UseChartInteractionReturn {
+  const { data, dimensions, xScale, enabled } = props
   const [state, setState] = useState<ChartInteractionState>(initialState)
   const containerRef = useRef<SVGSVGElement | null>(null)
   const brushStartRef = useRef<number | null>(null)

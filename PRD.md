@@ -22,7 +22,7 @@ Fix lint errors, type issues, and code quality problems in the renbot-next codeb
 - [x] 12. Suppress legitimate `set-state-in-effect` lint errors (0 errors, 0 warnings)
 
 ### Low Priority
-- [ ] 13. Add `aria-label` attributes to filter/action buttons that only have icon content
+- [x] 13. Add `aria-label` attributes to icon-only buttons (verified: all icon-only buttons already have labels)
 
 ## Completed
 - Tasks 1-4: Lint fixes (unused imports, any types, conditional hooks, aria-sort)
@@ -32,3 +32,4 @@ Fix lint errors, type issues, and code quality problems in the renbot-next codeb
 - Task 10: Verified build passes cleanly
 - Task 11: Dynamic robots.ts with /api/ disallow rule
 - Task 12: Clean lint run — 0 errors, 0 warnings
+- Task 13: Verified all icon-only buttons already have aria-labels; buttons with text+icon don't need them

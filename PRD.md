@@ -7,7 +7,7 @@ Fix lint errors, type issues, and code quality problems in the renbot-next codeb
 
 ### High Priority
 - [x] 1. Fix unused imports and variables (11 instances across codebase)
-- [ ] 2. Fix `any` types in chart layer components (AxisLayer, BarLayer, GridLayer, LineLayer)
+- [x] 2. Fix `any` types in chart layer components (AxisLayer, BarLayer, GridLayer, LineLayer)
 - [ ] 3. Fix conditional useMemo call in `components/twc/pagination.tsx`
 - [ ] 4. Fix aria-sort accessibility warning in `components/twc/sortable-header.tsx`
 

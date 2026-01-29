@@ -4,14 +4,15 @@ import { useState, useMemo } from 'react'
 import { Group } from '@visx/group'
 import { Bar } from '@visx/shape'
 import { Text } from '@visx/text'
+import type { ScaleBand, ScaleLinear } from 'd3-scale'
 import type { ChartDataPoint, ChartColors, SeriesVisibility, AnimationState, ChartStyle } from '../types'
 
 interface BarLayerProps {
   data: ChartDataPoint[]
-  xScale: any
-  yScaleLeft: any
+  xScale: ScaleBand<string>
+  yScaleLeft: ScaleLinear<number, number>
   /** Scale for totalValue in classic mode (USD) */
-  yScaleValue?: any
+  yScaleValue?: ScaleLinear<number, number>
   colors: ChartColors
   visibility: SeriesVisibility
   animation: AnimationState

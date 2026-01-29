@@ -9,3 +9,7 @@
 - Fixed 9 unused import/variable warnings across 8 files
 - Removed: SkeletonCard, unused catch params (e), _yScale, yScale/singleBarWidth in BarLayer, formatLargeNumber/formatNumber, useCallback, unused cik destructuring
 - Lint: 30 → 21 problems (19 errors, 2 warnings)
+
+## Iteration 3
+- Replaced `any` types with proper ScaleBand/ScaleLinear from d3-scale in 4 chart layer files
+- Lint: 21 → 11 problems (9 errors, 2 warnings)

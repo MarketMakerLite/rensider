@@ -1,12 +1,13 @@
 'use client'
 
 import { AxisBottom, AxisLeft, AxisRight } from '@visx/axis'
+import type { ScaleBand, ScaleLinear } from 'd3-scale'
 import type { ChartColors, ChartStyle } from '../types'
 
 interface AxisLayerProps {
-  xScale: any
-  yScaleLeft: any
-  yScaleRight: any
+  xScale: ScaleBand<string>
+  yScaleLeft: ScaleLinear<number, number>
+  yScaleRight: ScaleLinear<number, number>
   height: number
   colors: ChartColors
   showLeftAxis?: boolean

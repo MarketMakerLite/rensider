@@ -1,13 +1,14 @@
 'use client'
 
 import { Grid } from '@visx/grid'
+import type { ScaleBand, ScaleLinear } from 'd3-scale'
 import type { ChartColors } from '../types'
 
 interface GridLayerProps {
   width: number
   height: number
-  xScale: any
-  yScale: any
+  xScale: ScaleBand<string>
+  yScale: ScaleLinear<number, number>
   colors: ChartColors
   numTicksRows?: number
   numTicksColumns?: number

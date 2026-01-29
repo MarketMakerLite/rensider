@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { Group } from '@visx/group'
 import { LinePath, AreaClosed } from '@visx/shape'
 import { curveMonotoneX } from '@visx/curve'
+import type { ScaleBand, ScaleLinear } from 'd3-scale'
 import type { ChartDataPoint, ChartColors, SeriesVisibility, AnimationState, ChartStyle } from '../types'
 
 interface LineLayerProps {
   data: ChartDataPoint[]
-  xScale: any
-  yScaleRight: any
+  xScale: ScaleBand<string>
+  yScaleRight: ScaleLinear<number, number>
   colors: ChartColors
   visibility: SeriesVisibility
   animation: AnimationState

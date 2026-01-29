@@ -1,5 +1,7 @@
 import { ImageResponse } from 'next/og'
+import { NextResponse } from 'next/server'
 import { getOwnershipHistoryData } from '@/lib/data/holdings'
+import { validateTickerStrict } from '@/lib/validators/ticker'
 
 // Use Node.js runtime to access database
 export const runtime = 'nodejs'
@@ -9,6 +11,10 @@ export async function GET(
   { params }: { params: Promise<{ ticker: string }> }
 ) {
   const { ticker } = await params
+  const tickerResult = validateTickerStrict(ticker)
+  if (!tickerResult.valid) {
+    return NextResponse.json({ error: 'Invalid ticker' }, { status: 400 })
+  }
   const upperTicker = ticker.toUpperCase()
 
   // Fetch actual ownership history

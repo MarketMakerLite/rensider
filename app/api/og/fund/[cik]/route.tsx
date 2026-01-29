@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og'
+import { NextResponse } from 'next/server'
 import { getFundPortfolioHistory } from '@/lib/data/holdings'
 import { getFilerNames } from '@/lib/sec/filer-names'
+import { validateCik } from '@/lib/validators/cik'
 
 // Use Node.js runtime to access database
 export const runtime = 'nodejs'
@@ -17,6 +19,10 @@ export async function GET(
   { params }: { params: Promise<{ cik: string }> }
 ) {
   const { cik } = await params
+  const cikResult = validateCik.validate(cik)
+  if (!cikResult.valid) {
+    return NextResponse.json({ error: 'Invalid CIK' }, { status: 400 })
+  }
   const normalizedCik = cik.replace(/^0+/, '')
 
   // Fetch fund name and portfolio history

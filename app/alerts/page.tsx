@@ -51,7 +51,7 @@ export default function AlertsPage() {
   )
 
   // Use custom hook instead of TanStack Query
-  const { data, isLoading: dataLoading } = useServerAction(fetchAlerts, {
+  const { data, isLoading: dataLoading, error } = useServerAction(fetchAlerts, {
     enabled: isLoaded,
   })
 
@@ -219,7 +219,12 @@ export default function AlertsPage() {
         )}
 
         {/* Alerts Table */}
-        {isLoading ? (
+        {error ? (
+          <div className="mt-8 rounded-lg border border-red-200 bg-red-50/50 p-8 text-center">
+            <Text className="font-medium text-red-700">Failed to load signals</Text>
+            <Text className="mt-2 text-sm text-red-600">{error.message}</Text>
+          </div>
+        ) : isLoading ? (
           <div className="mt-8">
             <Subheading level={2}>All Signals</Subheading>
             <div className="mt-4">

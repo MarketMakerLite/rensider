@@ -34,10 +34,13 @@ export const metadata: Metadata = {
 }
 
 export default async function NewFilingsPage() {
-  const [filings, insiderData] = await Promise.all([
+  const [filingsResult, insiderResult] = await Promise.allSettled([
     getNewFilings({ days: 365, limit: 100 }),
     getRecentInsiderTransactions({ limit: 20 }),
   ])
+
+  const filings = filingsResult.status === 'fulfilled' ? filingsResult.value : []
+  const insiderData = insiderResult.status === 'fulfilled' ? insiderResult.value : { transactions: [] }
 
   return (
     <ApplicationLayout>

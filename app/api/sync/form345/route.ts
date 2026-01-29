@@ -52,8 +52,16 @@ export async function POST(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
 
+    const quarterParam = searchParams.get('quarter') || undefined;
+    if (quarterParam && !/^\d{4}-Q[1-4]$/.test(quarterParam)) {
+      return NextResponse.json(
+        { error: 'Invalid quarter format. Expected YYYY-QN (e.g., 2024-Q1)' },
+        { status: 400 }
+      );
+    }
+
     const options: Form345SyncOptions = {
-      quarter: searchParams.get('quarter') || undefined,
+      quarter: quarterParam,
       current: searchParams.get('current') === 'true',
       dryRun: searchParams.get('dryRun') === 'true',
     };

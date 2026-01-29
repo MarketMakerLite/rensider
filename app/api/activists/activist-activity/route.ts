@@ -15,8 +15,10 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const days = Math.min(parseInt(searchParams.get('days') || '30', 10), 180);
+    const parsedLimit = parseInt(searchParams.get('limit') || '20', 10);
+    const parsedDays = parseInt(searchParams.get('days') || '30', 10);
+    const limit = Math.min(Math.max(Number.isNaN(parsedLimit) ? 20 : parsedLimit, 1), 100);
+    const days = Math.min(Math.max(Number.isNaN(parsedDays) ? 30 : parsedDays, 1), 180);
 
     const activities = await getActivistActivity({ days, limit });
 

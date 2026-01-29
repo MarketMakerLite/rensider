@@ -13,10 +13,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    const limit = Math.min(
-      parseInt(request.nextUrl.searchParams.get('limit') || '20', 10),
-      100
-    );
+    const parsedLimit = parseInt(request.nextUrl.searchParams.get('limit') || '20', 10);
+    const limit = Math.min(Math.max(Number.isNaN(parsedLimit) ? 20 : parsedLimit, 1), 100);
 
     const activity = await getRecentActivistActivity(limit);
 

@@ -13,10 +13,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    const limit = Math.min(
-      parseInt(request.nextUrl.searchParams.get('limit') || '10', 10),
-      100
-    );
+    const parsed = parseInt(request.nextUrl.searchParams.get('limit') || '10', 10);
+    const limit = Math.min(Math.max(Number.isNaN(parsed) ? 10 : parsed, 1), 100);
 
     const filers = await getTopFilersByAUM(limit);
 

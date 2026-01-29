@@ -24,5 +24,12 @@
 - Lint: 9 → 8 problems (8 errors, 0 warnings)
 - Remaining 8 errors are all `set-state-in-effect` — standard Next.js hydration guard patterns (setMounted/localStorage reads in useEffect). These are intentional and cannot be refactored away without breaking SSR safety.
 
+## Iteration 6
+- Verified tasks 5-6: /new and /alerts pages already have robust error handling
+- Added error.tsx boundaries to /stock/[ticker] and /fund/[cik] routes (tasks 7-8)
+- Added task 9: not-found.tsx for dynamic routes
+- Lint: still 8 problems (all pre-existing set-state-in-effect)
+
 ## Lessons learned
 - `set-state-in-effect` rule flags legitimate hydration guards; these are false positives for Next.js apps
+- Check existing code before assuming error handling is missing — Promise.allSettled and error.tsx may already be in place

@@ -101,9 +101,9 @@ export async function POST(request: NextRequest) {
 
       // Invalidate caches after successful sync
       if (!dryRun) {
-        revalidateTag('filings');
-        revalidateTag('alerts');
-        revalidateTag('activists');
+        revalidateTag('filings', {});
+        revalidateTag('alerts', {});
+        revalidateTag('activists', {});
         syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts', 'activists'] });
       }
 
@@ -127,8 +127,8 @@ export async function POST(request: NextRequest) {
 
       // Invalidate caches after successful sync
       if (!dryRun) {
-        revalidateTag('filings');
-        revalidateTag('alerts');
+        revalidateTag('filings', {});
+        revalidateTag('alerts', {});
         syncLogger.info('Cache invalidated', { tags: ['filings', 'alerts'] });
       }
 
@@ -152,8 +152,8 @@ export async function POST(request: NextRequest) {
 
       // Invalidate caches after successful sync
       if (!dryRun) {
-        revalidateTag('insider-sales');
-        revalidateTag('alerts');
+        revalidateTag('insider-sales', {});
+        revalidateTag('alerts', {});
         syncLogger.info('Cache invalidated', { tags: ['insider-sales', 'alerts'] });
       }
 

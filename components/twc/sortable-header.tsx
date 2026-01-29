@@ -30,7 +30,7 @@ export function SortableHeader({
       type="button"
       onClick={() => onSort(column)}
       className={`group inline-flex items-center gap-1 text-left font-medium hover:text-zinc-900 ${className}`}
-      aria-sort={isActive && direction ? (direction === 'asc' ? 'ascending' : 'descending') : undefined}
+      aria-label={isActive && direction ? `Sort ${direction === 'asc' ? 'ascending' : 'descending'}` : undefined}
     >
       {children}
       <span className={`flex-none ${isActive ? 'text-zinc-900' : 'text-zinc-400 opacity-0 group-hover:opacity-100'}`}>

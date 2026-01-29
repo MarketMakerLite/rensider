@@ -13,3 +13,8 @@
 ## Iteration 3
 - Replaced `any` types with proper ScaleBand/ScaleLinear from d3-scale in 4 chart layer files
 - Lint: 21 → 11 problems (9 errors, 2 warnings)
+
+## Iteration 4
+- Fixed conditional useMemo in pagination.tsx by moving early return after hooks
+- Fixed aria-sort on button (not valid role) → replaced with aria-label in sortable-header.tsx
+- Lint: 11 → 9 problems (8 errors, 1 warning)

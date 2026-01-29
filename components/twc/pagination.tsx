@@ -123,11 +123,6 @@ export function TablePagination({
   onPageSizeChange,
   pageSizeOptions = [10, 25, 50, 100],
 }: TablePaginationProps) {
-  if (totalItems === 0) return null
-
-  const startItem = (page - 1) * pageSize + 1
-  const endItem = Math.min(page * pageSize, totalItems)
-
   // Generate page numbers to show - memoized to avoid recalculation on every render
   const pageNumbers = useMemo((): PageItem[] => {
     const pages: PageItem[] = []
@@ -152,6 +147,11 @@ export function TablePagination({
     }
     return pages
   }, [page, totalPages])
+
+  if (totalItems === 0) return null
+
+  const startItem = (page - 1) * pageSize + 1
+  const endItem = Math.min(page * pageSize, totalItems)
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

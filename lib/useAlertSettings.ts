@@ -85,7 +85,7 @@ export function useAlertSettings() {
   // Load from localStorage after hydration
   useEffect(() => {
     const storedSettings = loadSettings()
-    setSettingsState(storedSettings)
+    setSettingsState(storedSettings) // eslint-disable-line react-hooks/set-state-in-effect -- load from localStorage
     setIsLoaded(true)
   }, [])
 

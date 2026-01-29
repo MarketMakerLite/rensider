@@ -33,6 +33,7 @@ export function useChartAnimation({
   // Trigger initial animation after mount
   useEffect(() => {
     if (!enabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- initializing animation state on mount
       setState({
         isInitialRender: false,
         isAnimating: false,

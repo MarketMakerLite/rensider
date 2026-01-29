@@ -23,7 +23,7 @@ export function FontToggle() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true) // eslint-disable-line react-hooks/set-state-in-effect -- hydration guard
     const saved = localStorage.getItem('font-preference') as FontType | null
     if (saved && fontCycle.includes(saved)) {
       setFont(saved)

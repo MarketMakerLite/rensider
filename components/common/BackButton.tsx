@@ -33,7 +33,7 @@ export function BackButton() {
 
   // Initialize on mount
   useEffect(() => {
-    setMounted(true)
+    setMounted(true) // eslint-disable-line react-hooks/set-state-in-effect -- hydration guard
     setHistory(getStoredHistory())
   }, [])
 
@@ -43,7 +43,7 @@ export function BackButton() {
 
     // When on index, clear history
     if (pathname === '/') {
-      setHistory([])
+      setHistory([]) // eslint-disable-line react-hooks/set-state-in-effect -- clear on navigation
       setStoredHistory([])
       return
     }

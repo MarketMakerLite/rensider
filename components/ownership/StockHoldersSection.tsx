@@ -53,7 +53,7 @@ export function StockHoldersSection({ holders, totalValue }: StockHoldersSection
 
   // Load preference from localStorage on mount
   useEffect(() => {
-    setMounted(true)
+    setMounted(true) // eslint-disable-line react-hooks/set-state-in-effect -- hydration guard
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored === 'table' || stored === 'treemap') {
       setView(stored)

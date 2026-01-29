@@ -24,7 +24,7 @@ export function MobileFilterSheet({ isOpen, onClose, title, children }: MobileFi
 
   // SSR safety - only mount portal on client
   useEffect(() => {
-    setMounted(true)
+    setMounted(true) // eslint-disable-line react-hooks/set-state-in-effect -- hydration guard
   }, [])
 
   // Handle body scroll lock and keyboard escape

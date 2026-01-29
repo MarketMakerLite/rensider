@@ -262,6 +262,7 @@ export function useChartInteraction(props: UseChartInteractionProps): UseChartIn
       const svgX = chartX + dimensions.margin.left
       const svgY = chartY + dimensions.margin.top
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- updating crosshair from mousemove subscription
       setState((prev) => ({
         ...prev,
         crosshair: {

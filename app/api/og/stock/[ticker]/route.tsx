@@ -16,7 +16,7 @@ export async function GET(
   try {
     const data = await getOwnershipHistoryData(upperTicker, 6)
     historyData = data.slice(0, 6).reverse() // Last 6 quarters, oldest first
-  } catch (e) {
+  } catch {
     // Continue with empty data
   }
 

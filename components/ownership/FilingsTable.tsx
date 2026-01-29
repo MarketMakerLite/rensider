@@ -9,7 +9,7 @@ import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@
 import { SortableHeader } from '@/components/twc/sortable-header'
 import { TablePagination } from '@/components/twc/pagination'
 import { useTableSort, useTableFilter, usePagination } from '@/lib/useTableSort'
-import { formatDate, formatShortDate, formatLargeNumber, formatNumber, decodeHtmlEntities } from '@/lib/format'
+import { formatDate, formatShortDate, decodeHtmlEntities } from '@/lib/format'
 import type { Filing } from '@/types/ownership'
 
 type FilingSortKey = 'institutionName' | 'cik' | 'quarter' | 'filingDate' | 'holdingsCount' | 'holdingsCountChange' | 'totalValue' | 'totalValueChange'

@@ -807,7 +807,7 @@ function aggregateHoldersByInstitution(holdings: Holding[]): Holding[] {
     }
   }
 
-  return Array.from(byInstitution.entries()).map(([cik, data], idx) => ({
+  return Array.from(byInstitution.entries()).map(([, data], idx) => ({
     ...data.baseHolding,
     id: idx,
     shares: data.shares,

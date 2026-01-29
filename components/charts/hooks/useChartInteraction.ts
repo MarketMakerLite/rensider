@@ -66,7 +66,7 @@ export function useChartInteraction({
   data,
   dimensions,
   xScale,
-  yScale: _yScale,
+  yScale: _,
   enabled,
 }: UseChartInteractionProps): UseChartInteractionReturn {
   const [state, setState] = useState<ChartInteractionState>(initialState)

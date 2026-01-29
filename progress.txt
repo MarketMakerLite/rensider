@@ -1,0 +1,11 @@
+# Progress Log
+
+## Iteration 1
+- Created PRD.md with prioritized task list based on codebase analysis
+- Created guardrails.md and progress.txt
+- Identified 30 lint issues (19 errors, 11 warnings)
+
+## Iteration 2
+- Fixed 9 unused import/variable warnings across 8 files
+- Removed: SkeletonCard, unused catch params (e), _yScale, yScale/singleBarWidth in BarLayer, formatLargeNumber/formatNumber, useCallback, unused cik destructuring
+- Lint: 30 → 21 problems (19 errors, 2 warnings)

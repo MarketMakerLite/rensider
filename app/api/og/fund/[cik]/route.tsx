@@ -30,7 +30,7 @@ export async function GET(
     ])
     fundName = filerNamesMap.get(normalizedCik) || fundName
     historyData = history
-  } catch (e) {
+  } catch {
     // Continue with empty data
   }
 

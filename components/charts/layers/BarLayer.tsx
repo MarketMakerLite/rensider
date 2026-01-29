@@ -69,8 +69,6 @@ export function BarLayer({
   const barGap = 1
   const halfWidth = (barWidth - barGap) / 2
 
-  // Use value scale for classic mode, count scale for advanced
-  const yScale = isClassic && yScaleValue ? yScaleValue : yScaleLeft
 
   // Pre-calculate QoQ changes for indicators
   const qoqChanges = useMemo(() => {
@@ -232,7 +230,6 @@ export function BarLayer({
         const onlyBearish = hasBearish && !hasBullish
 
         // Calculate bar width and position based on whether both types exist
-        const singleBarWidth = onlyBullish || onlyBearish ? halfWidth : halfWidth
         const bullishX = onlyBullish ? x + (barWidth - halfWidth) / 2 : x
         const bearishX = onlyBearish ? x + (barWidth - halfWidth) / 2 : x + halfWidth + barGap
 

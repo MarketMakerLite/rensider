@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
 import { Heading, Subheading } from '@/components/twc/heading'
@@ -47,16 +48,7 @@ export default async function InsiderProfilePage({ params }: PageProps) {
   const profile = await getInsiderProfile({ cik })
 
   if (!profile) {
-    return (
-      <ApplicationLayout>
-        <div className="flex h-64 flex-col items-center justify-center gap-4">
-          <Text>No insider found with CIK {cik}</Text>
-          <Link href="/insiders" className="text-blue-600 hover:underline">
-            Back to Insider Sales
-          </Link>
-        </div>
-      </ApplicationLayout>
-    )
+    notFound()
   }
 
   // JSON-LD structured data for SEO

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getFundHoldings, getFilerNameByCik } from '@/actions/ownership'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
@@ -48,16 +49,7 @@ export default async function FundHoldingsPage({ params }: PageProps) {
   const data = await getFundHoldings({ cik })
 
   if (!data) {
-    return (
-      <ApplicationLayout>
-        <div className="flex h-64 flex-col items-center justify-center gap-4">
-          <Text>No holdings data found for CIK {cik}</Text>
-          <Link href="/" className="text-zinc-600 underline decoration-zinc-400 hover:text-zinc-900 hover:decoration-zinc-600">
-            Back to Dashboard
-          </Link>
-        </div>
-      </ApplicationLayout>
-    )
+    notFound()
   }
 
   const valueChange = data.previousQuarterValue

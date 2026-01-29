@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { getStockOwnership, getOwnershipHistory } from '@/actions/ownership'
 import { getTickerInsiderActivity } from '@/actions/insider-sales'
 import { ApplicationLayout } from '@/components/layout/ApplicationLayout'
@@ -56,19 +56,7 @@ export default async function StockOwnershipPage({ params }: PageProps) {
   ])
 
   if (!data) {
-    return (
-      <ApplicationLayout>
-        <div className="flex h-64 flex-col items-center justify-center gap-4 text-center">
-          <Text className="font-medium text-zinc-900">No institutional ownership data for {ticker.toUpperCase()}</Text>
-          <Text className="max-w-md text-sm text-zinc-500">
-            This may be a small-cap stock, foreign listing, or recent IPO not yet in 13F filings.
-          </Text>
-          <Link href="/" className="text-blue-600 hover:underline">
-            Back to Dashboard
-          </Link>
-        </div>
-      </ApplicationLayout>
-    )
+    notFound()
   }
 
   // JSON-LD structured data for SEO
